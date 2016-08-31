@@ -1,0 +1,24 @@
+# python related
+*.pyc
+
+# vim related
+*.swp
+*.swo
+
+# nohup
+nohup.*
+
+# app datas
+#
+
+# pycharm related, check https://intellij-support.jetbrains.com/hc/en-us/articles/206544839 for detail
+.idea/workspace.xml
+.idea/tasks.xml
+*.iws
+
+# ignore rope
+# we are not using it for now
+.ropeproject
+
+# temp files
+tmp
