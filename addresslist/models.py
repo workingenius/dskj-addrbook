@@ -16,6 +16,10 @@ class Contact(models.Model):
     mode = models.CharField(max_length=16) # communication mode, "phone", "qq", "email", etc.
     value = models.CharField(max_length=128)
 
+    EMAIL = 'email'
+    QQ = 'qq'
+    PHONE = 'phone'
+
 
 def create_staff(info, contacts=[]):
     staff = Staff(**info)
