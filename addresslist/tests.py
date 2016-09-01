@@ -96,3 +96,13 @@ class TestDepartment(TestCase):
         assert len(staffs_by_department(self.ds[0])) == 2
         assert len(staffs_by_department(self.ds[1])) == 4
         assert len(staffs_by_department(self.ds[2])) == 2
+
+    def test_multi_job_in_same_department(self):
+        m9 = Position(
+            department=self.ds[2],
+            staff=self.ss[4],
+            job='speaker'
+        )
+        m9.save()
+        assert len(Position.objects.all()) == 9
+        assert len(staffs_by_department(self.ds[2])) == 2

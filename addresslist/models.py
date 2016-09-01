@@ -62,4 +62,4 @@ def sort_staff_with_ch_pron(staff_list):
 
 
 def staffs_by_department(department):
-    return department.staffs.all()
+    return department.staffs.all().distinct()
