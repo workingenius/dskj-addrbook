@@ -7,6 +7,7 @@ from pypinyin import lazy_pinyin
 
 ch_py_ptn = re.compile(r'[^\w]')
 
+
 def ch_pinyin(text):
     py = ''.join(lazy_pinyin(text))
     py = py.upper()

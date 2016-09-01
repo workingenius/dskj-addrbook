@@ -12,6 +12,7 @@ class Staff(models.Model):
     gender = models.BooleanField()
     birthday = models.DateField(null=True)
     jp_pron = models.CharField(max_length=64, null=True)  # japanese pronunciation
+    # TODO: implement Chinese pronunciation
     ch_pron = models.CharField(max_length=64, null=True)  # chinese pronunciation
 
 
