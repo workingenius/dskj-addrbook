@@ -1,7 +1,8 @@
 # -*- coding:utf8 -*-
 
-from django.test import TestCase
+from itertools import imap
 
+from django.test import TestCase
 import openpyxl
 
 from .models import (
@@ -124,10 +125,19 @@ class TestDepartment(TestCase):
 
 
 class TestImportData(TestCase):
-    def test_import_from_xlsx(self):
+    def setUp(self):
         wb = openpyxl.load_workbook(filename='./assets/SLC.xlsx', read_only=True)
         ws = wb[u'配置']
         objs = from_xlsx_worksheet(ws)
 
         for obj in objs:
             obj.save()
+
+    def test_import_from_xlsx(self):
+        # setUp should pass
+        pass
+
+    def test_contact_values_should_be_string(self):
+        contacts = Contact.objects.all()
+        values = imap(lambda r: r.value, contacts)
+        return all(map(lambda v: isinstance(v, basestring), values))
