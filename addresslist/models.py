@@ -40,6 +40,9 @@ class Position(models.Model):
     staff = models.ForeignKey(Staff)
     job = models.CharField(max_length=32, null=True)
 
+    class Meta:
+        unique_together = ('department', 'staff', 'job')
+
 
 def create_staff(info, contacts=[]):
     staff = Staff(**info)

@@ -106,3 +106,12 @@ class TestDepartment(TestCase):
         p9.save()
         assert len(Position.objects.all()) == 9
         assert len(staffs_by_department(self.ds[2])) == 2
+
+    def test_position_should_be_unique(self):
+        p10 = Position(
+            department=self.ds[2],
+            staff=self.ss[4],
+            job='manager'
+        )
+        with self.assertRaises(Exception):
+            p10.save()
