@@ -3,7 +3,7 @@
 from django.test import TestCase
 
 from .models import (
-    create_staff, sort_staff_with_ch_pron,
+    create_staff, sort_staff_with_ch_pron, staffs_by_department,
     Staff, Contact, Department, Position)
 
 
@@ -65,13 +65,13 @@ class TestStaff(TestCase):
 
 
 class TestDepartment(TestCase):
-    def test_search_by_department(self):
+    def setUp(self):
         # d1 <- d2 <- d3
         d1 = Department(name='root', superior=None)
         d2 = Department(name='d1', superior=d1)
         d3 = Department(name='d2', superior=d2)
-
-        save(d1, d2, d3)
+        self.ds = [d1, d2, d3]
+        save(*self.ds)
 
         s1 = gen_staff('Alice')
         s2 = gen_staff('Bob')
@@ -79,6 +79,7 @@ class TestDepartment(TestCase):
         s4 = gen_staff('David')
         s5 = gen_staff('Emma')
         s6 = gen_staff('Fever')
+        self.ss = [s1, s2, s3, s4, s5, s6]
 
         m1 = Position(department=d1, staff=s1, job='manager')
         m2 = Position(department=d1, staff=s2, job='contacter')
@@ -88,9 +89,10 @@ class TestDepartment(TestCase):
         m6 = Position(department=d3, staff=s5, job='manager')
         m7 = Position(department=d3, staff=s6, job='maintainer')
         m8 = Position(department=d2, staff=s6, job='maintainer')
-        save(m1, m2, m3, m4, m5, m6, m7, m8)
+        self.ms = [m1, m2, m3, m4, m5, m6, m7, m8]
+        save(*self.ms)
 
-
-        assert len(d1.staffs.all()) == 2
-        assert len(d2.staffs.all()) == 4
-        assert len(d3.staffs.all()) == 2
+    def test_search_by_department(self):
+        assert len(staffs_by_department(self.ds[0])) == 2
+        assert len(staffs_by_department(self.ds[1])) == 4
+        assert len(staffs_by_department(self.ds[2])) == 2

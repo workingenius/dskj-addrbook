@@ -59,3 +59,7 @@ def create_staff(info, contacts=[]):
 
 def sort_staff_with_ch_pron(staff_list):
     return sorted(staff_list, key=lambda x: (x.ch_pron, x.name))
+
+
+def staffs_by_department(department):
+    return department.staffs.all()
