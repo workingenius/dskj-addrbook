@@ -1,16 +1,11 @@
 # -*- coding:utf8 -*-
 
 from .models import Department, Staff, Position, Contact
+from itertools import ifilter
 
 
 def _from_xlsx_worksheet(worksheet):
     """must like $BASE_DIR/assets/SLC.xlsx"""
-
-    # for row in list(worksheet.rows)[:10]:
-    #     print ','.join([
-    #                        str((cell.value, type(cell.value))) for cell in row])
-    #
-    # print type(worksheet.rows)
 
     rows = iter(worksheet.rows)
     rows.next()  # skip header
@@ -32,11 +27,16 @@ def _from_xlsx_worksheet(worksheet):
         return row[idx]
 
     depart_name_set = set()
+    last_d = [None]
 
     def handle_depart(depart_name, superior_depart=None):
+        if depart_name is None:
+            return
         if not depart_name in depart_name_set:
             depart_name_set.add(depart_name)
-            return Department(name=depart_name, superior=superior_depart)
+            d = Department(name=depart_name, superior=superior_depart)
+            last_d[0] = d
+            return d
 
     def handle_contact(row, idx, mode, locaff):
         v = rv(row, idx)
@@ -47,26 +47,23 @@ def _from_xlsx_worksheet(worksheet):
         row = list(cell.value for cell in row)
 
         regin = rv(row, REGIN)
-        d = handle_depart(regin)
-        yield d
+        d1 = handle_depart(regin)
+        yield d1
 
         depart1 = rv(row, DEPART1)
-        d = handle_depart(depart1, d)
-        yield d
+        d2 = handle_depart(depart1, d1)
+        yield d2
 
         depart2 = rv(row, DEPART2)
-        d = handle_depart(depart2, d)
-        yield d
+        d3 = handle_depart(depart2, d2)
+        yield d3
 
         locaff_name = rv(row, LOCAFF)
-        locaff = Staff(**{
-            # TODO: no save here
-            # TODO: preprocess name, handle special cases
-            'name': locaff_name,
-        })
+        # TODO: preprocess name, handle special cases
+        locaff = Staff(name=locaff_name)
         yield locaff
 
-        pos = Position(department=d, staff=locaff)
+        pos = Position(department=(d3 or d2 or d1 or last_d[0]), staff=locaff)
         yield pos
 
         yield handle_contact(row, OLD_EXTNUM, 'old_ext', locaff)
@@ -80,4 +77,4 @@ def _from_xlsx_worksheet(worksheet):
 
 
 def from_xlsx_worksheet(worksheet):
-    return filter(None, _from_xlsx_worksheet(worksheet))
+    return ifilter(None, _from_xlsx_worksheet(worksheet))

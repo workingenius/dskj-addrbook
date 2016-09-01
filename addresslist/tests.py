@@ -127,4 +127,7 @@ class TestImportData(TestCase):
     def test_import_from_xlsx(self):
         wb = openpyxl.load_workbook(filename='./assets/SLC.xlsx', read_only=True)
         ws = wb[u'配置']
-        from_xlsx_worksheet(ws)
+        objs = from_xlsx_worksheet(ws)
+
+        for obj in objs:
+            obj.save()
