@@ -7,6 +7,9 @@ from .models import (
     Staff, Contact, Department, Position)
 
 
+# TODO: detail Exceptions
+
+
 def gen_staff(name):
     return create_staff({'name': name, 'gender': True})
 
@@ -64,6 +67,15 @@ class TestStaff(TestCase):
         assert ss[:-2] == [s4, s1, s5, s3, s2]
 
 
+class TestContact(TestCase):
+    def test_same_contact(self):
+        s = gen_staff('Whatever')
+        em = 'whatever@whatever.org'
+        s.contact_set.create(mode=Contact.EMAIL, value=em)
+        with self.assertRaises(Exception):
+            s.contact_set.create(mode=Contact.EMAIL, value=em)
+
+
 class TestDepartment(TestCase):
     def setUp(self):
         # d1 <- d2 <- d3
@@ -91,6 +103,11 @@ class TestDepartment(TestCase):
         p8 = Position(department=d2, staff=s6, job='maintainer')
         self.ps = [p1, p2, p3, p4, p5, p6, p7, p8]
         save(*self.ps)
+
+    def test_duplicate_department(self):
+        d4 = Department(name='d1')
+        with self.assertRaises(Exception):
+            d4.save()
 
     def test_search_by_department(self):
         assert len(staffs_by_department(self.ds[0])) == 2

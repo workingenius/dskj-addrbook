@@ -11,18 +11,21 @@ class Staff(models.Model):
     name = models.CharField(max_length=32)
     gender = models.BooleanField()
     birthday = models.DateField(null=True)
-    jp_pron = models.CharField(max_length=64, null=True) # japanese pronunciation
-    ch_pron = models.CharField(max_length=64, null=True) # chinese pronunciation
+    jp_pron = models.CharField(max_length=64, null=True)  # japanese pronunciation
+    ch_pron = models.CharField(max_length=64, null=True)  # chinese pronunciation
 
 
 class Contact(models.Model):
     staff = models.ForeignKey(Staff)
-    mode = models.CharField(max_length=16) # communication mode, "phone", "qq", "email", etc.
+    mode = models.CharField(max_length=16)  # communication mode, "phone", "qq", "email", etc.
     value = models.CharField(max_length=128)
 
     EMAIL = 'email'
     QQ = 'qq'
     PHONE = 'phone'
+
+    class Meta:
+        unique_together = ('staff', 'mode', 'value')
 
 
 class Department(models.Model):
@@ -34,6 +37,9 @@ class Department(models.Model):
         through_fields=('department', 'staff')
     )
 
+    class Meta:
+        unique_together = ('name', )
+
 
 class Position(models.Model):
     department = models.ForeignKey(Department)
@@ -44,7 +50,9 @@ class Position(models.Model):
         unique_together = ('department', 'staff', 'job')
 
 
-def create_staff(info, contacts=[]):
+def create_staff(info, contacts=None):
+    if contacts is None:
+        contacts = []
     staff = Staff(**info)
     staff.name = unicode(staff.name)
 
