@@ -81,16 +81,16 @@ class TestDepartment(TestCase):
         s6 = gen_staff('Fever')
         self.ss = [s1, s2, s3, s4, s5, s6]
 
-        m1 = Position(department=d1, staff=s1, job='manager')
-        m2 = Position(department=d1, staff=s2, job='contacter')
-        m3 = Position(department=d2, staff=s2, job='manager')
-        m4 = Position(department=d2, staff=s3, job='sales')
-        m5 = Position(department=d2, staff=s4)
-        m6 = Position(department=d3, staff=s5, job='manager')
-        m7 = Position(department=d3, staff=s6, job='maintainer')
-        m8 = Position(department=d2, staff=s6, job='maintainer')
-        self.ms = [m1, m2, m3, m4, m5, m6, m7, m8]
-        save(*self.ms)
+        p1 = Position(department=d1, staff=s1, job='manager')
+        p2 = Position(department=d1, staff=s2, job='contacter')
+        p3 = Position(department=d2, staff=s2, job='manager')
+        p4 = Position(department=d2, staff=s3, job='sales')
+        p5 = Position(department=d2, staff=s4)
+        p6 = Position(department=d3, staff=s5, job='manager')
+        p7 = Position(department=d3, staff=s6, job='maintainer')
+        p8 = Position(department=d2, staff=s6, job='maintainer')
+        self.ps = [p1, p2, p3, p4, p5, p6, p7, p8]
+        save(*self.ps)
 
     def test_search_by_department(self):
         assert len(staffs_by_department(self.ds[0])) == 2
@@ -98,11 +98,11 @@ class TestDepartment(TestCase):
         assert len(staffs_by_department(self.ds[2])) == 2
 
     def test_multi_job_in_same_department(self):
-        m9 = Position(
+        p9 = Position(
             department=self.ds[2],
             staff=self.ss[4],
             job='speaker'
         )
-        m9.save()
+        p9.save()
         assert len(Position.objects.all()) == 9
         assert len(staffs_by_department(self.ds[2])) == 2
