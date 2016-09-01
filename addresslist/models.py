@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.db.models.signals import post_init
 
 from . import langs
 
@@ -24,6 +25,17 @@ class Staff(models.Model):
     jp_pron = models.CharField(max_length=64, null=True)  # japanese pronunciation
     # TODO: implement Chinese pronunciation
     ch_pron = models.CharField(max_length=64, null=True)  # chinese pronunciation
+
+
+def init_staff(**kwargs):
+    staff = kwargs.get('instance')
+    staff.name = unicode(staff.name)
+
+    if staff.ch_pron is None:
+        staff.ch_pron = langs.ch_pinyin(staff.name)
+
+
+post_init.connect(init_staff, Staff)
 
 
 class Contact(models.Model):
@@ -59,16 +71,6 @@ class Position(models.Model):
 
     class Meta:
         unique_together = ('department', 'staff', 'job')
-
-
-def create_staff(info):
-    staff = Staff(**info)
-    staff.name = unicode(staff.name)
-
-    if staff.ch_pron is None:
-        staff.ch_pron = langs.ch_pinyin(staff.name)
-
-    return staff
 
 
 def sort_staff_with_ch_pron(staff_list):

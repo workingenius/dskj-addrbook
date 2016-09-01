@@ -3,7 +3,7 @@
 from django.test import TestCase
 
 from .models import (
-    create_staff, sort_staff_with_ch_pron, staffs_by_department,
+    sort_staff_with_ch_pron, staffs_by_department,
     Staff, Contact, Department, Position)
 
 
@@ -11,7 +11,7 @@ from .models import (
 
 
 def gen_staff(name):
-    s = create_staff({'name': name})
+    s = Staff(**{'name': name})
     s.save()
     return s
 
@@ -23,7 +23,7 @@ def save(*objs):
 
 class TestStaff(TestCase):
     def test_create_staff(self):
-        create_staff({
+        Staff(**{
             'name': 'Alice',
         }).save()
 
