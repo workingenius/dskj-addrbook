@@ -2,9 +2,12 @@
 
 from django.test import TestCase
 
+import openpyxl
+
 from .models import (
     sort_staff_with_ch_pron, staffs_by_department,
     Staff, Contact, Department, Position)
+from .imprt import from_xlsx_worksheet
 
 
 # TODO: detail Exceptions
@@ -118,3 +121,10 @@ class TestDepartment(TestCase):
         )
         with self.assertRaises(Exception):
             p10.save()
+
+
+class TestImportData(TestCase):
+    def test_import_from_xlsx(self):
+        wb = openpyxl.load_workbook(filename='./assets/SLC.xlsx', read_only=True)
+        ws = wb[u'配置']
+        from_xlsx_worksheet(ws)
