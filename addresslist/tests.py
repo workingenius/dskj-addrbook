@@ -11,7 +11,9 @@ from .models import (
 
 
 def gen_staff(name):
-    return create_staff({'name': name})
+    s = create_staff({'name': name})
+    s.save()
+    return s
 
 
 def save(*objs):
@@ -23,26 +25,11 @@ class TestStaff(TestCase):
     def test_create_staff(self):
         create_staff({
             'name': 'Alice',
-        })
+        }).save()
 
         a = Staff.objects.get(name='Alice')
         assert a
         assert a.id
-
-    def test_create_staff_with_contacts(self):
-        bob = {'name': 'Bob'    }
-        bobsemail = 'bob@test.com'
-        phone = {'mode': Contact.EMAIL, 'value': bobsemail}
-
-        create_staff(bob, [phone])
-
-        b = Staff.objects.get(name='Bob')
-        assert b
-        assert b.id
-
-        c = Contact.objects.get(mode=Contact.EMAIL, value=bobsemail)
-        assert c
-        assert c.id
 
     def test_staff_with_ch_pron(self):
 

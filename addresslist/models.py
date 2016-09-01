@@ -61,20 +61,12 @@ class Position(models.Model):
         unique_together = ('department', 'staff', 'job')
 
 
-def create_staff(info, contacts=None):
-    if contacts is None:
-        contacts = []
+def create_staff(info):
     staff = Staff(**info)
     staff.name = unicode(staff.name)
 
     if staff.ch_pron is None:
         staff.ch_pron = langs.ch_pinyin(staff.name)
-    staff.save()
-
-    for c in contacts:
-        contact = Contact(**c)
-        contact.staff = staff
-        contact.save()
 
     return staff
 
