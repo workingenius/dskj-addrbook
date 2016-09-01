@@ -8,6 +8,17 @@ from . import langs
 
 
 class Staff(models.Model):
+    """
+    a class whose instances stands for objects that has contacts, including staff and location.
+    Best name may be "Locaff", which combines the two. We choose to skip staff -> locaff rename
+    but this concept should be kept in mind.
+
+    check $BASE_DIR/assets/SLC.xlsx for its data logic
+
+    As the system grow, this structure is going to be more and more awkward. While for a
+    company less than 1000 people, migration can be done by database rebuild. So difficulties
+    in db migration does not count at all.
+    """
     name = models.CharField(max_length=32)
     gender = models.BooleanField()
     birthday = models.DateField(null=True)
