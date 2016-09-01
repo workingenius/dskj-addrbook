@@ -6,11 +6,16 @@ from .models import Department, Staff, Position, Contact
 from itertools import ifilter
 
 
-ptn = re.compile(u'[(\uff08][\u517c\u5c0f][)\uff09]')
+locaff_ptn = re.compile(u'[(\uff08][\u517c\u5c0f][)\uff09]')
+department_ptn = re.compile(r'\s')
 
 
 def process_locaff_name(name):
-    return ptn.sub(u'', name)
+    return locaff_ptn.sub(u'', name)
+
+
+def process_department_name(name):
+    return department_ptn.sub('', name)
 
 
 def _from_xlsx_worksheet(worksheet):
@@ -41,6 +46,7 @@ def _from_xlsx_worksheet(worksheet):
     def handle_depart(depart_name, superior_depart=None):
         if depart_name is None:
             return
+        depart_name = process_department_name(depart_name)
         if not depart_name in depart_name_set:
             depart_name_set.add(depart_name)
             d = Department(name=depart_name, superior=superior_depart)

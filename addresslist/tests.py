@@ -156,3 +156,17 @@ class TestImportData(TestCase):
             return True
 
         assert all(imap(valid, names))
+
+    def test_departments_should_not_contain_blanks(self):
+        departments = Department.objects.all()
+        names = imap(lambda r: r.name, departments)
+
+        ptn = re.compile(r'\s')
+
+        def valid(name):
+            if ptn.search(name):
+                print name
+                return False
+            return True
+
+        assert all(imap(valid, names))
