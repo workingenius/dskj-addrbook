@@ -25,6 +25,22 @@ class Contact(models.Model):
     PHONE = 'phone'
 
 
+class Department(models.Model):
+    name = models.CharField(max_length=32)
+    superior = models.ForeignKey('self', null=True)
+    staffs = models.ManyToManyField(
+        Staff,
+        through='Position',
+        through_fields=('department', 'staff')
+    )
+
+
+class Position(models.Model):
+    department = models.ForeignKey(Department)
+    staff = models.ForeignKey(Staff)
+    job = models.CharField(max_length=32, null=True)
+
+
 def create_staff(info, contacts=[]):
     staff = Staff(**info)
     staff.name = unicode(staff.name)
