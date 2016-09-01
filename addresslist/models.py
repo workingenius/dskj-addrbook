@@ -20,7 +20,6 @@ class Staff(models.Model):
     in db migration does not count at all.
     """
     name = models.CharField(max_length=32)
-    gender = models.BooleanField()
     birthday = models.DateField(null=True)
     jp_pron = models.CharField(max_length=64, null=True)  # japanese pronunciation
     # TODO: implement Chinese pronunciation

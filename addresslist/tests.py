@@ -11,7 +11,7 @@ from .models import (
 
 
 def gen_staff(name):
-    return create_staff({'name': name, 'gender': True})
+    return create_staff({'name': name})
 
 
 def save(*objs):
@@ -23,7 +23,6 @@ class TestStaff(TestCase):
     def test_create_staff(self):
         create_staff({
             'name': 'Alice',
-            'gender': True,
         })
 
         a = Staff.objects.get(name='Alice')
@@ -31,7 +30,7 @@ class TestStaff(TestCase):
         assert a.id
 
     def test_create_staff_with_contacts(self):
-        bob = {'name': 'Bob', 'gender': False}
+        bob = {'name': 'Bob'    }
         bobsemail = 'bob@test.com'
         phone = {'mode': Contact.EMAIL, 'value': bobsemail}
 
