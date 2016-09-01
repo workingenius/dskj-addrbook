@@ -1,7 +1,16 @@
 # -*- coding:utf8 -*-
 
+import re
+
 from .models import Department, Staff, Position, Contact
 from itertools import ifilter
+
+
+ptn = re.compile(u'[(\uff08][\u517c\u5c0f][)\uff09]')
+
+
+def process_locaff_name(name):
+    return ptn.sub(u'', name)
 
 
 def _from_xlsx_worksheet(worksheet):
@@ -46,6 +55,11 @@ def _from_xlsx_worksheet(worksheet):
     for row in rows:
         row = list(cell.value for cell in row)
 
+        # row without locaff name is invalid
+        locaff_name = rv(row, LOCAFF)
+        if not locaff_name:
+            continue
+
         regin = rv(row, REGIN)
         d1 = handle_depart(regin)
         yield d1
@@ -58,9 +72,10 @@ def _from_xlsx_worksheet(worksheet):
         d3 = handle_depart(depart2, d2)
         yield d3
 
-        locaff_name = rv(row, LOCAFF)
         # TODO: preprocess name, handle special cases
-        locaff = Staff(name=locaff_name)
+        locaff = Staff(
+            name=process_locaff_name(locaff_name)
+        )
         yield locaff
 
         pos = Position(department=(d3 or d2 or d1 or last_d[0]), staff=locaff)

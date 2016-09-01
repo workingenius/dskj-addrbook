@@ -1,5 +1,6 @@
 # -*- coding:utf8 -*-
 
+import re
 from itertools import imap
 
 from django.test import TestCase
@@ -140,4 +141,18 @@ class TestImportData(TestCase):
     def test_contact_values_should_be_string(self):
         contacts = Contact.objects.all()
         values = imap(lambda r: r.value, contacts)
-        return all(map(lambda v: isinstance(v, basestring), values))
+        assert all(map(lambda v: isinstance(v, basestring), values))
+
+    def test_preprocess_locaff_name(self):
+        locaffs = Staff.objects.all()
+        names = imap(lambda r: r.name, locaffs)
+
+        ptn = re.compile(u'[(\uff08][\u517c\u5c0f][)\uff09]')
+
+        def valid(name):
+            if ptn.search(name):
+                print name
+                return False
+            return True
+
+        assert all(imap(valid, names))
