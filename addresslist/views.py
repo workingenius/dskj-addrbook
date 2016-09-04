@@ -50,3 +50,10 @@ def locaff_data(request, id):
     }
 
     return JsonResponse(lcfd)
+
+
+def locaffs(request):
+    lcfs = Staff.objects.all()
+    bd = map(lambda x: (x.id, x.name), lcfs)
+    # TODO: WTF safe?
+    return JsonResponse(bd, safe=False)

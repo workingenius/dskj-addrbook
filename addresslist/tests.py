@@ -233,3 +233,10 @@ class TestApi(TestCase):
         readable_contacts = options.CONTACTS.values()
         for c in d['contacts']:
             assert c[0] in readable_contacts
+
+    def test_list_locaff(self):
+        c = Client()
+        response = c.get('/locaff/')
+        assert 200 <= response.status_code < 300
+        d = json.loads(response.content)
+        assert len(d) == 3
