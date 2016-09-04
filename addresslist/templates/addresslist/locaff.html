@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Address Book</title>
+</head>
+<body>
+    <div id="locaff">{{ locaff }}</div>
+    <table>
+        <tbody>
+            {% for contact in contacts %}
+                <tr>
+                    <td>{{ contact.mode }}</td>
+                    <td>{{ contact.value }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
