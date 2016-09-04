@@ -5,10 +5,13 @@ from .models import (
 )
 from .options import CONTACTS
 
-def locaff(request, id):
-    locaff = Staff.objects.get(id=id)
-    contacts = locaff.contact_set.all()
 
+def locaff(request, id):
+    lcf = Staff.objects.get(id=id)
+
+    depart = lcf.department_set.all()[0]
+
+    contacts = lcf.contact_set.all()
     conts = []
     for c in contacts:
         conts.append({
@@ -17,7 +20,8 @@ def locaff(request, id):
         })
 
     ctx = {
-        'locaff': locaff.name,
+        'locaff': lcf.name,
+        'department': depart.name,
         'contacts': conts,
     }
 
