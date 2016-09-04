@@ -25,7 +25,7 @@
 </div>
 <div class="row">
     <div class="column col-xs-6">
-        <table class="table">
+        <table id="locaff-contacts" class="table">
             <tbody>
             {% for contact in contacts %}
             <tr>
@@ -38,11 +38,6 @@
     </div>
 </div>
 <script>
-    function showLocaff(locaff) {
-        $('#locaff-name').text(locaff.name);
-        $('#locaff-deparment').text(locaff.department);
-    }
-
     function loadLocaff(id) {
         $.ajax({
             url: '/locaff_data/' + id,
@@ -53,5 +48,21 @@
         }, function() {
             alert('load locaff error');
         });
+    }
+
+    function showLocaff(locaff) {
+        $('#locaff-name').text(locaff.name);
+        $('#locaff-department').text(locaff.department);
+
+        $('#locaff-contacts tr').remove();
+        var contacts = locaff.contacts;
+        var i, len;
+        for (i=0, len=contacts.length; i<len; i++) {
+            $('#locaff-contacts').append(createContactRow(contacts[i]));
+        }
+    }
+
+    function createContactRow(contact) {
+        return '<tr><td class="weaken">' + contact[0] + '</td><td>' + contact[1] + '</td></tr>';
     }
 </script>
