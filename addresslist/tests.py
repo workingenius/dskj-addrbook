@@ -11,6 +11,7 @@ from .models import (
     sort_staff_with_ch_pron, staffs_by_department,
     Staff, Contact, Department, Position)
 from .imprt import from_xlsx_worksheet
+from . import options
 
 
 # TODO: detail Exceptions
@@ -221,3 +222,14 @@ class TestApi(TestCase):
         c = Client()
         response = c.get('/locaff_data/10')
         assert response.status_code == 404
+
+    def test_readable_contacts(self):
+        c = Client()
+        response = c.get('/locaff_data/1')
+        assert 200 <= response.status_code < 300
+        d = json.loads(response.content)
+        assert len(d['contacts']) == 1
+
+        readable_contacts = options.CONTACTS.values()
+        for c in d['contacts']:
+            assert c[0] in readable_contacts

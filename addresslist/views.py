@@ -46,7 +46,7 @@ def locaff_data(request, id):
     lcfd = {
         'name': lcf.name,
         'department': depart,
-        'contacts': [(c.mode, c.value) for c in contacts]
+        'contacts': [(CONTACTS[c.mode], c.value) for c in contacts]
     }
 
     return JsonResponse(lcfd)
