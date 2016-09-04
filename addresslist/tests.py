@@ -170,3 +170,12 @@ class TestImportData(TestCase):
             return True
 
         assert all(imap(valid, names))
+
+    def test_superiors(self):
+        d1 = Department.objects.get(name=u'经营监察部')
+        d2 = Department.objects.get(name=u'北京亦庄工厂')
+        assert d1.superior == d2
+
+        d3 = Department.objects.get(name=u'财务部')
+        d4 = Department.objects.get(name=u'经营管理本部')
+        assert d3.superior == d4
