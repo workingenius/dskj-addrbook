@@ -87,14 +87,14 @@ def _from_xlsx_worksheet(worksheet):
         pos = Position(department=(d3 or d2 or d1 or last_d[0]), staff=locaff)
         yield pos
 
-        yield handle_contact(row, OLD_EXTNUM, 'old_ext', locaff)
-        yield handle_contact(row, NEW_EXTNUM, 'new_ext', locaff)
-        yield handle_contact(row, PHONE, 'phone', locaff)
-        yield handle_contact(row, FAX, 'fax', locaff)
-        yield handle_contact(row, MOBILE, 'mobile', locaff)
-        yield handle_contact(row, EMAIL, 'email', locaff)
-        yield handle_contact(row, IM, 'im', locaff)
-        yield handle_contact(row, PHONE_MAC, 'phone_mac', locaff)
+        yield handle_contact(row, OLD_EXTNUM, 'OLD_EXTNUM', locaff)
+        yield handle_contact(row, NEW_EXTNUM, 'NEW_EXTNUM', locaff)
+        yield handle_contact(row, PHONE, 'PHONE', locaff)
+        yield handle_contact(row, FAX, 'FAX', locaff)
+        yield handle_contact(row, MOBILE, 'MOBILE', locaff)
+        yield handle_contact(row, EMAIL, 'EMAIL', locaff)
+        yield handle_contact(row, IM, 'EM', locaff)
+        yield handle_contact(row, PHONE_MAC, 'PHONE_MAC', locaff)
 
 
 def from_xlsx_worksheet(worksheet):
