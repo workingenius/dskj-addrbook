@@ -18,8 +18,8 @@
 <div class="row">
     <div class="column col-xs-12">
         <div class="title-box">
-            <div class="title">{{ locaff }}</div>
-            <div class="subtitle weaken">{{ department }}</div>
+            <div id="locaff-name" class="title">{{ locaff }}</div>
+            <div id="locaff-department" class="subtitle weaken">{{ department }}</div>
         </div>
     </div>
 </div>
@@ -37,3 +37,21 @@
         </table>
     </div>
 </div>
+<script>
+    function showLocaff(locaff) {
+        $('#locaff-name').text(locaff.name);
+        $('#locaff-deparment').text(locaff.department);
+    }
+
+    function loadLocaff(id) {
+        $.ajax({
+            url: '/locaff_data/' + id,
+            dataType: 'json',
+        })
+        .then(function(locaff) {
+            showLocaff(locaff);
+        }, function() {
+            alert('load locaff error');
+        });
+    }
+</script>
