@@ -25,5 +25,5 @@ def locaff(request, id):
         'contacts': conts,
     }
 
-    return render(request, 'addresslist/locaff.html', ctx)
+    return render(request, 'addresslist/_locaff.html', ctx)
 

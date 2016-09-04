@@ -1,57 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Address Book</title>
-    <link rel="stylesheet"
-        href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
-        crossorigin="anonymous" />
-    <style>
-        .title-box {
-            padding-left: 8px;
-            padding-top: 20px;
-            padding-bottom: 10px;
-        }
-        
-        .subtitle {
-            padding-top: 3px;
-            font-size: 1.1em;
-        }
-
-        .title {
-            font-size: 1.8em;
-        }
-
-        .weaken {
-            color: #555;
-        }
-    </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="row">
-                <div class="column col-xs-12">
-                    <div class="title-box">
-                        <div class="title">{{ locaff }}</div>
-                        <div class="subtitle weaken">{{ department }}</div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="column col-xs-6">
-                    <table class="table">
-                        <tbody>
-                            {% for contact in contacts %}
-                                <tr>
-                                    <td class="weaken">{{ contact.mode }}</td>
-                                    <td>{{ contact.value }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+<style>
+    .title-box {
+        padding-left: 8px;
+        padding-top: 20px;
+        padding-bottom: 10px;
+    }
+    .subtitle {
+        padding-top: 3px;
+        font-size: 1.1em;
+    }
+    .title {
+        font-size: 1.8em;
+    }
+    .weaken {
+        color: #555;
+    }
+</style>
+<div class="row">
+    <div class="column col-xs-12">
+        <div class="title-box">
+            <div class="title">{{ locaff }}</div>
+            <div class="subtitle weaken">{{ department }}</div>
         </div>
-    </body>
-</html>
+    </div>
+</div>
+<div class="row">
+    <div class="column col-xs-6">
+        <table class="table">
+            <tbody>
+            {% for contact in contacts %}
+            <tr>
+                <td class="weaken">{{ contact.mode }}</td>
+                <td>{{ contact.value }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
