@@ -3,4 +3,5 @@ from . import views
 
 urlpatterns = [
     url(r'^locaff/(?P<id>\w*)$', views.locaff, name='locaff'),
+    url(r'^locaff_data/(?P<id>\w*)$', views.locaff_data, name='locaff_data'),
 ]

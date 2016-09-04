@@ -1,9 +1,10 @@
 # -*- coding:utf8 -*-
 
 import re
+import json
 from itertools import imap
 
-from django.test import TestCase
+from django.test import TestCase, Client
 import openpyxl
 
 from .models import (
@@ -179,3 +180,44 @@ class TestImportData(TestCase):
         d3 = Department.objects.get(name=u'财务部')
         d4 = Department.objects.get(name=u'经营管理本部')
         assert d3.superior == d4
+
+
+class TestApi(TestCase):
+    def setUp(self):
+        s1 = Staff.objects.create(name='Alice')
+        c11 = Contact(mode='EMAIL', value='alice@gmail.com')
+        s1.contact_set.add(c11, bulk=False)
+
+        s2 = Staff.objects.create(name='Bob')
+
+        s3 = Staff.objects.create(name='Cherry')
+        d3 = Department.objects.create(name='CherrySDepartment')
+        p3 = Position.objects.create(staff=s3, department=d3)
+
+    def test_locaff(self):
+        c = Client()
+        response = c.get('/locaff_data/1')
+        assert 200 <= response.status_code < 300
+        d = json.loads(response.content)
+        assert d['name'] == 'Alice'
+        assert d['department'] is None
+        assert len(d['contacts']) == 1
+
+        response = c.get('/locaff_data/2')
+        assert 200 <= response.status_code < 300
+        d = json.loads(response.content)
+        assert d['name'] == 'Bob'
+        assert d['department'] is None
+        assert len(d['contacts']) == 0
+
+        response = c.get('/locaff_data/3')
+        assert 200 <= response.status_code < 300
+        d = json.loads(response.content)
+        assert d['name'] == 'Cherry'
+        assert d['department'] == 'CherrySDepartment'
+        assert len(d['contacts']) == 0
+
+    def test_404(self):
+        c = Client()
+        response = c.get('/locaff_data/10')
+        assert response.status_code == 404

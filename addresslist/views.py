@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.http import JsonResponse
 
 from .models import (
     Staff, Position, Department, Contact
@@ -27,3 +28,25 @@ def locaff(request, id):
 
     return render(request, 'addresslist/_locaff.html', ctx)
 
+
+def locaff_data(request, id):
+    try:
+        lcf = Staff.objects.get(id=id)
+    except Staff.DoesNotExist:
+        return JsonResponse({}, status=404
+                            )
+    contacts = lcf.contact_set.all()
+
+    departs = list(lcf.department_set.all())
+    if len(departs):
+        depart = departs[0].name
+    else:
+        depart = None
+
+    lcfd = {
+        'name': lcf.name,
+        'department': depart,
+        'contacts': [(c.mode, c.value) for c in contacts]
+    }
+
+    return JsonResponse(lcfd)
