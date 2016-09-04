@@ -37,6 +37,20 @@ def _from_xlsx_worksheet(worksheet):
     IM = 10
     PHONE_MAC = 11
 
+    def fill_departs(rows, departs_indexes):
+        last_row = None
+        for r in rows:
+            nr = list(r)
+            if last_row:
+                for i in departs_indexes:
+                    if nr[i].value is None:
+                        nr[i] = last_row[i]
+                #print map(lambda x: x.value, nr)
+                yield nr
+            last_row = nr
+
+    rows = fill_departs(rows, (REGIN, DEPART1, DEPART2))
+
     def rv(row, idx):
         return row[idx]
 
@@ -52,6 +66,8 @@ def _from_xlsx_worksheet(worksheet):
             d = Department(name=depart_name, superior=superior_depart)
             last_d[0] = d
             return d
+        else:
+            return Department.objects.get(name=depart_name)
 
     def handle_contact(row, idx, mode, locaff):
         v = rv(row, idx)
