@@ -11,7 +11,14 @@
     </head>
     <body>
         <div class="container">
-            {% include "addresslist/locaff.html" %}
+            <div class="row">
+                <div class="column col-xs-4">
+                    {% include "addresslist/locaff_list.html" %}
+                </div>
+                <div class="column col-xs-8">
+                    {% include "addresslist/locaff.html" %}
+                </div>
+            </div>
             <button class="button" onclick="loadLocaff(2500)">loadLocaff</button>
         </div>
     </body>

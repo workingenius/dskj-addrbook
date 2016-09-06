@@ -1,0 +1,37 @@
+<div class="row">
+    <table id="locaff-list-table" class="table">
+        <tbody>
+        </tbody>
+    </table>
+</div>
+<script>
+    function loadLocaffs() {
+        $.ajax('/locaff/').then(function(locaffs) {
+            showLocaffs(locaffs);
+        });
+    }
+
+    function showLocaffs(locaffs) {
+        var i, len;
+        for (i=0, len=locaffs.length; i<len; i++) {
+            $('#locaff-list-table').append(createLocaffRow(locaffs[i]));
+            $('#locaff-' + locaffs[i][0]).click(_loadLocaff);
+        }
+    }
+
+    function createLocaffRow(locaff) {
+        return '<tr id="' + getLocaffElementId(locaff[0]) + '"><td>' + locaff[1] + '</td></tr>'
+    }
+
+    function getLocaffElementId(id) {
+        return 'locaff-' + id;
+    }
+
+    function _loadLocaff() {
+        var id = $(this).attr('id');
+        id = id.split('-')[1];
+        loadLocaff(parseInt(id));
+    }
+
+    $(loadLocaffs);
+</script>

@@ -29,6 +29,10 @@ def locaff(request, id):
     return render(request, 'addresslist/_locaff.html', ctx)
 
 
+def locaff_list_page(request):
+    return render(request, 'addresslist/_locaff.html')
+
+
 def locaff_data(request, id):
     try:
         lcf = Staff.objects.get(id=id)
