@@ -11,7 +11,7 @@ def main(request):
     return render(request, 'addresslist/main.html')
 
 
-def locaff_data(request, id):
+def locaff(request, id):
     try:
         lcf = Staff.objects.get(id=id)
     except Staff.DoesNotExist:

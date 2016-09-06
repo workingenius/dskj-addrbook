@@ -40,7 +40,7 @@
 <script>
     function loadLocaff(id) {
         $.ajax({
-            url: '/locaff_data/' + id,
+            url: '/locaff/' + id,
             dataType: 'json',
         })
         .then(function(locaff) {
