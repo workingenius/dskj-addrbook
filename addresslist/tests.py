@@ -197,21 +197,21 @@ class TestApi(TestCase):
 
     def test_locaff(self):
         c = Client()
-        response = c.get('/locaff_data/1')
+        response = c.get('/locaff/1')
         assert 200 <= response.status_code < 300
         d = json.loads(response.content)
         assert d['name'] == 'Alice'
         assert d['department'] is None
         assert len(d['contacts']) == 1
 
-        response = c.get('/locaff_data/2')
+        response = c.get('/locaff/2')
         assert 200 <= response.status_code < 300
         d = json.loads(response.content)
         assert d['name'] == 'Bob'
         assert d['department'] is None
         assert len(d['contacts']) == 0
 
-        response = c.get('/locaff_data/3')
+        response = c.get('/locaff/3')
         assert 200 <= response.status_code < 300
         d = json.loads(response.content)
         assert d['name'] == 'Cherry'
@@ -220,12 +220,12 @@ class TestApi(TestCase):
 
     def test_404(self):
         c = Client()
-        response = c.get('/locaff_data/10')
+        response = c.get('/locaff/10')
         assert response.status_code == 404
 
     def test_readable_contacts(self):
         c = Client()
-        response = c.get('/locaff_data/1')
+        response = c.get('/locaff/1')
         assert 200 <= response.status_code < 300
         d = json.loads(response.content)
         assert len(d['contacts']) == 1
@@ -237,6 +237,13 @@ class TestApi(TestCase):
     def test_list_locaff(self):
         c = Client()
         response = c.get('/locaff/')
+        assert 200 <= response.status_code < 300
+        d = json.loads(response.content)
+        assert len(d) == 3
+
+    def _test_list_locaff_classify(self):
+        c = Client()
+        response = c.get('/locaff/?classify=capital')
         assert 200 <= response.status_code < 300
         d = json.loads(response.content)
         assert len(d) == 3
