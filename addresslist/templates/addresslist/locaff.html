@@ -1,17 +1,20 @@
 <style>
-    .title-box {
+    #region-card .title-box {
         padding-left: 8px;
         padding-top: 20px;
         padding-bottom: 10px;
+
+        margin-left: auto;
+        margin-right: auto;
     }
-    .subtitle {
+    #region-card .subtitle {
         padding-top: 3px;
         font-size: 1.1em;
     }
-    .title {
+    #region-card .title {
         font-size: 1.8em;
     }
-    .weaken {
+    #region-card .weaken {
         color: #555;
     }
 </style>
@@ -24,7 +27,7 @@
     </div>
 </div>
 <div class="row">
-    <div class="column col-xs-6">
+    <div class="column col-xs-12">
         <table id="locaff-contacts" class="table">
             <tbody>
             {% for contact in contacts %}
