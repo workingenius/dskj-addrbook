@@ -255,5 +255,5 @@ class TestApi(TestCase):
         assert 200 <= response.status_code < 300
         d = json.loads(response.content)
         assert len(d) == 3
-        assert isinstance(d, dict)
-        assert set(d.keys()) == {u'A', u'B', u'C'}
+        assert isinstance(d, list)
+        assert map(lambda x: x[0], d) == [u'A', u'B', u'C']  # should be sorted

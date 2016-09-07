@@ -50,4 +50,5 @@ def locaffs(request):
         capital_dict = defaultdict(list)
         for lcf in lcfs:
             capital_dict[lcf.ch_pron[0]].append((lcf.id, lcf.name))
-        return JsonResponse(capital_dict, safe=False)
+        capital_list = sorted(capital_dict.items())
+        return JsonResponse(capital_list, safe=False)
