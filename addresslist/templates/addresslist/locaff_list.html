@@ -16,6 +16,16 @@
     </table>
 </div>
 <script>
+    function scrollToCapital(capital) {
+        var tr = $('#' + getSectionElementId(capital));
+        var locaff_table = $('#locaff-list-table tbody');
+        var container = locaff_table,
+            scrollTo = tr;
+        locaff_table.scrollTop(
+            scrollTo.offset().top - container.offset().top + container.scrollTop()
+        );
+    }
+
     function loadLocaffs() {
         $.ajax('/locaff/?classify=capital').then(function(locaffs) {
             showLocaffs(locaffs);
@@ -37,11 +47,15 @@
     }
 
     function createCapitalRow(capital) {
-        return '<tr><td>' + capital + '</td></tr>';
+        return '<tr id="' + getSectionElementId(capital) +'"><td>' + capital + '</td></tr>';
     }
 
     function createLocaffRow(locaff) {
         return '<tr id="' + getLocaffElementId(locaff[0]) + '"><td>' + locaff[1] + '</td></tr>'
+    }
+
+    function getSectionElementId(id) {
+        return 'capital-' + id;
     }
 
     function getLocaffElementId(id) {
