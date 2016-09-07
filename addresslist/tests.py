@@ -241,9 +241,11 @@ class TestApi(TestCase):
         d = json.loads(response.content)
         assert len(d) == 3
 
-    def _test_list_locaff_classify(self):
+    def test_list_locaff_classify(self):
         c = Client()
         response = c.get('/locaff/?classify=capital')
         assert 200 <= response.status_code < 300
         d = json.loads(response.content)
         assert len(d) == 3
+        assert isinstance(d, dict)
+        assert set(d.keys()) == {u'A', u'B', u'C'}

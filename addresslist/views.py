@@ -1,8 +1,11 @@
+from collections import defaultdict
+
 from django.shortcuts import render
 from django.http import JsonResponse
 
 from .models import (
-    Staff, Position, Department, Contact
+    Staff, Position, Department, Contact,
+    sort_staff_with_ch_pron
 )
 from .options import CONTACTS
 
@@ -36,6 +39,15 @@ def locaff(request, id):
 
 def locaffs(request):
     lcfs = Staff.objects.all()
-    bd = map(lambda x: (x.id, x.name), lcfs)
-    # TODO: WTF safe?
-    return JsonResponse(bd, safe=False)
+    lcfs = sort_staff_with_ch_pron(lcfs)
+
+    clsfy = request.GET.get('classify')
+    if not clsfy:
+        bd = map(lambda x: (x.id, x.name), lcfs)
+        # TODO: WTF safe?
+        return JsonResponse(bd, safe=False)
+    elif clsfy == 'capital':
+        capital_dict = defaultdict(list)
+        for lcf in lcfs:
+            capital_dict[lcf.ch_pron[0]].append((lcf.id, lcf.name))
+        return JsonResponse(capital_dict, safe=False)
