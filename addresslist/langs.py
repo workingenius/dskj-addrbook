@@ -5,7 +5,7 @@ import re
 from pypinyin import lazy_pinyin
 
 
-ch_py_ptn = re.compile(r'[^\w]')
+ch_py_ptn = re.compile(r'[^a-zA-Z]')
 
 
 def ch_pinyin(text):

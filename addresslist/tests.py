@@ -10,6 +10,7 @@ import openpyxl
 from .models import (
     sort_staff_with_ch_pron, staffs_by_department,
     Staff, Contact, Department, Position)
+from .langs import ch_pinyin
 from .imprt import from_xlsx_worksheet
 from . import options
 
@@ -26,6 +27,13 @@ def gen_staff(name):
 def save(*objs):
     for obj in objs:
         obj.save()
+
+
+class TestLangs(TestCase):
+    def test_ch_pinyin_start_with_number(self):
+        assert ch_pinyin(u'1车间') == '~CHEJIAN'
+        assert ch_pinyin(u'2车间') == '~CHEJIAN'
+        assert ch_pinyin(u'_车间') == '~CHEJIAN'
 
 
 class TestStaff(TestCase):
