@@ -17,17 +17,27 @@
 </div>
 <script>
     function loadLocaffs() {
-        $.ajax('/locaff/').then(function(locaffs) {
+        $.ajax('/locaff/?classify=capital').then(function(locaffs) {
             showLocaffs(locaffs);
         });
     }
 
-    function showLocaffs(locaffs) {
-        var i, len;
-        for (i=0, len=locaffs.length; i<len; i++) {
-            $('#locaff-list-table').append(createLocaffRow(locaffs[i]));
-            $('#locaff-' + locaffs[i][0]).click(_loadLocaff);
-        }
+    function showLocaffs(locaff_lists) {
+        var locaff_table = $('#locaff-list-table');
+        _.each(locaff_lists, function(section) {
+            var capital = section[0],
+                locaffs = section[1];
+            locaff_table.append(createCapitalRow(capital));
+            _.each(locaffs, function(locaff) {
+                var id = locaff[0];
+                locaff_table.append(createLocaffRow(locaff));
+                $('#locaff-' + id).click(_loadLocaff);
+            });
+        });
+    }
+
+    function createCapitalRow(capital) {
+        return '<tr><td>' + capital + '</td></tr>';
     }
 
     function createLocaffRow(locaff) {
