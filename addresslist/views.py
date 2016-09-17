@@ -5,7 +5,8 @@ from django.http import JsonResponse
 
 from .models import (
     Staff, Position, Department, Contact,
-    sort_staff_with_ch_pron
+    sort_staff_with_ch_pron,
+    search as search_staff
 )
 from .options import CONTACTS
 
@@ -52,3 +53,11 @@ def locaffs(request):
             capital_dict[lcf.ch_pron[0]].append((lcf.id, lcf.name))
         capital_list = sorted(capital_dict.items())
         return JsonResponse(capital_list, safe=False)
+
+
+def search(request):
+    q = request.GET.get('query')
+    locaffs = search_staff(q)
+    locaffs = sort_staff_with_ch_pron(locaffs)
+    names = map(lambda lcf: lcf.name, locaffs)
+    return JsonResponse(names, safe=False)

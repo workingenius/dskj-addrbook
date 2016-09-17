@@ -9,6 +9,7 @@ import openpyxl
 
 from .models import (
     sort_staff_with_ch_pron, staffs_by_department,
+    search,
     Staff, Contact, Department, Position)
 from .langs import ch_pinyin
 from .imprt import from_xlsx_worksheet
@@ -257,3 +258,45 @@ class TestApi(TestCase):
         assert len(d) == 3
         assert isinstance(d, list)
         assert map(lambda x: x[0], d) == [u'A', u'B', u'C']  # should be sorted
+
+    def test_search(self):
+        rsp = self.client.get('/search?query=Cherry').json()
+        self.assertIsInstance(rsp, list)
+        assert len(rsp)
+        for i in rsp:
+            self.assertIsInstance(i, basestring)
+
+
+class TestSearch(TestCase):
+    def setUp(self):
+        # d1 <- d2 <- d3
+        d1 = Department(name='市场部', superior=None)
+        d2 = Department(name='技术部', superior=d1)
+        d3 = Department(name='人事部', superior=d2)
+        self.ds = [d1, d2, d3]
+        save(*self.ds)
+
+        s1 = gen_staff('Alice')
+        s2 = gen_staff('Bob')
+        s3 = gen_staff('Cristle')
+        s4 = gen_staff('David')
+        s5 = gen_staff('Emma')
+        s6 = gen_staff('Fever')
+        self.ss = [s1, s2, s3, s4, s5, s6]
+        save(*self.ss)
+
+        p1 = Position(department=d1, staff=s1, job='manager')
+        p2 = Position(department=d1, staff=s2, job='contacter')
+        p3 = Position(department=d2, staff=s2, job='manager')
+        p4 = Position(department=d2, staff=s3, job='sales')
+        p5 = Position(department=d2, staff=s4)
+        p6 = Position(department=d3, staff=s5, job='manager')
+        p7 = Position(department=d3, staff=s6, job='maintainer')
+        p8 = Position(department=d2, staff=s6, job='maintainer')
+        self.ps = [p1, p2, p3, p4, p5, p6, p7, p8]
+        save(*self.ps)
+
+    def test_search_by_department(self):
+        self.assertEqual(len(search('市场')), 2)
+        self.assertEqual(len(search('技术')), 4)
+        self.assertEqual(len(search('人事')), 2)
