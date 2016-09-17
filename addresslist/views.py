@@ -59,5 +59,5 @@ def search(request):
     q = request.GET.get('query')
     locaffs = search_staff(q)
     locaffs = sort_staff_with_ch_pron(locaffs)
-    names = map(lambda lcf: lcf.name, locaffs)
+    names = map(lambda lcf: (lcf.id, lcf.name), locaffs)
     return JsonResponse(names, safe=False)

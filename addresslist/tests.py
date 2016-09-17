@@ -264,7 +264,7 @@ class TestApi(TestCase):
         self.assertIsInstance(rsp, list)
         assert len(rsp)
         for i in rsp:
-            self.assertIsInstance(i, basestring)
+            self.assertIsInstance(i, list)
 
 
 class TestSearch(TestCase):
