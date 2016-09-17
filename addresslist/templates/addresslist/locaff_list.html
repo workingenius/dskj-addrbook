@@ -48,30 +48,24 @@
             _.each(locaffs, function(locaff) {
                 var id = locaff[0];
                 locaff_table.append(createLocaffRow(locaff));
-                $('#locaff-' + id).click(_loadLocaff);
             });
         });
     }
 
     function createCapitalRow(capital) {
-        return '<tr id="' + getSectionElementId(capital) +'"><td>' + capital + '</td></tr>';
+        return '<tr _id="' + getSectionElementId(capital) +'" class="_capital"><td>' + capital + '</td></tr>';
     }
 
     function createLocaffRow(locaff) {
-        return '<tr id="' + getLocaffElementId(locaff[0]) + '"><td>' + locaff[1] + '</td></tr>'
+        return '<tr _id="' + locaff[0] + '" class="_locaff"><td>' + locaff[1] + '</td></tr>'
     }
 
     function getSectionElementId(id) {
         return 'capital-' + id;
     }
 
-    function getLocaffElementId(id) {
-        return 'locaff-' + id;
-    }
-
     function _loadLocaff() {
-        var id = $(this).attr('id');
-        id = id.split('-')[1];
+        var id = $(this).attr('_id');
         loadLocaff(parseInt(id));
     }
 
@@ -92,7 +86,6 @@
                     _.each(locaffs, function(locaff) {
                         var id = locaff[0];
                         locaff_table.append(createLocaffRow(locaff));
-                        $('#locaff-' + id).click(_loadLocaff);
                     });
                 });
             } else {
@@ -105,4 +98,8 @@
     function resetTable() {
         $('#locaff-list-table tr').remove();
     }
+
+    $(function() {
+        $('#locaff-list-table').on('click', 'tr._locaff', _loadLocaff);
+    })
 </script>
