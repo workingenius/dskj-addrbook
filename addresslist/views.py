@@ -1,3 +1,5 @@
+# -*- coding:utf8 -*-
+
 from collections import defaultdict
 
 from django.shortcuts import render
@@ -61,3 +63,24 @@ def search(request):
     locaffs = sort_staff_with_ch_pron(locaffs)
     names = map(lambda lcf: (lcf.id, lcf.name), locaffs)
     return JsonResponse(names, safe=False)
+
+
+def all_locaffs(request):
+    all_locaffs = (Staff.objects
+                   .prefetch_related('contacts')
+                   .prefetch_related('departments__superior')
+                   .all())
+
+    all_lcfs = []
+    for locaff in all_locaffs:
+        o = {}
+        o['name'] = locaff.name
+        for contact in locaff.contacts.all():
+            o[contact.mode.lower()] = contact.value
+        depart = locaff.departments.all()[0]
+        o['depart1'] = depart.superior.name
+        o['depart2'] = depart.name
+        if o['depart1'] == u'北京亦庄工厂':
+            o['depart1'] = o['depart2']
+        all_lcfs.append(o)
+    return JsonResponse(all_lcfs, safe=False)

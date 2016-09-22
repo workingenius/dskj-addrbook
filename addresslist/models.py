@@ -39,7 +39,7 @@ post_init.connect(init_staff, Staff)
 
 
 class Contact(models.Model):
-    staff = models.ForeignKey(Staff)
+    staff = models.ForeignKey(Staff, related_name='contacts')
     mode = models.CharField(max_length=16)  # communication mode, "phone", "qq", "email", etc.
     value = models.CharField(max_length=128)
 
@@ -57,7 +57,8 @@ class Department(models.Model):
     staffs = models.ManyToManyField(
         Staff,
         through='Position',
-        through_fields=('department', 'staff')
+        through_fields=('department', 'staff'),
+        related_name='departments',
     )
 
     class Meta:
