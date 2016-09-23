@@ -3,7 +3,7 @@
 from collections import defaultdict
 
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse, HttpResponse
 
 from .models import (
     Staff, Position, Department, Contact,
@@ -74,6 +74,7 @@ def all_locaffs(request):
     all_lcfs = []
     for locaff in all_locaffs:
         o = {}
+        o['staff_id'] = locaff.id
         o['name'] = locaff.name
         for contact in locaff.contacts.all():
             o[contact.mode.lower()] = contact.value
@@ -84,3 +85,21 @@ def all_locaffs(request):
             o['depart1'] = o['depart2']
         all_lcfs.append(o)
     return JsonResponse(all_lcfs, safe=False)
+
+
+def export(request):
+    from .xlsx import output
+
+    # TODO: invalid parameters
+    id_list = request.GET.get('id_list')
+    id_list = map(int, id_list.split(','))
+    work_book = output(id_list)
+
+    filename = '资生堂通讯录(%s人).xlsx' % len(id_list)
+
+    rsp = HttpResponse()
+    rsp['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    rsp['Content-Disposition'] = 'attachment; filename="%s"' % filename
+    work_book.save(rsp)
+
+    return rsp
