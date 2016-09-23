@@ -22,7 +22,6 @@ def _from_xlsx_worksheet(worksheet):
     """must like $BASE_DIR/assets/SLC.xlsx"""
 
     rows = iter(worksheet.rows)
-    rows.next()  # skip header
 
     REGIN = 0
     DEPART1 = 1
@@ -76,6 +75,7 @@ def _from_xlsx_worksheet(worksheet):
 
     for row in rows:
         row = list(cell.value for cell in row)
+        print row
 
         # row without locaff name is invalid
         locaff_name = rv(row, LOCAFF)
