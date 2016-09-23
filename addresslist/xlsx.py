@@ -48,4 +48,4 @@ def output(id_list):
 
         ws1.append(row)
 
-    wb.save('output.xlsx')
+    return wb

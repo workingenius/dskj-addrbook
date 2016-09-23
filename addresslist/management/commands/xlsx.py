@@ -12,4 +12,5 @@ class Command(BaseCommand):
         id_list = kwargs['id_list']
         id_list = map(int, id_list.split(','))
 
-        output(id_list)
+        wb = output(id_list)
+        wb.save('output.xlsx')
