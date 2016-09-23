@@ -94,9 +94,11 @@ def export(request):
     id_list = map(int, id_list.split(','))
     work_book = output(id_list)
 
+    filename = '资生堂通讯录(%s人).xlsx' % len(id_list)
+
     rsp = HttpResponse()
     rsp['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    rsp['Content-Disposition'] = 'attachment; filename="download.xlsx"'
+    rsp['Content-Disposition'] = 'attachment; filename="%s"' % filename
     work_book.save(rsp)
 
     return rsp
