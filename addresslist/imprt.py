@@ -75,6 +75,7 @@ def _from_xlsx_worksheet(worksheet):
             return Contact(staff=locaff, mode=mode, value=v)
 
     for row in rows:
+        print '.'
         row = list(cell.value for cell in row)
 
         # row without locaff name is invalid
