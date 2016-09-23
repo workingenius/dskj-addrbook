@@ -74,6 +74,7 @@ def all_locaffs(request):
     all_lcfs = []
     for locaff in all_locaffs:
         o = {}
+        o['staff_id'] = locaff.id
         o['name'] = locaff.name
         for contact in locaff.contacts.all():
             o[contact.mode.lower()] = contact.value
