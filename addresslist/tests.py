@@ -5,6 +5,7 @@ import json
 from itertools import imap
 
 from django.test import TestCase, Client
+from django.test.utils import skipIf
 import openpyxl
 
 from .models import (
@@ -192,6 +193,7 @@ class TestImportData(TestCase):
         assert d3.superior == d4
 
 
+@skipIf(True, 'considering deprecating')
 class TestApi(TestCase):
     def setUp(self):
         s1 = Staff.objects.create(name='Alice')
@@ -267,6 +269,7 @@ class TestApi(TestCase):
             self.assertIsInstance(i, list)
 
 
+@skipIf(True, 'considering deprecating')
 class TestSearch(TestCase):
     def setUp(self):
         # d1 <- d2 <- d3
