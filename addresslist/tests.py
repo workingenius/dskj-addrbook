@@ -316,3 +316,16 @@ class TestLocaffInfo(TestCase):
         Department.objects.create(name='d2')
         s = LocaffInfo(name='newstaff', depart1='d1', depart2='d2', email='s1@comp.com')
         s.save()
+
+    def test_get(self):
+        Department.objects.create(name='d2')
+        s = LocaffInfo(name='newstaff', depart1='d1', depart2='d2', email='s1@comp.com')
+        s.save()
+
+        lis = LocaffInfo.get(lambda x: x.all())
+        li = lis[0]
+
+        assert li.id is not None
+        assert li.name
+        assert li.email
+        assert li.depart2

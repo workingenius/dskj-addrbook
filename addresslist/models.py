@@ -127,8 +127,39 @@ class LocaffInfo(object):
         pass
 
     @classmethod
-    def get(cls):
-        pass
+    def get(cls, operate):
+        locaffs = operate(Staff.objects
+                    .prefetch_related('contacts')
+                    .prefetch_related('departments__superior'))
+
+        def consctruct_locaff_info(locaff):
+            # base info
+            info = {
+                'id' : locaff.id,
+                'name' : locaff.name,
+            }
+            # departments
+            d = locaff.departments.all()[0]
+            try:
+                depart1 = d.superior.name
+            except:
+                depart1 = None
+            depart2 = d.name
+            if depart1 == u'北京亦庄工厂':
+                depart1 = depart2
+            info.update({
+                'depart1': depart1,
+                'depart2': depart2,
+            })
+            # contacts
+            for c in locaff.contacts.all():
+                mode = c.mode.lower()
+                info.update({
+                    mode: c.value
+                })
+            return LocaffInfo(**info)
+
+        return map(consctruct_locaff_info, locaffs)
 
     def delete(self):
         pass
