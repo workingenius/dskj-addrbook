@@ -83,4 +83,4 @@ def staffs_by_department(department):
 
 
 def search(text):
-    return Staff.objects.filter(department__name__contains=text)
+    return Staff.objects.filter(departments__name__contains=text)

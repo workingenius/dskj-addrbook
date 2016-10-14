@@ -23,9 +23,9 @@ def locaff(request, id):
     except Staff.DoesNotExist:
         return JsonResponse({}, status=404
                             )
-    contacts = lcf.contact_set.all()
+    contacts = lcf.contacts.all()
 
-    departs = list(lcf.department_set.all())
+    departs = list(lcf.departments.all())
     if len(departs):
         depart = departs[0].name
     else:

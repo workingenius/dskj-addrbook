@@ -73,9 +73,9 @@ class TestContact(TestCase):
     def test_same_contact(self):
         s = gen_staff('Whatever')
         em = 'whatever@whatever.org'
-        s.contact_set.create(mode=Contact.EMAIL, value=em)
+        s.contacts.create(mode=Contact.EMAIL, value=em)
         with self.assertRaises(Exception):
-            s.contact_set.create(mode=Contact.EMAIL, value=em)
+            s.contacts.create(mode=Contact.EMAIL, value=em)
 
 
 class TestDepartment(TestCase):
@@ -196,7 +196,7 @@ class TestApi(TestCase):
     def setUp(self):
         s1 = Staff.objects.create(name='Alice')
         c11 = Contact(mode='EMAIL', value='alice@gmail.com')
-        s1.contact_set.add(c11, bulk=False)
+        s1.contacts.add(c11, bulk=False)
 
         s2 = Staff.objects.create(name='Bob')
 
