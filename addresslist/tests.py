@@ -318,18 +318,30 @@ class TestLocaffInfo(TestCase):
         s.save()
         assert s.id
 
-    def test_get(self):
+    def test_multi_get(self):
         Department.objects.create(name='d2')
         s = LocaffInfo(name='newstaff', depart1='d1', depart2='d2', email='s1@comp.com')
         s.save()
 
         lis = LocaffInfo.get(lambda x: x.all())
-        li = lis[0]
+        li = list(lis)[0]
 
         assert li.id is not None
         assert li.name
         assert li.email
         assert li.depart2
+
+    def test_single_get(self):
+        Department.objects.create(name='d2')
+        s = LocaffInfo(name='newstaff', depart1='d1', depart2='d2', email='s1@comp.com')
+        s.save()
+
+        li = LocaffInfo.get(lambda x: x.get(name='newstaff'))
+        assert li.id is not None
+        assert li.name
+        assert li.email
+        assert li.depart2
+
 
     def test_delete(self):
         Department.objects.create(name='d2')

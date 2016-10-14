@@ -2,6 +2,8 @@
 
 from __future__ import unicode_literals
 
+from itertools import imap
+
 from django.db import models
 from django.db.models.signals import post_init
 
@@ -135,7 +137,7 @@ class LocaffInfo(object):
 
     @classmethod
     def get(cls, operate):
-        locaffs = operate(Staff.objects
+        r = operate(Staff.objects
                     .prefetch_related('contacts')
                     .prefetch_related('departments__superior'))
 
@@ -166,7 +168,10 @@ class LocaffInfo(object):
                 })
             return LocaffInfo(**info)
 
-        return map(consctruct_locaff_info, locaffs)
+        if hasattr(r, '__iter__'):
+            return imap(consctruct_locaff_info, r)
+        else:
+            return consctruct_locaff_info(r)
 
     def delete(self):
         if self._exists:
