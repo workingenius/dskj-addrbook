@@ -11,7 +11,8 @@ import openpyxl
 from .models import (
     sort_staff_with_ch_pron, staffs_by_department,
     search,
-    Staff, Contact, Department, Position)
+    Staff, Contact, Department, Position,
+    LocaffInfo)
 from .langs import ch_pinyin
 from .imprt import from_xlsx_worksheet
 from . import options
@@ -303,3 +304,15 @@ class TestSearch(TestCase):
         self.assertEqual(len(search('市场')), 2)
         self.assertEqual(len(search('技术')), 4)
         self.assertEqual(len(search('人事')), 2)
+
+
+class TestLocaffInfo(TestCase):
+    def test_create(self):
+        with self.assertRaises(Exception):
+            # no such department yet
+            s = LocaffInfo(name='newstaff', depart1='d1', depart2='d2', email='s1@comp.com')
+            s.save()
+
+        Department.objects.create(name='d2')
+        s = LocaffInfo(name='newstaff', depart1='d1', depart2='d2', email='s1@comp.com')
+        s.save()

@@ -84,3 +84,51 @@ def staffs_by_department(department):
 
 def search(text):
     return Staff.objects.filter(departments__name__contains=text)
+
+
+class LocaffInfo(object):
+    """
+    :attr id
+    :attr depart1
+    :attr depart2
+    :attr name
+    :attr email
+    """
+    def __init__(self, name, depart1, depart2, email, id=None):
+        self.id = id
+        self.name = name
+        self.depart1 = depart1
+        self.depart2 = depart2
+        self.email = email
+
+    @property
+    def _exists(self):
+        return (not self.id is None)
+
+    def save(self):
+        if self._exists:
+            self._update()
+        else:
+            self._create()
+
+    def _create(self):
+        s = Staff(name=self.name)
+        s.save()
+
+        email = Contact(staff=s, mode='EMAIL', value=self.email)
+        email.save()
+
+        depart = Department.objects.get(name=self.depart2)
+        p = Position(staff=s, department=depart)
+        p.save()
+        return self
+
+    def _update(self):
+        pass
+
+    @classmethod
+    def get(cls):
+        pass
+
+    def delete(self):
+        pass
