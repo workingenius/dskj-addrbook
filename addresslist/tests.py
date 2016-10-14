@@ -316,6 +316,7 @@ class TestLocaffInfo(TestCase):
         Department.objects.create(name='d2')
         s = LocaffInfo(name='newstaff', depart1='d1', depart2='d2', email='s1@comp.com')
         s.save()
+        assert s.id
 
     def test_get(self):
         Department.objects.create(name='d2')
@@ -329,3 +330,16 @@ class TestLocaffInfo(TestCase):
         assert li.name
         assert li.email
         assert li.depart2
+
+    def test_delete(self):
+        Department.objects.create(name='d2')
+        s = LocaffInfo(name='newstaff', depart1='d1', depart2='d2', email='s1@comp.com')
+
+        assert s.delete() is None
+
+        s.save()
+
+        d = s.delete()
+        assert d
+        assert list(Contact.objects.all()) == []
+

@@ -102,6 +102,10 @@ class LocaffInfo(object):
         self.email = email
 
     @property
+    def _origin(self):
+        return Staff.objects.get(id=self.id)
+
+    @property
     def _exists(self):
         return (not self.id is None)
 
@@ -121,6 +125,9 @@ class LocaffInfo(object):
         depart = Department.objects.get(name=self.depart2)
         p = Position(staff=s, department=depart)
         p.save()
+
+        self.id = s.id
+
         return self
 
     def _update(self):
@@ -162,4 +169,7 @@ class LocaffInfo(object):
         return map(consctruct_locaff_info, locaffs)
 
     def delete(self):
-        pass
+        if self._exists:
+            r = self._origin.delete()
+            return r
+            # return self._origin.delete()
