@@ -64,7 +64,7 @@ class Department(models.Model):
     )
 
     class Meta:
-        unique_together = ('name', )
+        unique_together = ('name',)
 
 
 class Position(models.Model):
@@ -94,16 +94,16 @@ class LocaffInfo(object):
     :attr depart1
     :attr depart2
     :attr name
-    :attr email
     """
-    contact_fields = ('email', )
+    contact_fields = ('email', 'qq', 'phone')
 
-    def __init__(self, name, depart1, depart2, email, id=None):
+    def __init__(self, name, depart1, depart2, id=None, **kw):
         self.id = id
         self.name = name
         self.depart1 = depart1
         self.depart2 = depart2
-        self.email = email
+        contacts = {k: v for k, v in kw.items() if k in self.contact_fields}
+        self.__dict__.update(contacts)
 
     @property
     def _origin(self):
@@ -112,6 +112,10 @@ class LocaffInfo(object):
     @property
     def _exists(self):
         return (not self.id is None)
+
+    @property
+    def _contact_fields(self):
+        return tuple(cf for cf in self.contact_fields if hasattr(self, cf))
 
     def save(self):
         if self._exists:
@@ -123,8 +127,9 @@ class LocaffInfo(object):
         s = Staff(name=self.name)
         s.save()
 
-        email = Contact(staff=s, mode='EMAIL', value=self.email)
-        email.save()
+        for cf in self._contact_fields:
+            c = Contact(staff=s, mode=cf.upper(), value=getattr(self, cf))
+            c.save()
 
         depart = Department.objects.get(name=self.depart2)
         p = Position(staff=s, department=depart)
@@ -150,7 +155,7 @@ class LocaffInfo(object):
         # contacts
         old_contacts = s.contacts.all()
         old_contacts = {oc.mode.lower(): oc for oc in old_contacts}
-        for cf in self.contact_fields:
+        for cf in self._contact_fields:
             if not old_contacts.has_key(cf):
                 old_contacts[cf] = None
         for mode, oc in old_contacts.items():
@@ -173,8 +178,8 @@ class LocaffInfo(object):
         def consctruct_locaff_info(locaff):
             # base info
             info = {
-                'id' : locaff.id,
-                'name' : locaff.name,
+                'id': locaff.id,
+                'name': locaff.name,
             }
             # departments
             d = locaff.departments.all()[0]

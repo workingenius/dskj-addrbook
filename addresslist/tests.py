@@ -358,12 +358,15 @@ class TestLocaffInfo(TestCase):
     def test_update(self):
         Department.objects.create(name='d2')
         Department.objects.create(name='d3')
-        s = LocaffInfo(name='newstaff', depart1='d1', depart2='d2', email='s1@comp.com')
+        s = LocaffInfo(name='newstaff', depart1='d1', depart2='d2',
+                       email='s1@comp.com', phone='123')
         s.save()
 
         s.name = 'modified'
         s.depart2 = 'd3'
         s.email = 'modified@comp.com'
+        s.qq = 'anewqq'
+        del s.phone
         s.save()
 
         s = LocaffInfo.get(lambda x: x.get(id=s.id))
@@ -371,4 +374,6 @@ class TestLocaffInfo(TestCase):
         assert s.name == 'modified'
         assert s.depart2 == 'd3'
         assert s.email == 'modified@comp.com'
+        assert s.qq == 'anewqq'
+        assert hasattr(s, 'phone') == False
 
