@@ -96,6 +96,8 @@ class LocaffInfo(object):
     :attr name
     :attr email
     """
+    contact_fields = ('email', )
+
     def __init__(self, name, depart1, depart2, email, id=None):
         self.id = id
         self.name = name
@@ -133,7 +135,34 @@ class LocaffInfo(object):
         return self
 
     def _update(self):
-        pass
+        s = self._origin
+        if self.name != s.name:
+            s.name = self.name
+            s.save()
+        # department
+        old_depart = s.departments.all()[0]
+        if old_depart.name != self.depart2:
+            old_p = Position.objects.get(staff=s, department=old_depart)
+            new_depart = Department.objects.get(name=self.depart2)
+            new_p = Position(staff=s, department=new_depart)
+            old_p.delete()
+            new_p.save()
+        # contacts
+        old_contacts = s.contacts.all()
+        old_contacts = {oc.mode.lower(): oc for oc in old_contacts}
+        for cf in self.contact_fields:
+            if not old_contacts.has_key(cf):
+                old_contacts[cf] = None
+        for mode, oc in old_contacts.items():
+            if oc is None:
+                oc = Contact(staff=s, mode=mode.upper(), value=getattr(self, mode))
+                oc.save()
+            elif not hasattr(self, mode):
+                oc.delete()
+            else:
+                if getattr(self, mode) != oc.value:
+                    oc.value = getattr(self, mode)
+                    oc.save()
 
     @classmethod
     def get(cls, operate):

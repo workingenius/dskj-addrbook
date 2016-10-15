@@ -355,3 +355,20 @@ class TestLocaffInfo(TestCase):
         assert d
         assert list(Contact.objects.all()) == []
 
+    def test_update(self):
+        Department.objects.create(name='d2')
+        Department.objects.create(name='d3')
+        s = LocaffInfo(name='newstaff', depart1='d1', depart2='d2', email='s1@comp.com')
+        s.save()
+
+        s.name = 'modified'
+        s.depart2 = 'd3'
+        s.email = 'modified@comp.com'
+        s.save()
+
+        s = LocaffInfo.get(lambda x: x.get(id=s.id))
+
+        assert s.name == 'modified'
+        assert s.depart2 == 'd3'
+        assert s.email == 'modified@comp.com'
+
