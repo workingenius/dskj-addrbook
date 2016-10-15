@@ -7,6 +7,7 @@ from django.http import JsonResponse, FileResponse, HttpResponse
 
 from .models import (
     Staff, Position, Department, Contact,
+    LocaffInfo,
     sort_staff_with_ch_pron,
     search as search_staff
 )
@@ -66,24 +67,13 @@ def search(request):
 
 
 def all_locaffs(request):
-    all_locaffs = (Staff.objects
-                   .prefetch_related('contacts')
-                   .prefetch_related('departments__superior')
-                   .all())
-
+    all_locaffs = LocaffInfo.get(lambda x: x.all())
     all_lcfs = []
-    for locaff in all_locaffs:
-        o = {}
-        o['staff_id'] = locaff.id
-        o['name'] = locaff.name
-        for contact in locaff.contacts.all():
-            o[contact.mode.lower()] = contact.value
-        depart = locaff.departments.all()[0]
-        o['depart1'] = depart.superior.name
-        o['depart2'] = depart.name
-        if o['depart1'] == u'北京亦庄工厂':
-            o['depart1'] = o['depart2']
-        all_lcfs.append(o)
+    for lcf in all_locaffs:
+        js = lcf.to_json()
+        js['staff_id'] = js['id']
+        del js['id']
+        all_lcfs.append(js)
     return JsonResponse(all_lcfs, safe=False)
 
 

@@ -211,4 +211,7 @@ class LocaffInfo(object):
         if self._exists:
             r = self._origin.delete()
             return r
-            # return self._origin.delete()
+
+    def to_json(self):
+        return self.__dict__
+
