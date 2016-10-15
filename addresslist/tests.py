@@ -193,7 +193,6 @@ class TestImportData(TestCase):
         d4 = Department.objects.get(name=u'经营管理本部')
         assert d3.superior == d4
 
-
 @skipIf(True, 'considering deprecating')
 class TestApi(TestCase):
     def setUp(self):
@@ -376,4 +375,13 @@ class TestLocaffInfo(TestCase):
         assert s.email == 'modified@comp.com'
         assert s.qq == 'anewqq'
         assert hasattr(s, 'phone') == False
+
+class TestCurrentApis(TestCase):
+    def test_all_locaffs(self):
+        alcfs = self.client.get('/all').json()
+        for lcf in alcfs:
+            assert lcf['staff_id']
+            assert lcf['name']
+            assert lcf['depart1']
+            assert lcf['depart2']
 
