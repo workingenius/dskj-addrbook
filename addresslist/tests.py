@@ -231,6 +231,14 @@ class TestImportData2(TestCase):
         # assert the_user.password == 'the_password'
         # # fail because the_user.password is hashed
 
+    def test_staff_should_has_user(self):
+        staff = Staff.objects.get(name=u'侯政红副总经理')
+        user = User.objects.get(username=u'侯政红副总经理')
+        assert staff.user == user
+
+        staff = Staff.objects.get(name=u'张敏')
+        assert staff.user is None
+
 
 class TestSearch(TestCase):
     def setUp(self):

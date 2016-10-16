@@ -33,26 +33,44 @@ def read_excel(*args, **kwargs):
     return df
 
 
+def with_columns(columns):
+    def wrap_func(func):
+        def wrapped_func(dataframe, *args, **kwargs):
+            df = dataframe[columns]
+            return func(df, *args, **kwargs)
+        return wrapped_func
+    return wrap_func
+
+
 # users: {<literal>: <real name>}
-# users = {}
-#
-#
-# def _prepare_users(dataframe, users):
-#     names = dataframe[u'使用人']
-#     for name in names:
-#         if not name:
-#             continue
-#         real_name = process_locaff_name(name)
-#         users[name] = real_name
+users = {}
 
 
-def load_users(dataframe):
-    df = dataframe[[u'使用人', u'初始密码']]
+@with_columns(u'使用人')
+def _prepare_users(names, users):
+    for name in names:
+        if not name:
+            continue
+        real_name = process_locaff_name(name)
+        users[name] = real_name
+
+
+@with_columns([u'使用人', u'初始密码'])
+def load_users(df):
     for i, row in df.iterrows():
         literal_name, password = tuple(row)
         if (not literal_name) or (not password):
             continue
         User.objects.create_user(literal_name, password=password)
+
+
+def load_staffs(users):
+    for literal_name, real_name in users.iteritems():
+        try:
+            user = User.objects.get(username=literal_name)
+        except User.DoesNotExist:
+            user = None
+        Staff.objects.create(name=real_name, user=user)
 
 
 locaff_ptn = re.compile(u'[(\uff08][\u517c\u5c0f][)\uff09]')
@@ -152,6 +170,8 @@ def load(path, sheetname):
 
 def load2(path, sheetname):
     df = read_excel(path, sheetname)
-    # _prepare_users(df, users)
+    _prepare_users(df, users)
+
     load_users(df)
+    load_staffs(users)
 

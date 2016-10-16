@@ -6,6 +6,7 @@ from itertools import imap
 
 from django.db import models
 from django.db.models.signals import post_init
+from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from . import langs
@@ -29,6 +30,7 @@ class Staff(models.Model):
     jp_pron = models.CharField(max_length=64, null=True)  # japanese pronunciation
     # TODO: implement Chinese pronunciation
     ch_pron = models.CharField(max_length=64, null=True)  # chinese pronunciation
+    user = models.ForeignKey(User, related_name='staff', null=True)
 
 
 def init_staff(**kwargs):
