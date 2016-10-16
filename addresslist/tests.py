@@ -12,7 +12,11 @@ from .models import (
     Staff, Contact, Department, Position,
     LocaffInfo)
 from .langs import ch_pinyin
-from .imprt import from_xlsx_worksheet, read_excel
+from .imprt import (
+    from_xlsx_worksheet, read_excel,
+    load2)
+
+from django.contrib.auth.models import User
 
 
 # TODO: detail Exceptions
@@ -139,10 +143,12 @@ class TestDepartment(TestCase):
             p10.save()
 
 
-test_df = read_excel('./assets/SLC.xlsx', sheetname=u'配置')
+SOURCE_PATH = './assets/SLC.xlsx'
+SOURCE_SHEETNAME = u'配置'
+test_df = read_excel(SOURCE_PATH, sheetname=SOURCE_SHEETNAME)
 
 
-class TestImportData(TestCase):
+class EnvForImportData(TestCase):
     def setUp(self):
         self.df = test_df
         objs = from_xlsx_worksheet(self.df)
@@ -150,6 +156,8 @@ class TestImportData(TestCase):
         for obj in objs:
             obj.save()
 
+
+class TestImportData(EnvForImportData):
     def test_data_type(self):
         # currently, no number
         rows = self.df.iterrows()
@@ -205,6 +213,23 @@ class TestImportData(TestCase):
         d3 = Department.objects.get(name=u'财务部')
         d4 = Department.objects.get(name=u'经营管理本部')
         assert d3.superior == d4
+
+
+class TestImportData2(TestCase):
+    def setUp(self):
+        load2(SOURCE_PATH, SOURCE_SHEETNAME)
+
+    def test_load2(self):
+        users = User.objects.all()
+        assert len(list(users)) == 5
+
+        for user in users:
+            assert user.username
+            assert user.password
+
+        # the_user = filter(lambda u: u.username == u'邢迪秘书', users)[0]
+        # assert the_user.password == 'the_password'
+        # # fail because the_user.password is hashed
 
 
 class TestSearch(TestCase):

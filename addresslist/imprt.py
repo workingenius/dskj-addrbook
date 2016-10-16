@@ -4,20 +4,17 @@ import re
 
 import pandas as pd
 
+from django.contrib.auth.models import User
 from .models import Department, Staff, Position, Contact
 from itertools import ifilter, imap
 from .contacts import contacts
 
-locaff_ptn = re.compile(u'[(\uff08][\u517c\u5c0f][)\uff09]')
-department_ptn = re.compile(r'\s')
 
+# ------------------------
+# helpers
 
-def process_locaff_name(name):
-    return locaff_ptn.sub(u'', name)
-
-
-def process_department_name(name):
-    return department_ptn.sub('', name)
+def reverted(dict):
+    return {v: k for k, v in dict.iteritems()}
 
 
 def read_excel(*args, **kwargs):
@@ -34,6 +31,40 @@ def read_excel(*args, **kwargs):
     for column in df.columns:
         df[column] = df[column].map(to_string)
     return df
+
+
+# users: {<literal>: <real name>}
+# users = {}
+#
+#
+# def _prepare_users(dataframe, users):
+#     names = dataframe[u'使用人']
+#     for name in names:
+#         if not name:
+#             continue
+#         real_name = process_locaff_name(name)
+#         users[name] = real_name
+
+
+def load_users(dataframe):
+    df = dataframe[[u'使用人', u'初始密码']]
+    for i, row in df.iterrows():
+        literal_name, password = tuple(row)
+        if (not literal_name) or (not password):
+            continue
+        User.objects.create_user(literal_name, password=password)
+
+
+locaff_ptn = re.compile(u'[(\uff08][\u517c\u5c0f][)\uff09]')
+department_ptn = re.compile(r'\s')
+
+
+def process_locaff_name(name):
+    return locaff_ptn.sub(u'', name)
+
+
+def process_department_name(name):
+    return department_ptn.sub('', name)
 
 
 def _from_xlsx_worksheet(dataframe):
@@ -117,4 +148,10 @@ def load(path, sheetname):
     df = read_excel(path, sheetname)
     for obj in from_xlsx_worksheet(df):
         obj.save()
+
+
+def load2(path, sheetname):
+    df = read_excel(path, sheetname)
+    # _prepare_users(df, users)
+    load_users(df)
 
