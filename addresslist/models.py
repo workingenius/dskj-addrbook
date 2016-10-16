@@ -98,7 +98,7 @@ class LocaffInfo(object):
     """
     contact_fields = ('email', 'qq', 'phone')
 
-    def __init__(self, name, depart1, depart2, id=None, **kw):
+    def __init__(self, name, depart2, id=None, depart1=None, **kw):
         self.id = id
         self.name = name
         self.depart1 = depart1
@@ -220,7 +220,7 @@ class LocaffInfo(object):
 class LocaffInfoSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(read_only=False, max_length=32)
-    depart1 = serializers.CharField(read_only=True, max_length=32)
+    depart1 = serializers.CharField(required=False, read_only=True, max_length=32)
     depart2 = serializers.CharField(max_length=32)
     email = serializers.CharField(required=False, max_length=128)
     qq = serializers.CharField(required=False, max_length=128)

@@ -1,5 +1,5 @@
 # -*- coding:utf8 -*-
-
+import json
 import re
 from itertools import imap
 
@@ -309,6 +309,12 @@ class TestLocaffInfo(TestCase):
         assert s.qq == 'anewqq'
         assert hasattr(s, 'phone') == False
 
+
+def post(client, url, body, headers=None):
+    return client.post(url, json.dumps(body),
+                content_type='application/json')
+
+
 class TestCurrentApis(TestCase):
     def setUp(self):
         # d1 <- d2 <- d3
@@ -338,13 +344,20 @@ class TestCurrentApis(TestCase):
         self.ps = [p1, p2, p3, p4, p5, p6, p7, p8]
         save(*self.ps)
 
-    def test_all_locaffs(self):
+    def test_get_locaffs(self):
         alcfs = self.client.get('/all').json()
         for lcf in alcfs:
             assert lcf['id'] is not None
             assert lcf['name']
             assert lcf.has_key('depart1')
             assert lcf['depart2']
+
+    def test_create_locaff(self):
+        print post(self.client, '/all', {
+            'name': 'newstaff1',
+            'depart2': '技术部',
+            'email': 'newstaff1@comp.com'
+        }).json()
 
 
 class TestSerializer(TestCase):

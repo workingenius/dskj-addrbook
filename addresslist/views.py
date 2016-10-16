@@ -2,6 +2,9 @@
 
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+
+from rest_framework.parsers import JSONParser
 
 from .models import LocaffInfo
 from .models import LocaffInfoSerializer
@@ -11,10 +14,20 @@ def main(request):
     return render(request, 'addresslist/main.html')
 
 
+@csrf_exempt
 def locaff_list(request):
-    all_locaffs = LocaffInfo.get(lambda x: x.all())
-    serializer = LocaffInfoSerializer(all_locaffs, many=True)
-    return JsonResponse(serializer.data, safe=False)
+    if request.method == 'GET':
+        all_locaffs = LocaffInfo.get(lambda x: x.all())
+        serializer = LocaffInfoSerializer(all_locaffs, many=True)
+        return JsonResponse(serializer.data, safe=False)
+
+    elif request.method == 'POST':
+        data = JSONParser().parse(request)
+        serializer = LocaffInfoSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)
 
 
 def export(request):
