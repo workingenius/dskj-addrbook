@@ -18,8 +18,11 @@ from .imprt import from_xlsx_worksheet, read_excel
 # TODO: detail Exceptions
 
 
-def gen_staff(name):
-    s = Staff(**{'name': name})
+def gen_staff(name, id=None):
+    meta = {'name': name}
+    if id:
+        meta['id'] = id
+    s = Staff(**meta)
     s.save()
     return s
 
@@ -330,12 +333,12 @@ class TestCurrentApis(TestCase):
         self.ds = [d1, d2, d3]
         save(*self.ds)
 
-        s1 = gen_staff('Alice')
-        s2 = gen_staff('Bob')
-        s3 = gen_staff('Cristle')
-        s4 = gen_staff('David')
-        s5 = gen_staff('Emma')
-        s6 = gen_staff('Fever')
+        s1 = gen_staff('Alice', id=1)
+        s2 = gen_staff('Bob', id=2)
+        s3 = gen_staff('Cristle', id=3)
+        s4 = gen_staff('David', id=4)
+        s5 = gen_staff('Emma', id=5)
+        s6 = gen_staff('Fever', id=6)
         self.ss = [s1, s2, s3, s4, s5, s6]
         save(*self.ss)
 
@@ -355,6 +358,7 @@ class TestCurrentApis(TestCase):
 
     def test_get_locaff_list(self):
         alcfs = self.client.get('/staffs').json()
+        assert len(alcfs)
         for lcf in alcfs:
             assert lcf['id'] is not None
             assert lcf['name']
@@ -402,7 +406,6 @@ class TestCurrentApis(TestCase):
     def test_delete_locaff_info(self):
         resp = self.client.delete('/staffs/1')
         assert 200 <= resp.status_code < 300
-
         resp = self.client.delete('/staffs/1')
         assert resp.status_code == 404
 
