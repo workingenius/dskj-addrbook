@@ -6,6 +6,7 @@ from itertools import imap
 
 from django.db import models
 from django.db.models.signals import post_init
+from rest_framework import serializers
 
 from . import langs
 
@@ -215,3 +216,23 @@ class LocaffInfo(object):
     def to_json(self):
         return self.__dict__
 
+
+class LocaffInfoSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField(read_only=False, max_length=32)
+    depart1 = serializers.CharField(read_only=True, max_length=32)
+    depart2 = serializers.CharField(max_length=32)
+    email = serializers.CharField(required=False, max_length=128)
+    qq = serializers.CharField(required=False, max_length=128)
+    phone = serializers.CharField(required=False, max_length=128)
+
+    def create(self, validated_data):
+        li = LocaffInfo(**validated_data)
+        li.save()
+        return li
+
+    def update(self, instance, validated_data):
+        fields = ('name', 'depart2', 'email', 'qq', 'phone')
+        for f in fields:
+            setattr(instance, validated_data.get(f, getattr(instance, f)))
+        return instance

@@ -11,6 +11,7 @@ from .models import (
     sort_staff_with_ch_pron,
     search as search_staff
 )
+from .models import LocaffInfoSerializer
 from .options import CONTACTS
 
 
@@ -68,13 +69,8 @@ def search(request):
 
 def all_locaffs(request):
     all_locaffs = LocaffInfo.get(lambda x: x.all())
-    all_lcfs = []
-    for lcf in all_locaffs:
-        js = lcf.to_json()
-        js['staff_id'] = js['id']
-        del js['id']
-        all_lcfs.append(js)
-    return JsonResponse(all_lcfs, safe=False)
+    serializer = LocaffInfoSerializer(all_locaffs, many=True)
+    return JsonResponse(serializer.data, safe=False)
 
 
 def export(request):

@@ -420,8 +420,33 @@ class TestCurrentApis(TestCase):
     def test_all_locaffs(self):
         alcfs = self.client.get('/all').json()
         for lcf in alcfs:
-            assert lcf['staff_id']
+            assert lcf['id'] is not None
             assert lcf['name']
             assert lcf.has_key('depart1')
             assert lcf['depart2']
 
+
+class TestSerializer(TestCase):
+    def test_serializer(self):
+        from models import LocaffInfoSerializer
+        d1 = Department.objects.create(name='d1')
+
+        Department.objects.create(name='d2')
+        Department.objects.create(name='d3', superior=d1)
+        s = LocaffInfo(name='newstaff', depart1='d1', depart2='d2',
+                       email='s1@comp.com', phone='123')
+        s.name = 'modified'
+        s.depart2 = 'd3'
+        s.email = 'modified@comp.com'
+        s.qq = 'anewqq'
+        del s.phone
+        s.save()
+
+        jsondata = LocaffInfoSerializer(s).data
+
+        assert jsondata['name'] == 'modified'
+        assert jsondata['depart1'] == 'd1'
+        assert jsondata['depart2'] == 'd3'
+        assert jsondata['email'] == 'modified@comp.com'
+        assert jsondata['qq'] == 'anewqq'
+        assert jsondata.get('phone') is None
