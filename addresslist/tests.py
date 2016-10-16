@@ -1,11 +1,9 @@
 # -*- coding:utf8 -*-
 
 import re
-import json
 from itertools import imap
 
-from django.test import TestCase, Client
-from django.test.utils import skipIf
+from django.test import TestCase
 import pandas as pd
 
 from .models import (
@@ -15,7 +13,6 @@ from .models import (
     LocaffInfo)
 from .langs import ch_pinyin
 from .imprt import from_xlsx_worksheet, read_excel
-from . import options
 
 
 # TODO: detail Exceptions
@@ -60,7 +57,7 @@ class TestStaff(TestCase):
         s7 = gen_staff(u'タコヤキ')  # test katakana
 
         assert s1.ch_pron == 'CAOCAO'
-        # assert s2.ch_pron == 'zhitianxinchang' # 'zhitianxinzhang' in fact, that's ok
+        assert s2.ch_pron == 'ZHITIANXINZHANG' # usually read 'ZHITIANXINCHANG', while that's ok
         assert s3.ch_pron == 'GEORGEWASHINGTON'
         assert s4.ch_pron == 'ANBEIQINGMING'
         # s5 is meaningless
@@ -205,83 +202,7 @@ class TestImportData(TestCase):
         d4 = Department.objects.get(name=u'经营管理本部')
         assert d3.superior == d4
 
-@skipIf(True, 'considering deprecating')
-class TestApi(TestCase):
-    def setUp(self):
-        s1 = Staff.objects.create(name='Alice')
-        c11 = Contact(mode='EMAIL', value='alice@gmail.com')
-        s1.contacts.add(c11, bulk=False)
 
-        s2 = Staff.objects.create(name='Bob')
-
-        s3 = Staff.objects.create(name='Cherry')
-        d3 = Department.objects.create(name='CherrySDepartment')
-        p3 = Position.objects.create(staff=s3, department=d3)
-
-    def test_locaff(self):
-        c = Client()
-        response = c.get('/locaff/1')
-        assert 200 <= response.status_code < 300
-        d = json.loads(response.content)
-        assert d['name'] == 'Alice'
-        assert d['department'] is None
-        assert len(d['contacts']) == 1
-
-        response = c.get('/locaff/2')
-        assert 200 <= response.status_code < 300
-        d = json.loads(response.content)
-        assert d['name'] == 'Bob'
-        assert d['department'] is None
-        assert len(d['contacts']) == 0
-
-        response = c.get('/locaff/3')
-        assert 200 <= response.status_code < 300
-        d = json.loads(response.content)
-        assert d['name'] == 'Cherry'
-        assert d['department'] == 'CherrySDepartment'
-        assert len(d['contacts']) == 0
-
-    def test_404(self):
-        c = Client()
-        response = c.get('/locaff/10')
-        assert response.status_code == 404
-
-    def test_readable_contacts(self):
-        c = Client()
-        response = c.get('/locaff/1')
-        assert 200 <= response.status_code < 300
-        d = json.loads(response.content)
-        assert len(d['contacts']) == 1
-
-        readable_contacts = options.CONTACTS.values()
-        for c in d['contacts']:
-            assert c[0] in readable_contacts
-
-    def test_list_locaff(self):
-        c = Client()
-        response = c.get('/locaff/')
-        assert 200 <= response.status_code < 300
-        d = json.loads(response.content)
-        assert len(d) == 3
-
-    def test_list_locaff_classify(self):
-        c = Client()
-        response = c.get('/locaff/?classify=capital')
-        assert 200 <= response.status_code < 300
-        d = json.loads(response.content)
-        assert len(d) == 3
-        assert isinstance(d, list)
-        assert map(lambda x: x[0], d) == [u'A', u'B', u'C']  # should be sorted
-
-    def test_search(self):
-        rsp = self.client.get('/search?query=Cherry').json()
-        self.assertIsInstance(rsp, list)
-        assert len(rsp)
-        for i in rsp:
-            self.assertIsInstance(i, list)
-
-
-@skipIf(True, 'considering deprecating')
 class TestSearch(TestCase):
     def setUp(self):
         # d1 <- d2 <- d3
