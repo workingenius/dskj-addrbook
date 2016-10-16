@@ -389,11 +389,39 @@ class TestLocaffInfo(TestCase):
         assert hasattr(s, 'phone') == False
 
 class TestCurrentApis(TestCase):
+    def setUp(self):
+        # d1 <- d2 <- d3
+        d1 = Department(name='市场部', superior=None)
+        d2 = Department(name='技术部', superior=d1)
+        d3 = Department(name='人事部', superior=d2)
+        self.ds = [d1, d2, d3]
+        save(*self.ds)
+
+        s1 = gen_staff('Alice')
+        s2 = gen_staff('Bob')
+        s3 = gen_staff('Cristle')
+        s4 = gen_staff('David')
+        s5 = gen_staff('Emma')
+        s6 = gen_staff('Fever')
+        self.ss = [s1, s2, s3, s4, s5, s6]
+        save(*self.ss)
+
+        p1 = Position(department=d1, staff=s1, job='manager')
+        p2 = Position(department=d1, staff=s2, job='contacter')
+        p3 = Position(department=d2, staff=s2, job='manager')
+        p4 = Position(department=d2, staff=s3, job='sales')
+        p5 = Position(department=d2, staff=s4)
+        p6 = Position(department=d3, staff=s5, job='manager')
+        p7 = Position(department=d3, staff=s6, job='maintainer')
+        p8 = Position(department=d2, staff=s6, job='maintainer')
+        self.ps = [p1, p2, p3, p4, p5, p6, p7, p8]
+        save(*self.ps)
+
     def test_all_locaffs(self):
         alcfs = self.client.get('/all').json()
         for lcf in alcfs:
             assert lcf['staff_id']
             assert lcf['name']
-            assert lcf['depart1']
+            assert lcf.has_key('depart1')
             assert lcf['depart2']
 
