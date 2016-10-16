@@ -6,7 +6,7 @@ from itertools import imap
 
 from django.test import TestCase, Client
 from django.test.utils import skipIf
-import openpyxl
+import pandas as pd
 
 from .models import (
     sort_staff_with_ch_pron, staffs_by_department,
@@ -14,7 +14,7 @@ from .models import (
     Staff, Contact, Department, Position,
     LocaffInfo)
 from .langs import ch_pinyin
-from .imprt import from_xlsx_worksheet
+from .imprt import from_xlsx_worksheet, read_excel
 from . import options
 
 
@@ -138,14 +138,26 @@ class TestDepartment(TestCase):
             p10.save()
 
 
+test_df = read_excel('./assets/SLC.xlsx', sheetname=u'配置')
+
+
 class TestImportData(TestCase):
     def setUp(self):
-        wb = openpyxl.load_workbook(filename='./assets/SLC.xlsx', read_only=True)
-        ws = wb[u'配置']
-        objs = from_xlsx_worksheet(ws)
+        self.df = test_df
+        objs = from_xlsx_worksheet(self.df)
 
         for obj in objs:
             obj.save()
+
+    def test_data_type(self):
+        # currently, no number
+        rows = self.df.iterrows()
+        for i, row in rows:
+            for value in list(row):
+                assert (
+                    isinstance(value, basestring)
+                    or pd.isnull(value)
+                )
 
     def test_import_from_xlsx(self):
         # setUp should pass

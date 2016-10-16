@@ -1,10 +1,11 @@
 # -*- coding:utf8 -*-
-
+from decimal import Decimal
 import re
 
-from .models import Department, Staff, Position, Contact
-from itertools import ifilter
+import pandas as pd
 
+from .models import Department, Staff, Position, Contact
+from itertools import ifilter, imap
 
 locaff_ptn = re.compile(u'[(\uff08][\u517c\u5c0f][)\uff09]')
 department_ptn = re.compile(r'\s')
@@ -18,10 +19,29 @@ def process_department_name(name):
     return department_ptn.sub('', name)
 
 
-def _from_xlsx_worksheet(worksheet):
-    """must like $BASE_DIR/assets/SLC.xlsx"""
+def read_excel(*args, **kwargs):
 
-    rows = iter(worksheet.rows)
+    def to_string(x):
+        if pd.isnull(x):
+            return None
+        elif isinstance(x, (int, float, Decimal)):
+            return str(int(x))
+        else:
+            return x
+
+    df = pd.read_excel(*args, **kwargs)
+    for column in df.columns:
+        df[column] = df[column].map(to_string)
+    return df
+
+
+def _from_xlsx_worksheet(dataframe):
+    """format must be same as $BASE_DIR/assets/SLC.xlsx"""
+
+    df = dataframe
+    depart_columns = [u'地区', u'部门一', u'部门二']
+    df[depart_columns] = df[depart_columns].fillna(method='ffill')
+    rows = imap(lambda x: list(x[1].values), df.iterrows())
 
     REGIN = 0
     DEPART1 = 1
@@ -35,20 +55,6 @@ def _from_xlsx_worksheet(worksheet):
     EMAIL = 9
     IM = 10
     PHONE_MAC = 11
-
-    def fill_departs(rows, departs_indexes):
-        last_row = None
-        for r in rows:
-            nr = list(r)
-            if last_row:
-                for i in departs_indexes:
-                    if nr[i].value is None:
-                        nr[i] = last_row[i]
-                #print map(lambda x: x.value, nr)
-                yield nr
-            last_row = nr
-
-    rows = fill_departs(rows, (REGIN, DEPART1, DEPART2))
 
     def rv(row, idx):
         return row[idx]
@@ -74,11 +80,9 @@ def _from_xlsx_worksheet(worksheet):
             return Contact(staff=locaff, mode=mode, value=v)
 
     for row in rows:
-        row = list(cell.value for cell in row)
-
         # row without locaff name is invalid
         locaff_name = rv(row, LOCAFF)
-        if not locaff_name:
+        if pd.isnull(locaff_name):
             continue
 
         regin = rv(row, REGIN)
@@ -112,5 +116,5 @@ def _from_xlsx_worksheet(worksheet):
         yield handle_contact(row, PHONE_MAC, 'PHONE_MAC', locaff)
 
 
-def from_xlsx_worksheet(worksheet):
-    return ifilter(None, _from_xlsx_worksheet(worksheet))
+def from_xlsx_worksheet(dataframe):
+    return ifilter(None, _from_xlsx_worksheet(dataframe))
