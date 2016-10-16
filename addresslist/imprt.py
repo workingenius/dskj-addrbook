@@ -6,6 +6,7 @@ import pandas as pd
 
 from .models import Department, Staff, Position, Contact
 from itertools import ifilter, imap
+from .contacts import contacts
 
 locaff_ptn = re.compile(u'[(\uff08][\u517c\u5c0f][)\uff09]')
 department_ptn = re.compile(r'\s')
@@ -43,18 +44,16 @@ def _from_xlsx_worksheet(dataframe):
     df[depart_columns] = df[depart_columns].fillna(method='ffill')
     rows = imap(lambda x: list(x[1].values), df.iterrows())
 
+    contact_dict = {}
+    for column_num, column_name in enumerate(df.columns):
+        for c in contacts:
+            if c.literal in column_name:
+                contact_dict[column_num] = c
+
     REGIN = 0
     DEPART1 = 1
     DEPART2 = 2
     LOCAFF = 3
-    OLD_EXTNUM = 4
-    NEW_EXTNUM = 5
-    PHONE = 6
-    FAX = 7
-    MOBILE = 8
-    EMAIL = 9
-    IM = 10
-    PHONE_MAC = 11
 
     def rv(row, idx):
         return row[idx]
@@ -74,10 +73,10 @@ def _from_xlsx_worksheet(dataframe):
         else:
             return Department.objects.get(name=depart_name)
 
-    def handle_contact(row, idx, mode, locaff):
-        v = rv(row, idx)
+    def handle_contact(contacts, row, idx, locaff):
+        v = row[idx]
         if v:
-            return Contact(staff=locaff, mode=mode, value=v)
+            return Contact(staff=locaff, mode=contacts[idx].key, value=v)
 
     for row in rows:
         # row without locaff name is invalid
@@ -106,14 +105,8 @@ def _from_xlsx_worksheet(dataframe):
         pos = Position(department=(d3 or d2 or d1 or last_d[0]), staff=locaff)
         yield pos
 
-        yield handle_contact(row, OLD_EXTNUM, 'OLD_EXTNUM', locaff)
-        yield handle_contact(row, NEW_EXTNUM, 'NEW_EXTNUM', locaff)
-        yield handle_contact(row, PHONE, 'PHONE', locaff)
-        yield handle_contact(row, FAX, 'FAX', locaff)
-        yield handle_contact(row, MOBILE, 'MOBILE', locaff)
-        yield handle_contact(row, EMAIL, 'EMAIL', locaff)
-        yield handle_contact(row, IM, 'EM', locaff)
-        yield handle_contact(row, PHONE_MAC, 'PHONE_MAC', locaff)
+        for column_num, contact in contact_dict.items():
+            yield handle_contact(contact_dict, row, column_num, locaff)
 
 
 def from_xlsx_worksheet(dataframe):
