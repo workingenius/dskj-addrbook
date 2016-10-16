@@ -9,6 +9,7 @@ from django.db.models.signals import post_init
 from rest_framework import serializers
 
 from . import langs
+from .contacts import contacts
 
 
 class Staff(models.Model):
@@ -217,24 +218,40 @@ class LocaffInfo(object):
         return self.__dict__
 
 
-class LocaffInfoSerializer(serializers.Serializer):
-    id = serializers.IntegerField(read_only=True)
-    name = serializers.CharField(read_only=False, max_length=32)
-    depart1 = serializers.CharField(required=False, read_only=True, max_length=32)
-    depart2 = serializers.CharField(max_length=32)
-    email = serializers.CharField(required=False, max_length=128)
-    qq = serializers.CharField(required=False, max_length=128)
-    phone = serializers.CharField(required=False, max_length=128)
+# ----------------------------------------
+# LocaffInfoSerializer block
 
-    def create(self, validated_data):
-        li = LocaffInfo(**validated_data)
-        li.save()
-        return li
+def create(self, validated_data):
+    li = LocaffInfo(**validated_data)
+    li.save()
+    return li
 
-    def update(self, instance, validated_data):
-        fields = ('name', 'depart2', 'email', 'qq', 'phone')
-        fields = tuple(k for k in validated_data.keys() if k in fields)
-        for f in fields:
-            setattr(instance, f, validated_data[f])
-        instance.save()
-        return instance
+
+def update(self, instance, validated_data):
+    fields = tuple(['name', 'depart2'] + map(lambda x: x.key, contacts))
+    fields = tuple(k for k in validated_data.keys() if k in fields)
+    for f in fields:
+        setattr(instance, f, validated_data[f])
+    instance.save()
+    return instance
+
+
+binding = {
+    'id': serializers.IntegerField(read_only=True),
+    'name': serializers.CharField(read_only=False, max_length=32),
+    'depart1': serializers.CharField(required=False, read_only=True, max_length=32),
+    'depart2': serializers.CharField(max_length=32),
+
+    'create': create,
+    'update': update,
+}
+
+for contact in contacts:
+    binding[contact.key] = serializers.CharField(required=False, max_length=128)
+
+
+LocaffInfoSerializer = type(
+    str('LocaffInfoSerializer'),
+    (serializers.Serializer, ),
+    binding)
+
