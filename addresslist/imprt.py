@@ -111,3 +111,10 @@ def _from_xlsx_worksheet(dataframe):
 
 def from_xlsx_worksheet(dataframe):
     return ifilter(None, _from_xlsx_worksheet(dataframe))
+
+
+def load(path, sheetname):
+    df = read_excel(path, sheetname)
+    for obj in from_xlsx_worksheet(df):
+        obj.save()
+
