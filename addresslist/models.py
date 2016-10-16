@@ -233,6 +233,8 @@ class LocaffInfoSerializer(serializers.Serializer):
 
     def update(self, instance, validated_data):
         fields = ('name', 'depart2', 'email', 'qq', 'phone')
+        fields = tuple(k for k in validated_data.keys() if k in fields)
         for f in fields:
-            setattr(instance, validated_data.get(f, getattr(instance, f)))
+            setattr(instance, f, validated_data[f])
+        instance.save()
         return instance

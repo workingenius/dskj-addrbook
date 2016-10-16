@@ -93,6 +93,7 @@ class TestDepartment(TestCase):
         s5 = gen_staff('Emma')
         s6 = gen_staff('Fever')
         self.ss = [s1, s2, s3, s4, s5, s6]
+        save(*self.ss)
 
         p1 = Position(department=d1, staff=s1, job='manager')
         p2 = Position(department=d1, staff=s2, job='contacter')
@@ -315,6 +316,11 @@ def post(client, url, body, headers=None):
                 content_type='application/json')
 
 
+def put(client, url, body, header=None):
+    return client.put(url, json.dumps(body),
+                       content_type='application/json')
+
+
 class TestCurrentApis(TestCase):
     def setUp(self):
         # d1 <- d2 <- d3
@@ -344,8 +350,11 @@ class TestCurrentApis(TestCase):
         self.ps = [p1, p2, p3, p4, p5, p6, p7, p8]
         save(*self.ps)
 
-    def test_get_locaffs(self):
-        alcfs = self.client.get('/all').json()
+        c1 = Contact(staff=s2, mode='email', value='bob@comp.com')
+        c1.save()
+
+    def test_get_locaff_list(self):
+        alcfs = self.client.get('/staffs').json()
         for lcf in alcfs:
             assert lcf['id'] is not None
             assert lcf['name']
@@ -353,11 +362,49 @@ class TestCurrentApis(TestCase):
             assert lcf['depart2']
 
     def test_create_locaff(self):
-        print post(self.client, '/all', {
+        assert post(self.client, '/staffs', {
             'name': 'newstaff1',
             'depart2': '技术部',
             'email': 'newstaff1@comp.com'
-        }).json()
+        }).json()['id'] is not None
+
+    def test_get_locaff_detail(self):
+        resp = self.client.get('/staffs/2')
+        assert resp.status_code == 200
+        staff = resp.json()
+        assert staff['id'] == 2
+        assert staff['name'] == 'Bob'
+        assert staff['depart2'] == u'市场部'
+        assert staff['email'] == 'bob@comp.com'
+
+    def test_update_locaff_detail(self):
+        phonenum = '2910394'
+
+        resp = put(self.client, '/staffs/1', {
+            'name': 'Alice',
+            'depart2': u'市场部',
+            'email': 'alice@comp.com',
+            'phone': phonenum,
+        })
+        assert 200 <= resp.status_code < 300
+        resp = resp.json()
+        assert resp['id'] == 1
+        assert resp['name'] == 'Alice'
+        assert resp['email'] == 'alice@comp.com'
+        assert resp['phone'] == phonenum
+
+        resp = self.client.get('/staffs/1').json()
+        assert resp['id'] == 1
+        assert resp['name'] == 'Alice'
+        assert resp['email'] == 'alice@comp.com'
+        assert resp['phone'] == phonenum
+
+    def test_delete_locaff_info(self):
+        resp = self.client.delete('/staffs/1')
+        assert 200 <= resp.status_code < 300
+
+        resp = self.client.delete('/staffs/1')
+        assert resp.status_code == 404
 
 
 class TestSerializer(TestCase):

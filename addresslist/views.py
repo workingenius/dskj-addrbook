@@ -6,7 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework.parsers import JSONParser
 
-from .models import LocaffInfo
+from .models import LocaffInfo, Staff
 from .models import LocaffInfoSerializer
 
 
@@ -28,6 +28,30 @@ def locaff_list(request):
             serializer.save()
             return JsonResponse(serializer.data, status=201)
         return JsonResponse(serializer.errors, status=400)
+
+
+@csrf_exempt
+def locaff_detail(request, id):
+    try:
+        locaff = LocaffInfo.get(lambda x: x.get(id=int(id)))
+    except Staff.DoesNotExist:
+        return JsonResponse('', status=404, safe=False)
+
+    if request.method == 'GET':
+        serializer = LocaffInfoSerializer(locaff)
+        return JsonResponse(serializer.data)
+
+    elif request.method == 'PUT':
+        data = JSONParser().parse(request)
+        serializer = LocaffInfoSerializer(locaff, data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data)
+        return JsonResponse(serializer.errors, status=400)
+
+    elif request.method == 'DELETE':
+        locaff.delete()
+        return JsonResponse('', status=204, safe=False)
 
 
 def export(request):
