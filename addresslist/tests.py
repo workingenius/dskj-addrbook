@@ -239,6 +239,11 @@ class TestImportData2(TestCase):
         staff = Staff.objects.get(name=u'张敏')
         assert staff.user is None
 
+    def test_department_relation(self):
+        dep1 = Department.objects.get(name=u'总经理办公室')
+        dep2 = Department.objects.get(name=u'北京亦庄工厂')
+        assert dep1.superior == dep2
+
 
 class TestSearch(TestCase):
     def setUp(self):

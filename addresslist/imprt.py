@@ -45,6 +45,9 @@ def with_columns(columns):
 # users: {<literal>: <real name>}
 users = {}
 
+# departments: {<department name>: <superior name>}
+departments = {}
+
 
 @with_columns(u'使用人')
 def _prepare_users(names, users):
@@ -71,6 +74,50 @@ def load_staffs(users):
         except User.DoesNotExist:
             user = None
         Staff.objects.create(name=real_name, user=user)
+
+
+def load_departments(df, departments, depart_column, superior_column=None):
+    def new_depart(name, superior=None):
+        if superior is not None:
+            superior = process_department_name(superior)
+        name = process_department_name(name)
+        departments.setdefault(name, superior)
+
+    if superior_column:
+        df = df[[depart_column, superior_column]]
+        df = df[~df[depart_column].isnull()]
+        df = df.fillna(method='ffill')
+        for i, row in df.iterrows():
+            depart, superior = tuple(row)
+            new_depart(depart, superior)
+    else:
+        ser = df[depart_column]
+        ser = ser[~ser.isnull()]
+        for depart in ser:
+            new_depart(depart)
+
+
+def save_departments(departments):
+    def save_depart_aux(pending, done):
+        depart_names = [name for name, supname in pending.items() if (supname in done) or (supname is None)]
+        for name in depart_names:
+            supname = pending[name]
+            if supname is None:
+                done[name] = Department.objects.create(name=name)
+                del pending[name]
+            else:
+                done[name] = Department.objects.create(name=name, superior=done[supname])
+                del pending[name]
+        return pending, done
+
+    for d, s in departments.iteritems():
+        assert d != s
+
+    departs = dict(departments)
+    result = {}
+    while len(departs):
+        departs, result = save_depart_aux(departs, result)
+    return result
 
 
 locaff_ptn = re.compile(u'[(\uff08][\u517c\u5c0f][)\uff09]')
@@ -174,4 +221,10 @@ def load2(path, sheetname):
 
     load_users(df)
     load_staffs(users)
+
+    load_departments(df, departments, u'地区')
+    load_departments(df, departments, u'部门一', u'地区')
+    load_departments(df, departments, u'部门二', u'部门一')
+
+    save_departments(departments)
 
