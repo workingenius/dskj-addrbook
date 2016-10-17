@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>4s</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/bootstrap-theme.min.css" rel="stylesheet">
+    <link href="../css/bootstrap-theme.min.css" rel="stylesheet">
+    
+		<script src="../js/jquery.min.js"></script>
+		<script src="../js/angular.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+<style type="text/css">
+.btn-left{
+	margin-left: 10px
+}
+</style>
+<script type="text/javascript">
+  
+//document.cookie = "aa=bbc"
+//alert(document.cookie);
+
+
+var department=[
+{"department1":"总经理办公室","department2":[{"department2":"总经理办公室"}]},
+{"department1":"副总经理办公室","department2":[{"department2":"副总经理办公室"}]},
+{"department1":"经营监察部","department2":[{"department2":"经营监察部"}]},
+{"department1":"对外联络部","department2":[{"department2":"对外联络部"}]},
+{"department1":"经营管理本部","department2":[
+	{"department2":"本部长室"},
+	{"department2":"财务部"},
+	{"department2":"人力资源部"},
+	{"department2":"总务部"},
+	{"department2":"法务部"},
+	{"department2":"经营计划部"}
+]},
+{"department1":"工场","department2":[
+	{"department2":"工场长室"},
+	{"department2":"生产部"},
+	{"department2":"技术部"},
+	{"department2":"生产管理部"}
+]},	
+{"department1":"市场本部","department2":[
+	{"department2":"市场统括"},
+	{"department2":"品牌推进部"},
+	{"department2":"品牌企划部"}
+]},	
+{"department1":"营销本部 ","department2":[
+	{"department2":"营销本部长室"},
+	{"department2":"美容推进部"},
+	{"department2":"营销战略部"}
+]},
+{"department1":"其他","department2":[{"department2":""}]}
+];
+
+
+
+var m1= angular.module('MyApp',[]);
+m1.config( [
+	'$compileProvider',
+	function( $compileProvider ){   
+	    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|tencent|mailto|tel|file|sms):/);
+	    // Angular v1.2 之前使用 $compileProvider.urlSanitizationWhitelist(...)
+	}
+]);
+m1.controller('Aaa',['$scope','$filter','$http',function($scope,$filter,$http){
+	var sd1=[]; 
+	var sdd1=[];
+	var idArray=[]; //存放 ID的数组 用于全选
+	$http.get("/all").success(function(response) {
+		for (var i=0;i<response.length;i++){
+			//console.log(response[i])
+			idArray.push(response[i].staff_id);
+		}
+		//$scope.names = response.records;
+		//alert(response)
+		$scope.datas1=response;
+		$scope.datas2=response;
+		sd1=$scope.datas1;
+		sdd1=$scope.datas2;
+		});
+	
+	$scope.departments1=department;
+	$scope.departments2=department;
+//------------当前数据筛选-----------------------------------	
+		
+		var sd2=[];
+		var sd3=[];
+	$scope.department2=$scope.departments1[0].department2;
+	
+	$scope.depa1=function($index,str){
+		console.log($index)
+		if($index==null){
+			$index=0;
+		}
+		$scope.department2=$scope.departments1[$index].department2;
+		$scope.datas1 = $filter('filter')( sd1, str );	
+		sd2=$scope.datas1
+	//	console.log(str);
+	};
+	
+	$scope.depa2=function(str1){
+		if(sd2.length==0){
+			sd2=$scope.datas1;
+		}
+		$scope.datas1 = $filter('filter')( sd2, str1 );
+		sd3=$scope.datas1;
+			//console.log(str1);
+	};
+	$scope.fnFilter1=function(){
+		if(sd3.length==0){
+			if(sd2.length==0){
+			sd3=$scope.datas1;
+			}else if(sdd.length!=0){
+				sd3=sdd2;
+			}
+		}
+		$scope.datas1 = $filter('filter')( sd3, $scope.filterVal );
+	}
+	
+	
+//============ 当前数据筛选 end ===================================
+//============ 查询   筛选=========================================
+	
+	var sdd2=[];
+	var sdd3=[];
+	$scope.department22=$scope.departments2[0].department2;
+	$scope.depa21=function($index,str){
+		if($index==null){
+			$index=0;
+		}
+		$scope.department22=$scope.departments2[$index].department2;
+		$scope.datas2 = $filter('filter')( sdd1, str );	
+		sdd2=$scope.datas2
+	//	console.log(str);
+	};
+	$scope.depa22=function(str){
+		if(sdd2.length==0){
+			sdd2=$scope.datas2
+		}
+		$scope.datas2 = $filter('filter')( sdd2, str );
+		sdd3=$scope.datas2
+			//console.log(str1);
+	};
+	$scope.fnFilter=function(){
+		if(sdd3.length==0){
+			if(sdd2.length==0){
+			sdd3=$scope.datas2;
+			}else if(sdd2.length!=0){
+				sdd3=sdd2;
+			}
+		}
+		$scope.datas2 = $filter('filter')( sdd3, $scope.filterVal );
+	}
+//============  查询 筛选 end==================================	
+	
+/* 	----------首页 多选 全选功能---------------- */
+	
+	var cc=[];//定义数组用于存放前端显示
+	$scope.x=false;//默认未选中
+	$scope.all= function (c) {//全选
+		if(!c){
+			$scope.x=true;
+			cc=idArray;
+		}else{
+			$scope.x=false;
+			cc=[];
+		}
+	};
+	$scope.chk= function (z,x) {//单选或者多选
+		if (x) {//选+中
+			for(var i=0 ;i<cc.length;i++){
+				if(cc[i]==z){
+					cc.splice(i,1);//取消选中
+				}
+			}
+		} else {
+			cc.push(z);
+		}
+	};
+
+	/* 	----------首页 多选 全选功能 end---------------- */
+/* 	----------首页 多选下载功能---------------- */
+	$scope.download= function () {// 操作CURD
+		if(cc[0]===""||cc.length==0){//没有选择一个的时候提示
+			alert("请选择要下载的名片！")
+			return;
+		};
+		var idlist = cc.join(',');
+		window.location.href="/export?id_list="+idlist; 
+		
+		
+		/* for(var i=0;i<cc.length;i++){
+			console.log(cc[i]);//遍历选中的id
+		} */
+	};
+/* 	----------首页 多选下载功能 end---------------- */
+/* 	----------首页 添加到我的通讯录功能---------------- */
+	$scope.add= function () {// 操作CURD
+		if(cc[0]===""||cc.length==0){//没有选择一个的时候提示
+			alert("请选择要添加的名片！")
+			return;
+		};
+		
+		/* for(var i=0;i<cc.length;i++){
+			console.log(cc[i]);//遍历选中的id
+		} */
+	};
+/* 	----------首页 添加到我的通讯录功能end---------------- */	
+	
+	
+	
+	
+	
+}]);
+
+</script>
+  </head>
+
+  <body role="document" ng-app="MyApp" ng-controller="Aaa">
+
+    <!-- Fixed navbar -->
+    <div class="container theme-showcase" role="main">
+   		<div class="col-sm-12">
+		    <div style="height:60px;line-height: 60px;width: 700px;left:200px">
+	        <img alt="logo" src="../img/logo.png" style="display:inline;float: left;margin-top: 13px"> <h3 style="display:inline;float: left;">&nbsp资生堂丽源化妆品有限公司内部电话通讯录</h3> 
+		 		</div>
+	 		</div>
+	 		<div class="col-sm-12" style="height: 20px"></div>
+			<div class="row clearfix">
+				<div class="col-md-12 column">
+					<div class="tabbable" id="tabs-800645">
+						<ul class="nav nav-tabs">
+							<li class="active">
+								 <a href="#panel-455321" data-toggle="tab">全部通讯录</a>
+							</li>
+							<li>
+								 <a href="#panel-602750" data-toggle="tab">我的通讯录</a>
+							</li>
+							<li>
+								 <a href="#panel-602751" data-toggle="tab">查询</a>
+							</li>
+						</ul>
+						<div class="tab-content">
+							<div class="tab-pane active" id="panel-455321">
+								<div class="col-sm-12" style="margin: 30px 0">
+									<div style="display: inline;float: left">
+								<label>按部门筛选：</label>
+									<label><select class="form-control" style="width: 150px;height: 30px;font-size:12px">
+										<option ng-repeat="dep in departments1 track by $index" value="{{ dep.department1 }}" ng-click="depa1($index,dep.department1)">{{ dep.department1 }}</option>
+									</select></label>
+									<label><select class="form-control" style="width: 150px;height: 30px;font-size:12px">
+										<option ng-repeat="dep2 in department2 track by $index" value="{{ dep2.department2}}" ng-click="depa2(dep2.department2)">{{ dep2.department2 }}</option>
+									</select></label>
+									</div>
+										<div class="input-group col-sm-2">
+										<input type="text" class="form-control" style="height: 30px;" ng-model="filterVal"> 
+										<span class="input-group-btn">
+											<button class="btn btn-default" type="button" style="height: 30px;" ng-click="fnFilter1()">
+												查询
+											</button>
+										</span>
+								</div>
+								</div>
+								<div style="margin-left: 25px">
+									<input type="checkbox" ng-model="master" ng-click="all(master)"> 
+									<label class="btn-left">
+										<button class="btn btn-sm" ng-click="add()">添加到我的通讯录</button>
+									</label>
+									<label class="btn-left">
+										<button class="btn btn-sm" ng-click="download()">下载</button>
+									</label>
+								</div>
+								<div class="col-sm-12" style="height: 600px;overflow-y: auto">
+												
+									<table class="col-sm-12 table table-striped table-bordered">
+										<tr>
+											<th></th>
+											<th>姓名</th>
+											<th>部门一</th>
+											<th>部门二</th>
+											<th>号码</th>
+											<th>邮箱</th>
+											<th>QQ</th>
+											<th>其他</th>
+											<th>编辑</th>
+										</tr>
+										<tr ng-repeat="data in datas1 track by $index">
+											<td><input type="checkbox" id={{data.staff_id}} ng-model="x" ng-checked="master" ng-click="chk(data.staff_id,x)"></td>
+											<td>{{data.name}}</td>
+											<td>{{data.depart1}}</td>
+											<td>{{data.depart2}}</td>
+											<td>{{data.phone}}</td>
+											<td>{{data.email}}</td>
+											<td><a href="tencent://message/?uin={{data.qq}}&amp;Site=www.xxx.com&amp;Menu=yes">{{data.qq}}</a></td>
+											<td><a href="tencent://message/?uin=1650913865&amp;Site=www.xxx.com&amp;Menu=yes">1650913865</a> </td>
+											<td>
+											
+
+												<a href="Mailto:787898700@qq.com">给我发邮件</a> 
+												<!-- <button class="btn btn-info btn-xs">编辑</button> -->
+											</td>
+										</tr>
+									</table>
+								</div>
+								<div class="col-sm-12" style="height: 60px"></div>
+							</div>
+							<div class="tab-pane" id="panel-602750">
+							<div class="col-sm-3" style="height:700px;margin: 30px 0;border-right: 1px #ddd solid;overflow-y: auto">
+								<div style="margin: 10px 0">
+									<a>我的通讯录 </a>
+									<div style="display: inline;float: right;">
+										<button class="btn btn-info btn-xs">新建分组</button>
+									</div>
+								</div>
+								<div style="margin: 10px 0">
+									<a>&nbsp&nbsp常用通讯录 </a>
+									<div style="display: inline;float: right;">
+										<button class="btn btn-info btn-xs">编辑</button>
+										<button class="btn btn-info btn-xs">删除</button>
+									</div>
+								</div>
+								<div style="margin: 10px 0">
+									<a>&nbsp&nbsp常用通讯录 </a>
+									<div style="display: inline;float: right;">
+										<button class="btn btn-info btn-xs">编辑</button>
+										<button class="btn btn-info btn-xs">删除</button>
+									</div>
+								</div>
+								
+							</div>
+							<div class="col-sm-9">
+								<!-- <div class="col-sm-12" style="margin: 30px 0"><label>通讯录分组：</label>
+									<select>
+										<option>常用通讯录</option>
+									</select>
+									
+								</div> -->
+								<div style="margin-top: 30px;">
+									<input type="checkbox"> 
+									<label  class="btn-left">
+										<button class="btn btn-info btn-sm">移动</button>
+									</label>
+									<label  class="btn-left">
+										<button class="btn btn-info btn-sm">删除</button>
+									</label>
+									<label  class="btn-left">
+										<button class="btn btn-info btn-sm">下载</button>
+									</label>
+									<label  class="btn-left">
+										<button class="btn btn-info btn-sm">发送邮件</button>
+									</label>
+								</div>
+								<div class="col-sm-12" style="height: 600px;overflow-y: auto">
+									<table class="col-sm-12 table table-striped table-bordered">
+										<tr>
+											<th></th>
+											<th>姓名</th>
+											<th>部门一</th>
+											<th>部门二</th>
+											<th>号码</th>
+											<th>邮箱</th>
+											<th>QQ</th>
+											<th>其他</th>
+											<th>编辑</th>
+										</tr>
+										<tr ng-repeat="data in datas track by $index">
+											<td><input type="checkbox"></td>
+											<td>张三</td>
+											<td>部门一</td>
+											<td>部门二</td>
+											<td>1311111111</td>
+											<td>123@123.123</td>
+											<td>123123</td>
+											<td></td>
+											<td>编辑</td>
+										</tr>
+									</table>
+								</div>
+							</div>
+							<div class="col-sm-12" style="height: 60px"></div>
+							</div>
+							<div class="tab-pane" id="panel-602751">
+							
+								<div class="col-sm-12" style="margin: 30px 0">
+								<div style="display: inline;float: left">
+								<label>按部门筛选：</label>
+									<label><select class="form-control" style="width: 150px;height: 30px;font-size:12px">
+										<option ng-repeat="dep in departments2 track by $index" value="{{ dep.department1 }}" ng-click="depa21($index,dep.department1)">{{ dep.department1 }}</option>
+									</select></label>
+									<label><select class="form-control" style="width: 150px;height: 30px;font-size:12px">
+										<option ng-repeat="dep2 in department22 track by $index" value="{{ dep2.department2}}" ng-click="depa22(dep2.department2)">{{ dep2.department2 }}</option>
+									</select></label>
+									</div>
+								<div class="input-group col-sm-2">
+										<input type="text" class="form-control" style="height: 30px;" ng-model="filterVal"> 
+										<span class="input-group-btn">
+											<button class="btn btn-default" type="button" style="height: 30px;" ng-click="fnFilter()">
+												查询
+											</button>
+										</span>
+								</div>
+								</div>
+								<div style="margin-left: 25px">
+									<input type="checkbox"> 
+									<label class="btn-left">
+										<button class="btn btn-info btn-sm">添加到我的通讯录</button>
+								
+									<label class="btn-left">
+										<button class="btn btn-info btn-sm">下载</button>
+									</label>
+								</div>
+								<div class="col-sm-12" style="height: 600px;overflow-y: auto">
+												
+									<table class="col-sm-12 table table-striped table-bordered">
+										<tr>
+											<th></th>
+											<th>姓名</th>
+											<th>部门一</th>
+											<th>部门二</th>
+											<th>号码</th>
+											<th>邮箱</th>
+											<th>QQ</th>
+											<th>其他</th>
+											<th>编辑</th>
+										</tr>
+										<tr ng-repeat="data in datas2 track by $index">
+											<td><input type="checkbox"></td>
+											<td>{{data.name}}</td>
+											<td>{{data.depart1}}</td>
+											<td>{{data.depart2}}</td>
+											<td>{{data.phone}}</td>
+											<td>{{data.email}}</td>
+											<td>{{data.qq}}</td>
+											<td></td>
+											<td>
+												<button class="btn btn-info btn-xs">编辑</button>
+											</td>
+										</tr>
+									</table>
+								</div>
+								<div class="col-sm-12" style="height: 60px"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+  </body>
+</html>
