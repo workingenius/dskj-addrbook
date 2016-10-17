@@ -1,90 +1,57 @@
 # -*- coding:utf8 -*-
 
-from collections import defaultdict
-
 from django.shortcuts import render
-from django.http import JsonResponse, FileResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 
-from .models import (
-    Staff, Position, Department, Contact,
-    sort_staff_with_ch_pron,
-    search as search_staff
-)
-from .options import CONTACTS
+from rest_framework.parsers import JSONParser
+
+from .models import LocaffInfo, Staff
+from .models import LocaffInfoSerializer
 
 
 def main(request):
     return render(request, 'addresslist/main.html')
 
 
-def locaff(request, id):
+@csrf_exempt
+def locaff_list(request):
+    if request.method == 'GET':
+        all_locaffs = LocaffInfo.get(lambda x: x.all())
+        serializer = LocaffInfoSerializer(all_locaffs, many=True)
+        return JsonResponse(serializer.data, safe=False)
+
+    elif request.method == 'POST':
+        data = JSONParser().parse(request)
+        serializer = LocaffInfoSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)
+
+
+@csrf_exempt
+def locaff_detail(request, id):
     try:
-        lcf = Staff.objects.get(id=id)
+        locaff = LocaffInfo.get(lambda x: x.get(id=int(id)))
     except Staff.DoesNotExist:
-        return JsonResponse({}, status=404
-                            )
-    contacts = lcf.contact_set.all()
+        return JsonResponse('', status=404, safe=False)
 
-    departs = list(lcf.department_set.all())
-    if len(departs):
-        depart = departs[0].name
-    else:
-        depart = None
+    if request.method == 'GET':
+        serializer = LocaffInfoSerializer(locaff)
+        return JsonResponse(serializer.data)
 
-    lcfd = {
-        'name': lcf.name,
-        'department': depart,
-        'contacts': [(CONTACTS[c.mode], c.value) for c in contacts]
-    }
+    elif request.method == 'PUT':
+        data = JSONParser().parse(request)
+        serializer = LocaffInfoSerializer(locaff, data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data)
+        return JsonResponse(serializer.errors, status=400)
 
-    return JsonResponse(lcfd)
-
-
-def locaffs(request):
-    lcfs = Staff.objects.all()
-    lcfs = sort_staff_with_ch_pron(lcfs)
-
-    clsfy = request.GET.get('classify')
-    if not clsfy:
-        bd = map(lambda x: (x.id, x.name), lcfs)
-        # TODO: WTF safe?
-        return JsonResponse(bd, safe=False)
-    elif clsfy == 'capital':
-        capital_dict = defaultdict(list)
-        for lcf in lcfs:
-            capital_dict[lcf.ch_pron[0]].append((lcf.id, lcf.name))
-        capital_list = sorted(capital_dict.items())
-        return JsonResponse(capital_list, safe=False)
-
-
-def search(request):
-    q = request.GET.get('query')
-    locaffs = search_staff(q)
-    locaffs = sort_staff_with_ch_pron(locaffs)
-    names = map(lambda lcf: (lcf.id, lcf.name), locaffs)
-    return JsonResponse(names, safe=False)
-
-
-def all_locaffs(request):
-    all_locaffs = (Staff.objects
-                   .prefetch_related('contacts')
-                   .prefetch_related('departments__superior')
-                   .all())
-
-    all_lcfs = []
-    for locaff in all_locaffs:
-        o = {}
-        o['staff_id'] = locaff.id
-        o['name'] = locaff.name
-        for contact in locaff.contacts.all():
-            o[contact.mode.lower()] = contact.value
-        depart = locaff.departments.all()[0]
-        o['depart1'] = depart.superior.name
-        o['depart2'] = depart.name
-        if o['depart1'] == u'北京亦庄工厂':
-            o['depart1'] = o['depart2']
-        all_lcfs.append(o)
-    return JsonResponse(all_lcfs, safe=False)
+    elif request.method == 'DELETE':
+        locaff.delete()
+        return JsonResponse('', status=204, safe=False)
 
 
 def export(request):

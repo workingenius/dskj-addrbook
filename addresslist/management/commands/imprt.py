@@ -1,10 +1,6 @@
 # -*- coding:utf8 -*-
-
-import openpyxl
 from django.core.management.base import BaseCommand
-from django.core.management import call_command
-
-from addresslist.imprt import from_xlsx_worksheet
+from addresslist.imprt import load
 
 
 class Command(BaseCommand):
@@ -15,14 +11,6 @@ class Command(BaseCommand):
         parser.add_argument('sheet')
 
     def handle(self, *args, **kwargs):
-        call_command('flush', interactive=False)
-
-        wb = openpyxl.load_workbook(filename=kwargs['path'], read_only=True)
-        sheet = kwargs['sheet'].decode('utf8')
-        ws = wb[sheet]
-        objs = from_xlsx_worksheet(ws)
-
-        for obj in objs:
-            obj.save()
-
+        sheetname = kwargs['sheet'].decode('utf8')
+        load(kwargs['path'], sheetname)
         self.stdout.write('done')

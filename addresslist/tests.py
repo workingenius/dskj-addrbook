@@ -1,26 +1,32 @@
 # -*- coding:utf8 -*-
-
-import re
 import json
+import re
 from itertools import imap
 
-from django.test import TestCase, Client
-import openpyxl
+from django.test import TestCase
+import pandas as pd
 
 from .models import (
     sort_staff_with_ch_pron, staffs_by_department,
     search,
-    Staff, Contact, Department, Position)
+    Staff, Contact, Department, Position,
+    LocaffInfo)
 from .langs import ch_pinyin
-from .imprt import from_xlsx_worksheet
-from . import options
+from .imprt import (
+    from_xlsx_worksheet, read_excel,
+    load2)
+
+from django.contrib.auth.models import User
 
 
 # TODO: detail Exceptions
 
 
-def gen_staff(name):
-    s = Staff(**{'name': name})
+def gen_staff(name, id=None):
+    meta = {'name': name}
+    if id:
+        meta['id'] = id
+    s = Staff(**meta)
     s.save()
     return s
 
@@ -58,7 +64,7 @@ class TestStaff(TestCase):
         s7 = gen_staff(u'タコヤキ')  # test katakana
 
         assert s1.ch_pron == 'CAOCAO'
-        # assert s2.ch_pron == 'zhitianxinchang' # 'zhitianxinzhang' in fact, that's ok
+        assert s2.ch_pron == 'ZHITIANXINZHANG' # usually read 'ZHITIANXINCHANG', while that's ok
         assert s3.ch_pron == 'GEORGEWASHINGTON'
         assert s4.ch_pron == 'ANBEIQINGMING'
         # s5 is meaningless
@@ -73,9 +79,9 @@ class TestContact(TestCase):
     def test_same_contact(self):
         s = gen_staff('Whatever')
         em = 'whatever@whatever.org'
-        s.contact_set.create(mode=Contact.EMAIL, value=em)
+        s.contacts.create(mode=Contact.EMAIL, value=em)
         with self.assertRaises(Exception):
-            s.contact_set.create(mode=Contact.EMAIL, value=em)
+            s.contacts.create(mode=Contact.EMAIL, value=em)
 
 
 class TestDepartment(TestCase):
@@ -94,6 +100,7 @@ class TestDepartment(TestCase):
         s5 = gen_staff('Emma')
         s6 = gen_staff('Fever')
         self.ss = [s1, s2, s3, s4, s5, s6]
+        save(*self.ss)
 
         p1 = Position(department=d1, staff=s1, job='manager')
         p2 = Position(department=d1, staff=s2, job='contacter')
@@ -136,14 +143,30 @@ class TestDepartment(TestCase):
             p10.save()
 
 
-class TestImportData(TestCase):
+SOURCE_PATH = './assets/SLC.xlsx'
+SOURCE_SHEETNAME = u'配置'
+test_df = read_excel(SOURCE_PATH, sheetname=SOURCE_SHEETNAME)
+
+
+class EnvForImportData(TestCase):
     def setUp(self):
-        wb = openpyxl.load_workbook(filename='./assets/SLC.xlsx', read_only=True)
-        ws = wb[u'配置']
-        objs = from_xlsx_worksheet(ws)
+        self.df = test_df
+        objs = from_xlsx_worksheet(self.df)
 
         for obj in objs:
             obj.save()
+
+
+class TestImportData(EnvForImportData):
+    def test_data_type(self):
+        # currently, no number
+        rows = self.df.iterrows()
+        for i, row in rows:
+            for value in list(row):
+                assert (
+                    isinstance(value, basestring)
+                    or pd.isnull(value)
+                )
 
     def test_import_from_xlsx(self):
         # setUp should pass
@@ -192,79 +215,34 @@ class TestImportData(TestCase):
         assert d3.superior == d4
 
 
-class TestApi(TestCase):
+class TestImportData2(TestCase):
     def setUp(self):
-        s1 = Staff.objects.create(name='Alice')
-        c11 = Contact(mode='EMAIL', value='alice@gmail.com')
-        s1.contact_set.add(c11, bulk=False)
+        load2(SOURCE_PATH, SOURCE_SHEETNAME)
 
-        s2 = Staff.objects.create(name='Bob')
+    def test_load2(self):
+        users = User.objects.all()
+        assert len(list(users)) == 5
 
-        s3 = Staff.objects.create(name='Cherry')
-        d3 = Department.objects.create(name='CherrySDepartment')
-        p3 = Position.objects.create(staff=s3, department=d3)
+        for user in users:
+            assert user.username
+            assert user.password
 
-    def test_locaff(self):
-        c = Client()
-        response = c.get('/locaff/1')
-        assert 200 <= response.status_code < 300
-        d = json.loads(response.content)
-        assert d['name'] == 'Alice'
-        assert d['department'] is None
-        assert len(d['contacts']) == 1
+        # the_user = filter(lambda u: u.username == u'邢迪秘书', users)[0]
+        # assert the_user.password == 'the_password'
+        # # fail because the_user.password is hashed
 
-        response = c.get('/locaff/2')
-        assert 200 <= response.status_code < 300
-        d = json.loads(response.content)
-        assert d['name'] == 'Bob'
-        assert d['department'] is None
-        assert len(d['contacts']) == 0
+    def test_staff_should_has_user(self):
+        staff = Staff.objects.get(name=u'侯政红副总经理')
+        user = User.objects.get(username=u'侯政红副总经理')
+        assert staff.user == user
 
-        response = c.get('/locaff/3')
-        assert 200 <= response.status_code < 300
-        d = json.loads(response.content)
-        assert d['name'] == 'Cherry'
-        assert d['department'] == 'CherrySDepartment'
-        assert len(d['contacts']) == 0
+        staff = Staff.objects.get(name=u'张敏')
+        assert staff.user is None
 
-    def test_404(self):
-        c = Client()
-        response = c.get('/locaff/10')
-        assert response.status_code == 404
-
-    def test_readable_contacts(self):
-        c = Client()
-        response = c.get('/locaff/1')
-        assert 200 <= response.status_code < 300
-        d = json.loads(response.content)
-        assert len(d['contacts']) == 1
-
-        readable_contacts = options.CONTACTS.values()
-        for c in d['contacts']:
-            assert c[0] in readable_contacts
-
-    def test_list_locaff(self):
-        c = Client()
-        response = c.get('/locaff/')
-        assert 200 <= response.status_code < 300
-        d = json.loads(response.content)
-        assert len(d) == 3
-
-    def test_list_locaff_classify(self):
-        c = Client()
-        response = c.get('/locaff/?classify=capital')
-        assert 200 <= response.status_code < 300
-        d = json.loads(response.content)
-        assert len(d) == 3
-        assert isinstance(d, list)
-        assert map(lambda x: x[0], d) == [u'A', u'B', u'C']  # should be sorted
-
-    def test_search(self):
-        rsp = self.client.get('/search?query=Cherry').json()
-        self.assertIsInstance(rsp, list)
-        assert len(rsp)
-        for i in rsp:
-            self.assertIsInstance(i, list)
+    def test_department_relation(self):
+        dep1 = Department.objects.get(name=u'总经理办公室')
+        dep2 = Department.objects.get(name=u'北京亦庄工厂')
+        assert dep1.superior == dep2
 
 
 class TestSearch(TestCase):
@@ -300,3 +278,197 @@ class TestSearch(TestCase):
         self.assertEqual(len(search('市场')), 2)
         self.assertEqual(len(search('技术')), 4)
         self.assertEqual(len(search('人事')), 2)
+
+
+class TestLocaffInfo(TestCase):
+    def test_create(self):
+        with self.assertRaises(Exception):
+            # no such department yet
+            s = LocaffInfo(name='newstaff', depart1='d1', depart2='d2', email='s1@comp.com')
+            s.save()
+
+        Department.objects.create(name='d2')
+        s = LocaffInfo(name='newstaff', depart1='d1', depart2='d2', email='s1@comp.com')
+        s.save()
+        assert s.id
+
+    def test_multi_get(self):
+        Department.objects.create(name='d2')
+        s = LocaffInfo(name='newstaff', depart1='d1', depart2='d2', email='s1@comp.com')
+        s.save()
+
+        lis = LocaffInfo.get(lambda x: x.all())
+        li = list(lis)[0]
+
+        assert li.id is not None
+        assert li.name
+        assert li.email
+        assert li.depart2
+
+    def test_single_get(self):
+        Department.objects.create(name='d2')
+        s = LocaffInfo(name='newstaff', depart1='d1', depart2='d2', email='s1@comp.com')
+        s.save()
+
+        li = LocaffInfo.get(lambda x: x.get(name='newstaff'))
+        assert li.id is not None
+        assert li.name
+        assert li.email
+        assert li.depart2
+
+
+    def test_delete(self):
+        Department.objects.create(name='d2')
+        s = LocaffInfo(name='newstaff', depart1='d1', depart2='d2', email='s1@comp.com')
+
+        assert s.delete() is None
+
+        s.save()
+
+        d = s.delete()
+        assert d
+        assert list(Contact.objects.all()) == []
+
+    def test_update(self):
+        Department.objects.create(name='d2')
+        Department.objects.create(name='d3')
+        s = LocaffInfo(name='newstaff', depart1='d1', depart2='d2',
+                       email='s1@comp.com', phone='123')
+        s.save()
+
+        s.name = 'modified'
+        s.depart2 = 'd3'
+        s.email = 'modified@comp.com'
+        s.qq = 'anewqq'
+        del s.phone
+        s.save()
+
+        s = LocaffInfo.get(lambda x: x.get(id=s.id))
+
+        assert s.name == 'modified'
+        assert s.depart2 == 'd3'
+        assert s.email == 'modified@comp.com'
+        assert s.qq == 'anewqq'
+        assert hasattr(s, 'phone') == False
+
+
+def post(client, url, body, headers=None):
+    return client.post(url, json.dumps(body),
+                content_type='application/json')
+
+
+def put(client, url, body, header=None):
+    return client.put(url, json.dumps(body),
+                       content_type='application/json')
+
+
+class TestCurrentApis(TestCase):
+    def setUp(self):
+        # d1 <- d2 <- d3
+        d1 = Department(name='市场部', superior=None)
+        d2 = Department(name='技术部', superior=d1)
+        d3 = Department(name='人事部', superior=d2)
+        self.ds = [d1, d2, d3]
+        save(*self.ds)
+
+        s1 = gen_staff('Alice', id=1)
+        s2 = gen_staff('Bob', id=2)
+        s3 = gen_staff('Cristle', id=3)
+        s4 = gen_staff('David', id=4)
+        s5 = gen_staff('Emma', id=5)
+        s6 = gen_staff('Fever', id=6)
+        self.ss = [s1, s2, s3, s4, s5, s6]
+        save(*self.ss)
+
+        p1 = Position(department=d1, staff=s1, job='manager')
+        p2 = Position(department=d1, staff=s2, job='contacter')
+        p3 = Position(department=d2, staff=s2, job='manager')
+        p4 = Position(department=d2, staff=s3, job='sales')
+        p5 = Position(department=d2, staff=s4)
+        p6 = Position(department=d3, staff=s5, job='manager')
+        p7 = Position(department=d3, staff=s6, job='maintainer')
+        p8 = Position(department=d2, staff=s6, job='maintainer')
+        self.ps = [p1, p2, p3, p4, p5, p6, p7, p8]
+        save(*self.ps)
+
+        c1 = Contact(staff=s2, mode='email', value='bob@comp.com')
+        c1.save()
+
+    def test_get_locaff_list(self):
+        alcfs = self.client.get('/staffs').json()
+        assert len(alcfs)
+        for lcf in alcfs:
+            assert lcf['id'] is not None
+            assert lcf['name']
+            assert lcf.has_key('depart1')
+            assert lcf['depart2']
+
+    def test_create_locaff(self):
+        assert post(self.client, '/staffs', {
+            'name': 'newstaff1',
+            'depart2': '技术部',
+            'email': 'newstaff1@comp.com'
+        }).json()['id'] is not None
+
+    def test_get_locaff_detail(self):
+        resp = self.client.get('/staffs/2')
+        assert resp.status_code == 200
+        staff = resp.json()
+        assert staff['id'] == 2
+        assert staff['name'] == 'Bob'
+        assert staff['depart2'] == u'市场部'
+        assert staff['email'] == 'bob@comp.com'
+
+    def test_update_locaff_detail(self):
+        phonenum = '2910394'
+
+        resp = put(self.client, '/staffs/1', {
+            'name': 'Alice',
+            'depart2': u'市场部',
+            'email': 'alice@comp.com',
+            'phone': phonenum,
+        })
+        assert 200 <= resp.status_code < 300
+        resp = resp.json()
+        assert resp['id'] == 1
+        assert resp['name'] == 'Alice'
+        assert resp['email'] == 'alice@comp.com'
+        assert resp['phone'] == phonenum
+
+        resp = self.client.get('/staffs/1').json()
+        assert resp['id'] == 1
+        assert resp['name'] == 'Alice'
+        assert resp['email'] == 'alice@comp.com'
+        assert resp['phone'] == phonenum
+
+    def test_delete_locaff_info(self):
+        resp = self.client.delete('/staffs/1')
+        assert 200 <= resp.status_code < 300
+        resp = self.client.delete('/staffs/1')
+        assert resp.status_code == 404
+
+
+class TestSerializer(TestCase):
+    def test_serializer(self):
+        from models import LocaffInfoSerializer
+        d1 = Department.objects.create(name='d1')
+
+        Department.objects.create(name='d2')
+        Department.objects.create(name='d3', superior=d1)
+        s = LocaffInfo(name='newstaff', depart1='d1', depart2='d2',
+                       email='s1@comp.com', phone='123')
+        s.name = 'modified'
+        s.depart2 = 'd3'
+        s.email = 'modified@comp.com'
+        s.qq = 'anewqq'
+        del s.phone
+        s.save()
+
+        jsondata = LocaffInfoSerializer(s).data
+
+        assert jsondata['name'] == 'modified'
+        assert jsondata['depart1'] == 'd1'
+        assert jsondata['depart2'] == 'd3'
+        assert jsondata['email'] == 'modified@comp.com'
+        assert jsondata['qq'] == 'anewqq'
+        assert jsondata.get('phone') is None
