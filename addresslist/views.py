@@ -1,7 +1,7 @@
 # -*- coding:utf8 -*-
 
 from django.shortcuts import render
-from django.http import JsonResponse, HttpResponse
+from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view
@@ -18,7 +18,7 @@ def main(request):
 
 @csrf_exempt
 @api_view(['GET', 'POST'])
-def locaff_list(request):
+def locaff_list(request, format=None):
     if request.method == 'GET':
         all_locaffs = LocaffInfo.get(lambda x: x.all())
         serializer = LocaffInfoSerializer(all_locaffs, many=True)
@@ -35,7 +35,7 @@ def locaff_list(request):
 
 @csrf_exempt
 @api_view(['GET', 'PUT', 'DELETE'])
-def locaff_detail(request, id):
+def locaff_detail(request, id, format=None):
     try:
         locaff = LocaffInfo.get(lambda x: x.get(id=int(id)))
     except Staff.DoesNotExist:
