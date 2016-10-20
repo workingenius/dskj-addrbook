@@ -2,13 +2,13 @@
 
 from django.shortcuts import render
 from django.http import HttpResponse, Http404
-from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import generics
+from rest_framework import permissions
 from rest_framework.views import APIView
 
 from .models import LocaffInfo, Staff
@@ -20,9 +20,7 @@ def main(request):
 
 
 class LocaffList(APIView):
-    @method_decorator(csrf_exempt)
-    def dispatch(self, request, *args, **kwargs):
-        return super(LocaffList, self).dispatch(request, *args, **kwargs)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
 
     def get(self, request, format=None):
         all_locaffs = LocaffInfo.get(lambda x: x.all())
@@ -38,9 +36,7 @@ class LocaffList(APIView):
 
 
 class LocaffDetail(APIView):
-    @method_decorator(csrf_exempt)
-    def dispatch(self, request, *args, **kwargs):
-        return super(LocaffDetail, self).dispatch(request, *args, **kwargs)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
 
     def get_object(self, id):
         try:
