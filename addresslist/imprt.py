@@ -68,7 +68,11 @@ def load_users(df):
 
 
 def load_staffs(users):
+    jian = re.compile(ur'[(\uff08]\s*\u517c\s*[)\uff09]')
     for literal_name, real_name in users.iteritems():
+        # 带有被括号扩起来的"兼"字,则忽略他
+        if jian.search(literal_name):
+            continue
         try:
             user = User.objects.get(username=literal_name)
         except User.DoesNotExist:
@@ -120,7 +124,7 @@ def save_departments(departments):
     return result
 
 
-locaff_ptn = re.compile(u'[(\uff08][\u517c\u5c0f][)\uff09]')
+locaff_ptn = re.compile(u'[(\uff08].*[)\uff09]')
 department_ptn = re.compile(r'\s')
 
 

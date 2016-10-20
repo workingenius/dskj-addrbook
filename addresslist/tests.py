@@ -2,6 +2,7 @@
 import json
 import re
 from itertools import imap
+from functools import partial
 
 from django.test import TestCase
 import pandas as pd
@@ -11,6 +12,7 @@ from .models import (
     search,
     Staff, Contact, Department, Position,
     LocaffInfo)
+from models import LocaffInfoSerializer
 from .langs import ch_pinyin
 from .imprt import (
     from_xlsx_worksheet, read_excel,
@@ -244,6 +246,10 @@ class TestImportData2(TestCase):
         dep2 = Department.objects.get(name=u'北京亦庄工厂')
         assert dep1.superior == dep2
 
+    def test_duplicate_name(self):
+        assert Staff.objects.filter(name=u'田畑本部长').count() == 1
+        assert Staff.objects.filter(name=u'王艳').count() > 1
+
 
 class TestSearch(TestCase):
     def setUp(self):
@@ -352,18 +358,31 @@ class TestLocaffInfo(TestCase):
         assert hasattr(s, 'phone') == False
 
 
-def post(client, url, body, headers=None):
-    return client.post(url, json.dumps(body),
-                content_type='application/json')
+TEST_USER_NAME = 'testuser'
+TEST_USER_PASSWORD = 'test*User'
 
 
-def put(client, url, body, header=None):
-    return client.put(url, json.dumps(body),
-                       content_type='application/json')
+def req(method, client, url, body=None, headers=None):
+    if body:
+        return getattr(client, method)(url, json.dumps(body), content_type='application/json')
+    else:
+        return getattr(client, method)(url)
+
+
+def login(client):
+    return client.login(username=TEST_USER_NAME, password=TEST_USER_PASSWORD)
+
+
+post = partial(req, 'post')
+put = partial(req, 'put')
+delete = partial(req, 'delete')
 
 
 class TestCurrentApis(TestCase):
     def setUp(self):
+        # test user for auth
+        User.objects.create_user(TEST_USER_NAME, password=TEST_USER_PASSWORD)
+
         # d1 <- d2 <- d3
         d1 = Department(name='市场部', superior=None)
         d2 = Department(name='技术部', superior=d1)
@@ -404,11 +423,14 @@ class TestCurrentApis(TestCase):
             assert lcf['depart2']
 
     def test_create_locaff(self):
-        assert post(self.client, '/staffs', {
+        body = {
             'name': 'newstaff1',
-            'depart2': '技术部',
+            'depart1': '技术部',
             'email': 'newstaff1@comp.com'
-        }).json()['id'] is not None
+        }
+        assert post(self.client, '/staffs', body).status_code == 403
+        login(self.client)
+        assert post(self.client, '/staffs', body).json()['id'] is not None
 
     def test_get_locaff_detail(self):
         resp = self.client.get('/staffs/2')
@@ -421,13 +443,16 @@ class TestCurrentApis(TestCase):
 
     def test_update_locaff_detail(self):
         phonenum = '2910394'
-
-        resp = put(self.client, '/staffs/1', {
+        body = {
             'name': 'Alice',
-            'depart2': u'市场部',
+            'depart1': u'市场部',
             'email': 'alice@comp.com',
             'phone': phonenum,
-        })
+        }
+
+        assert put(self.client, '/staffs/1', body).status_code == 403
+        login(self.client)
+        resp = put(self.client, '/staffs/1', body)
         assert 200 <= resp.status_code < 300
         resp = resp.json()
         assert resp['id'] == 1
@@ -442,17 +467,17 @@ class TestCurrentApis(TestCase):
         assert resp['phone'] == phonenum
 
     def test_delete_locaff_info(self):
-        resp = self.client.delete('/staffs/1')
+        assert delete(self.client, '/staffs/1').status_code == 403
+        login(self.client)
+        resp = delete(self.client, '/staffs/1')
         assert 200 <= resp.status_code < 300
-        resp = self.client.delete('/staffs/1')
+        resp = delete(self.client, '/staffs/1')
         assert resp.status_code == 404
 
 
 class TestSerializer(TestCase):
-    def test_serializer(self):
-        from models import LocaffInfoSerializer
+    def setUp(self):
         d1 = Department.objects.create(name='d1')
-
         Department.objects.create(name='d2')
         Department.objects.create(name='d3', superior=d1)
         s = LocaffInfo(name='newstaff', depart1='d1', depart2='d2',
@@ -463,12 +488,25 @@ class TestSerializer(TestCase):
         s.qq = 'anewqq'
         del s.phone
         s.save()
+        self.locaff_info = s
 
+    def test_serialize(self):
+        s = self.locaff_info
         jsondata = LocaffInfoSerializer(s).data
-
         assert jsondata['name'] == 'modified'
         assert jsondata['depart1'] == 'd1'
         assert jsondata['depart2'] == 'd3'
         assert jsondata['email'] == 'modified@comp.com'
         assert jsondata['qq'] == 'anewqq'
         assert jsondata.get('phone') is None
+
+    def test_deserialize(self):
+        jsondata = {"name":"name", "depart1":"d3"}
+        s = LocaffInfoSerializer(data=jsondata)
+        s.is_valid()
+        s.save()
+
+        s = LocaffInfo.get(lambda x: x.get(name="name"))
+        assert s.depart2 == 'd3'
+        assert s.depart1 == 'd1'
+
