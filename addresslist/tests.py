@@ -2,6 +2,7 @@
 import json
 import re
 from itertools import imap
+from functools import partial
 
 from django.test import TestCase
 import pandas as pd
@@ -352,18 +353,31 @@ class TestLocaffInfo(TestCase):
         assert hasattr(s, 'phone') == False
 
 
-def post(client, url, body, headers=None):
-    return client.post(url, json.dumps(body),
-                content_type='application/json')
+TEST_USER_NAME = 'testuser'
+TEST_USER_PASSWORD = 'test*User'
 
 
-def put(client, url, body, header=None):
-    return client.put(url, json.dumps(body),
-                       content_type='application/json')
+def req(method, client, url, body=None, headers=None):
+    if body:
+        return getattr(client, method)(url, json.dumps(body), content_type='application/json')
+    else:
+        return getattr(client, method)(url)
+
+
+def login(client):
+    return client.login(username=TEST_USER_NAME, password=TEST_USER_PASSWORD)
+
+
+post = partial(req, 'post')
+put = partial(req, 'put')
+delete = partial(req, 'delete')
 
 
 class TestCurrentApis(TestCase):
     def setUp(self):
+        # test user for auth
+        User.objects.create_user(TEST_USER_NAME, password=TEST_USER_PASSWORD)
+
         # d1 <- d2 <- d3
         d1 = Department(name='市场部', superior=None)
         d2 = Department(name='技术部', superior=d1)
@@ -404,11 +418,14 @@ class TestCurrentApis(TestCase):
             assert lcf['depart2']
 
     def test_create_locaff(self):
-        assert post(self.client, '/staffs', {
+        body = {
             'name': 'newstaff1',
             'depart2': '技术部',
             'email': 'newstaff1@comp.com'
-        }).json()['id'] is not None
+        }
+        assert post(self.client, '/staffs', body).status_code == 403
+        login(self.client)
+        assert post(self.client, '/staffs', body).json()['id'] is not None
 
     def test_get_locaff_detail(self):
         resp = self.client.get('/staffs/2')
@@ -421,13 +438,16 @@ class TestCurrentApis(TestCase):
 
     def test_update_locaff_detail(self):
         phonenum = '2910394'
-
-        resp = put(self.client, '/staffs/1', {
+        body = {
             'name': 'Alice',
             'depart2': u'市场部',
             'email': 'alice@comp.com',
             'phone': phonenum,
-        })
+        }
+
+        assert put(self.client, '/staffs/1', body).status_code == 403
+        login(self.client)
+        resp = put(self.client, '/staffs/1', body)
         assert 200 <= resp.status_code < 300
         resp = resp.json()
         assert resp['id'] == 1
@@ -442,9 +462,11 @@ class TestCurrentApis(TestCase):
         assert resp['phone'] == phonenum
 
     def test_delete_locaff_info(self):
-        resp = self.client.delete('/staffs/1')
+        assert delete(self.client, '/staffs/1').status_code == 403
+        login(self.client)
+        resp = delete(self.client, '/staffs/1')
         assert 200 <= resp.status_code < 300
-        resp = self.client.delete('/staffs/1')
+        resp = delete(self.client, '/staffs/1')
         assert resp.status_code == 404
 
 
