@@ -246,6 +246,10 @@ class TestImportData2(TestCase):
         dep2 = Department.objects.get(name=u'北京亦庄工厂')
         assert dep1.superior == dep2
 
+    def test_duplicate_name(self):
+        assert Staff.objects.filter(name=u'田畑本部长').count() == 1
+        assert Staff.objects.filter(name=u'王艳').count() > 1
+
 
 class TestSearch(TestCase):
     def setUp(self):
