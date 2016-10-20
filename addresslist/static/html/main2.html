@@ -15,10 +15,9 @@
     <link href="../css/bootstrap-theme.min.css" rel="stylesheet">
     <link href="../css/bootstrap-theme.min.css" rel="stylesheet">
 		<script src="../js/jquery.min.js"></script>
-		<script src="https://cdn.bootcss.com/angular.js/1.2.30/angular.js"></script>
-    <!-- <script src="https://cdn.bootcss.com/angular.js/1.5.8/angular.js"></script> -->
-		<!-- <script src="../js/angular.js"></script> -->
-    <script src="../js/bootstrap.min.js"></script>
+		<script src="../js/angular.js"></script>
+		<script src="http://cdn.bootcss.com/angular-ui-bootstrap/0.11.2/ui-bootstrap-tpls.js"></script>
+		<script src="../js/bootstrap.min.js"></script>
 <style type="text/css">
 .btn-left{
 	margin-left: 10px
@@ -26,10 +25,6 @@
 </style>
 <script type="text/javascript">
   
-//document.cookie = "aa=bbc"
-//alert(document.cookie);
-
-
 var department=[
 {"department1":"全部"},
 {"department1":"总经理办公室"},
@@ -65,7 +60,7 @@ var department=[
 
 
 
-var m1= angular.module('MyApp',[]);
+var m1= angular.module('MyApp',[ 'ui.bootstrap']);
 m1.config( [
 	'$compileProvider',
 	function( $compileProvider ){   
@@ -73,14 +68,16 @@ m1.config( [
 	    // Angular v1.2 之前使用 $compileProvider.urlSanitizationWhitelist(...)
 	}
 ]);
-m1.controller('Aaa',['$scope','$filter','$http',function($scope,$filter,$http){
+m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope,$filter,$http,$modal, $log){
 	$scope.selectValue=department[0];
 	var sd1=[]; 
-	$http.get("/all").success(function(response) {
-		$scope.datas1=response;
-		sd1=response;
-		});
-	
+	$scope.getdata = function(){
+		$http.get("/staffs").success(function(response) {
+			$scope.datas1=response;
+			sd1=response;
+			});
+	}
+	$scope.getdata();
 	$scope.departments1=department;
 //------------当前数据筛选-----------------------------------	
 		
@@ -142,7 +139,7 @@ m1.controller('Aaa',['$scope','$filter','$http',function($scope,$filter,$http){
 	$scope.all= function (c) {//全选
 		idArray=[];
 			for (var i=0;i<$scope.datas1.length;i++){
-				idArray.push($scope.datas1[i].staff_id);
+				idArray.push($scope.datas1[i].id);
 			}
 		if(!c){
 			cc=idArray;
@@ -162,12 +159,40 @@ m1.controller('Aaa',['$scope','$filter','$http',function($scope,$filter,$http){
 		} else {
 			cc.push(z);
 		}
-			console.log(z)
-			console.log(x)
-			console.log(cc)
+			
 	};
 
 	/* 	----------首页 多选 全选功能 end---------------- */
+	/* 	----------首页 编辑功能---------------- */
+	$scope.edit= function (id) {
+		//打开编辑窗口 
+	}
+	/* 	----------首页 编辑功能 end---------------- */
+	/* 	----------首页 编辑功能---------------- */
+	
+	$scope.dle= function (id) {
+		if(confirm("确认删除吗？")){
+		$http({
+			url:'/staffs/'+id,
+			method:'delete'
+			}).success(function(data,header,config,status){
+			//响应成功
+			if(header==204){
+				$http.get("/staffs").success(function(response) {
+					$scope.datas1=response;
+					sd1=response;
+					});
+				}
+			}).error(function(data,header,config,status){
+			//处理响应失败
+				if(header==404){
+					alert("删除失败！")
+				}
+			});
+		//打开编辑窗口 
+		}
+	}
+	/* 	----------首页 编辑功能 end---------------- */
 /* 	----------首页 多选下载功能---------------- */
 	$scope.download= function () {// 操作CURD
 		if(cc[0]===""||cc.length==0){//没有选择一个的时候提示
@@ -177,10 +202,6 @@ m1.controller('Aaa',['$scope','$filter','$http',function($scope,$filter,$http){
 		var idlist = cc.join(',');
 		window.location.href="/export?id_list="+idlist; 
 		
-		
-		/* for(var i=0;i<cc.length;i++){
-			console.log(cc[i]);//遍历选中的id
-		} */
 	};
 /* 	----------首页 多选下载功能 end---------------- */
 /* 	----------首页 添加到我的通讯录功能---------------- */
@@ -196,15 +217,179 @@ m1.controller('Aaa',['$scope','$filter','$http',function($scope,$filter,$http){
 	};
 /* 	----------首页 添加到我的通讯录功能end---------------- */	
 	
+$scope.items = [ 'angularjs', 'backbone', 'canjs', 'Ember', 'react' ];
+	// open click
+	$scope.open = function(str,id) {
+		
+			$scope.departs1=department;
+		
+		var modalInstance = $modal.open({
+			templateUrl : 'myModelContent.html',
+			controller : 'ModalInstanceCtrl', // specify controller for modal
+			size : "lg",
+			backdrop : false,
+			//keyboard:false,
+			resolve : {
+				str: function() {
+					return {"str":str,"id":id};
+				},
+				depart : function() {
+					return $scope.departs1;
+				}
+			}
+		});
+		
+		
+		// modal return result
+		modalInstance.result.then(function(string) {
+			if(string==0){
+				$scope.getdata();
+			}
+		})
+	}
+}])
+.controller('ModalInstanceCtrl', function($scope,$http, $modalInstance, str, depart) {
+	if(depart[0].department1=="全部"){
+				depart.splice(0,1)
+			}
 
+		$scope.departs1= depart;
+		$scope.depart1=depart[0]
+	
+	$scope.change1=function(s) {
+		if(s.department2){
+			
+			$scope.bool=1;
+			$scope.departs2=s.department2;
+			$scope.depart2=s.department2[0];
+			console.log(s.department2[0])
+			}else{
+				$scope.bool=2;
+			}; 
+	}
+	if(str.str=="edit"){
+		$http.get("/staffs/"+str.id).success(function(response) {
+			var dep2={}
+			$scope.name=response.name;
+			$scope.email=response.email;
+			$scope.qq=response.qq;
+			$scope.phone=response.phone;
+			//$scope.bool=1;
+			$scope.departs1= depart;
+			for(var i=0;i<$scope.departs1.length;i++){
+				if($scope.departs1[i].department1==response.depart1){
+					$scope.depart1=$scope.departs1[i];
+					$scope.change1($scope.depart1)
+					if($scope.depart1.department2){
+						for(var j=0;j<$scope.depart1.department2.length;j++){
+							if($scope.depart1.department2[j].department2==response.depart2){
+							//alert(1)
+								dep2=$scope.depart1.department2[j];
+							}
+						}
+					}
+				}
+			}
+			$scope.depart2=dep2;
+			console.log(dep2)
+		});
+	}
 	
 	
-}]);
-
+	
+	// ok click
+	$scope.ok = function() {
+		if($scope.depart2==null){
+			$scope.depart2=$scope.depart1;
+			$scope.depart2.department2=$scope.depart1.department1;
+		}
+		console.log($scope.name)
+		console.log($scope.email)
+		console.log($scope.qq)
+		console.log($scope.phone)
+		console.log($scope.depart1.department1)
+		//console.log($scope.depart2.department2)
+		if(str.str=='add'){
+			$http.post('/staffs', {
+                name: $scope.name,
+                email: $scope.email,
+                phone: $scope.phone,
+                qq:$scope.qq,
+                depart1:$scope.depart1.department1,
+                depart2:$scope.depart2.department2,
+            }).success(function(){
+								$modalInstance.close(0);
+            });
+		};
+		if(str.str=='edit'){
+			$http({
+				url:'/staffs/'+str.id,
+				method:'put',
+				data:{
+									id:str.id,
+	                name: $scope.name,
+	                email: $scope.email,
+	                phone: $scope.phone,
+	                qq:$scope.qq,
+	                depart1:$scope.depart1.department1,
+	                depart2:$scope.depart2.department2,
+	            }
+				}).success(function(data,header,config,status){
+				//响应成功
+					$modalInstance.close(0);
+				}).error(function(data,header,config,status){
+				//处理响应失败
+					
+				});
+		}
+		//$modalInstance.dismiss('cancel');
+	};
+	// cancel click
+	$scope.cancel = function() {
+		$modalInstance.dismiss('cancel');
+	}
+});
 </script>
   </head>
 
   <body role="document" ng-app="MyApp" ng-controller="Aaa">
+<script type="text/ng-template" id="myModelContent.html">
+		<div class="modal-header">
+			<h3 class="modal-title">{{title}}</h3>
+		</div>
+		<div class="modal-body">
+			<div style="margin: 10px auto;width: 80%">
+			<form action="" >
+				<label>姓名：</label><input ng-model="name" type="text" required /><br>
+				<label>部门：</label>
+					<label>
+						<select class="form-control" ng-model="depart1"  ng-change="change1(depart1)" ng-options="item.department1 for item in departs1" style="width: 150px;height: 30px;font-size:12px"></select>
+					</label>
+					<label>
+					 <select ng-if="bool==1" class="form-control" ng-model="depart2"  ng-change="change2(depart1)" ng-options="item1.department2 for item1 in departs2" style="width: 150px;height: 30px;font-size:12px"></select>
+					</label>
+				<br>
+				<label>号码：</label><input ng-model="phone" type="text" required /><br>
+				<label>邮箱：</label><input ng-model="email" type="text" required /><br>
+				<label>Q Q：</label><input ng-model="qq" type="text" required />
+			</form>
+			</div>
+<!--
+			<ul>
+				<li ng-repeat="item in items">
+				<a ng-click="selected.item = item">{{item}}</a>
+				</li>
+				<div class="h2">当前选择： <b>{{selected.item}}</b></div>
+			</ul>
+-->
+		</div>
+		<div class="modal-footer">
+			<button class="btn btn-primary" ng-click="ok()">
+			确认
+			</button>
+			<button class="btn btn-warning" ng-click="cancel()">退出</button>
+		</div>
+</script>
 
     <!-- Fixed navbar -->
     <div class="container theme-showcase" role="main">
@@ -255,6 +440,9 @@ m1.controller('Aaa',['$scope','$filter','$http',function($scope,$filter,$http){
 									<label class="btn-left">
 										<button class="btn btn-sm" ng-click="download()">下载</button>
 									</label>
+									<label class="btn-left" ng-if="1==1">
+										<button class="btn btn-sm" ng-click="open('add')">添加</button>
+									</label>
 								</div>
 								<div class="col-sm-12" style="height: 600px;overflow-y: auto">
 												
@@ -268,10 +456,10 @@ m1.controller('Aaa',['$scope','$filter','$http',function($scope,$filter,$http){
 											<th>邮箱</th>
 											<th>QQ</th>
 											<th>其他</th>
-											<th>编辑</th>
+											<th ng-if="1==1">编辑</th>
 										</tr>
 										<tr ng-repeat="data in datas1 track by $index">
-											<td><input type="checkbox" id={{data.staff_id}} ng-model="x" ng-checked="master" ng-click="chk(data.staff_id,x,data.email)"></td>
+											<td><input type="checkbox" id={{data.id}} ng-model="x" ng-checked="master" ng-click="chk(data.id,x,data.email)"></td>
 											<td>{{data.name}}</td>
 											<td>{{data.depart1}}</td>
 											<td>{{data.depart2}}</td>
@@ -279,11 +467,9 @@ m1.controller('Aaa',['$scope','$filter','$http',function($scope,$filter,$http){
 											<td><a href="Mailto:{{data.email}}">{{data.email}}</a></td>
 											<td><a href="tencent://message/?uin={{data.qq}}&amp;Site=www.xxx.com&amp;Menu=yes">{{data.qq}}</a></td>
 											<td><a href="tencent://message/?uin=6525252&amp;Site=www.xxx.com&amp;Menu=yes">6525252</a> </td>
-											<td>
-											
-
-												 <a href="Mailto:233@qq.com">发邮件</a>
-												<!-- <button class="btn btn-info btn-xs">编辑</button> -->
+											<td ng-if="1==1">
+												 <a ng-click="open('edit',data.id)">编辑</a>
+												 <a ng-click="dle(data.id)">删除</a>
 											</td>
 										</tr>
 									</table>
