@@ -12,6 +12,7 @@ from .models import (
     search,
     Staff, Contact, Department, Position,
     LocaffInfo)
+from models import LocaffInfoSerializer
 from .langs import ch_pinyin
 from .imprt import (
     from_xlsx_worksheet, read_excel,
@@ -420,7 +421,7 @@ class TestCurrentApis(TestCase):
     def test_create_locaff(self):
         body = {
             'name': 'newstaff1',
-            'depart2': '技术部',
+            'depart1': '技术部',
             'email': 'newstaff1@comp.com'
         }
         assert post(self.client, '/staffs', body).status_code == 403
@@ -440,7 +441,7 @@ class TestCurrentApis(TestCase):
         phonenum = '2910394'
         body = {
             'name': 'Alice',
-            'depart2': u'市场部',
+            'depart1': u'市场部',
             'email': 'alice@comp.com',
             'phone': phonenum,
         }
@@ -471,10 +472,8 @@ class TestCurrentApis(TestCase):
 
 
 class TestSerializer(TestCase):
-    def test_serializer(self):
-        from models import LocaffInfoSerializer
+    def setUp(self):
         d1 = Department.objects.create(name='d1')
-
         Department.objects.create(name='d2')
         Department.objects.create(name='d3', superior=d1)
         s = LocaffInfo(name='newstaff', depart1='d1', depart2='d2',
@@ -485,12 +484,25 @@ class TestSerializer(TestCase):
         s.qq = 'anewqq'
         del s.phone
         s.save()
+        self.locaff_info = s
 
+    def test_serialize(self):
+        s = self.locaff_info
         jsondata = LocaffInfoSerializer(s).data
-
         assert jsondata['name'] == 'modified'
         assert jsondata['depart1'] == 'd1'
         assert jsondata['depart2'] == 'd3'
         assert jsondata['email'] == 'modified@comp.com'
         assert jsondata['qq'] == 'anewqq'
         assert jsondata.get('phone') is None
+
+    def test_deserialize(self):
+        jsondata = {"name":"name", "depart1":"d3"}
+        s = LocaffInfoSerializer(data=jsondata)
+        s.is_valid()
+        s.save()
+
+        s = LocaffInfo.get(lambda x: x.get(name="name"))
+        assert s.depart2 == 'd3'
+        assert s.depart1 == 'd1'
+

@@ -224,6 +224,8 @@ class LocaffInfo(object):
 # LocaffInfoSerializer block
 
 def create(self, validated_data):
+    if not validated_data.has_key('depart2'):
+        validated_data['depart2'] = validated_data.pop('depart1')
     li = LocaffInfo(**validated_data)
     li.save()
     return li
@@ -241,8 +243,8 @@ def update(self, instance, validated_data):
 binding = {
     'id': serializers.IntegerField(read_only=True),
     'name': serializers.CharField(read_only=False, max_length=32),
-    'depart1': serializers.CharField(required=False, read_only=True, max_length=32),
-    'depart2': serializers.CharField(max_length=32),
+    'depart1': serializers.CharField(max_length=32),
+    'depart2': serializers.CharField(required=False, max_length=32),
 
     'create': create,
     'update': update,
