@@ -22,6 +22,18 @@
 .btn-left{
 	margin-left: 10px
 }
+a{
+	cursor:pointer
+}
+.top_r{
+	position: absolute;
+	right: 20px;
+	top: 10px;
+}
+.ms{
+	color:red;
+	font-size: 10;
+}
 </style>
 <script type="text/javascript">
   
@@ -217,16 +229,20 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 	};
 /* 	----------首页 添加到我的通讯录功能end---------------- */	
 	
-$scope.items = [ 'angularjs', 'backbone', 'canjs', 'Ember', 'react' ];
+//$scope.items = [ 'angularjs', 'backbone', 'canjs', 'Ember', 'react' ];
 	// open click
 	$scope.open = function(str,id) {
 		
 			$scope.departs1=department;
-		
+		if(str=="login"){
+			var sisz=""
+		}else{
+			var sisz="lg"
+		}
 		var modalInstance = $modal.open({
 			templateUrl : 'myModelContent.html',
 			controller : 'ModalInstanceCtrl', // specify controller for modal
-			size : "lg",
+			size : sisz,
 			backdrop : false,
 			//keyboard:false,
 			resolve : {
@@ -267,7 +283,17 @@ $scope.items = [ 'angularjs', 'backbone', 'canjs', 'Ember', 'react' ];
 				$scope.bool=2;
 			}; 
 	}
+	if(str.str=='login'){
+		$scope.ck=1
+		$scope.title="登录"
+	}
+	if(str.str=='add'){
+		$scope.ck=2
+		$scope.title="添加"
+	}
 	if(str.str=="edit"){
+		$scope.ck=2
+		$scope.title="编辑"
 		$http.get("/staffs/"+str.id).success(function(response) {
 			var dep2={}
 			$scope.name=response.name;
@@ -298,6 +324,22 @@ $scope.items = [ 'angularjs', 'backbone', 'canjs', 'Ember', 'react' ];
 	
 	
 	// ok click
+	$scope.login = function() {
+		$http({
+			url:'/login',
+			method:'post',
+			data:{
+				username: $scope.username,
+				password: $scope.password,
+			}
+		}).success(function(data,header,config,status){
+			$modalInstance.close(0);
+		}).error(function(data,header,config,status){
+			$scope.m=1;
+			$scope.ms="登录失败！用户名或密码错误!";
+			//处理响应失败
+		});
+	}
 	$scope.ok = function() {
 		if($scope.depart2==null){
 			$scope.depart2=$scope.depart1;
@@ -311,36 +353,34 @@ $scope.items = [ 'angularjs', 'backbone', 'canjs', 'Ember', 'react' ];
 		//console.log($scope.depart2.department2)
 		if(str.str=='add'){
 			$http.post('/staffs', {
-                name: $scope.name,
-                email: $scope.email,
-                phone: $scope.phone,
-                qq:$scope.qq,
-                depart1:$scope.depart1.department1,
-                depart2:$scope.depart2.department2,
-            }).success(function(){
-								$modalInstance.close(0);
-            });
+				name: $scope.name,
+				email: $scope.email,
+				phone: $scope.phone,
+				qq:$scope.qq,
+				depart1:$scope.depart1.department1,
+				depart2:$scope.depart2.department2,
+				}).success(function(){
+				$modalInstance.close(0);
+			});
 		};
 		if(str.str=='edit'){
 			$http({
 				url:'/staffs/'+str.id,
 				method:'put',
 				data:{
-									id:str.id,
-	                name: $scope.name,
-	                email: $scope.email,
-	                phone: $scope.phone,
-	                qq:$scope.qq,
-	                depart1:$scope.depart1.department1,
-	                depart2:$scope.depart2.department2,
-	            }
-				}).success(function(data,header,config,status){
-				//响应成功
-					$modalInstance.close(0);
-				}).error(function(data,header,config,status){
+					id:str.id,
+					name: $scope.name,
+					email: $scope.email,
+					phone: $scope.phone,
+					qq:$scope.qq,
+					depart1:$scope.depart1.department1,
+					depart2:$scope.depart2.department2,
+				}
+			}).success(function(data,header,config,status){
+				$modalInstance.close(0);
+			}).error(function(data,header,config,status){
 				//处理响应失败
-					
-				});
+			});
 		}
 		//$modalInstance.dismiss('cancel');
 	};
@@ -352,15 +392,15 @@ $scope.items = [ 'angularjs', 'backbone', 'canjs', 'Ember', 'react' ];
 </script>
   </head>
 
-  <body role="document" ng-app="MyApp" ng-controller="Aaa">
+<body role="document" ng-app="MyApp" ng-controller="Aaa">
 <script type="text/ng-template" id="myModelContent.html">
 		<div class="modal-header">
 			<h3 class="modal-title">{{title}}</h3>
 		</div>
-		<div class="modal-body">
+		<div class="modal-body" ng-if="ck==2">
 			<div style="margin: 10px auto;width: 80%">
 			<form action="" >
-				<label>姓名：</label><input ng-model="name" type="text" required /><br>
+				<label>姓名：</label><input class="input" ng-model="name" type="text" required /><br>
 				<label>部门：</label>
 					<label>
 						<select class="form-control" ng-model="depart1"  ng-change="change1(depart1)" ng-options="item.department1 for item in departs1" style="width: 150px;height: 30px;font-size:12px"></select>
@@ -369,28 +409,29 @@ $scope.items = [ 'angularjs', 'backbone', 'canjs', 'Ember', 'react' ];
 					 <select ng-if="bool==1" class="form-control" ng-model="depart2"  ng-change="change2(depart1)" ng-options="item1.department2 for item1 in departs2" style="width: 150px;height: 30px;font-size:12px"></select>
 					</label>
 				<br>
-				<label>号码：</label><input ng-model="phone" type="text" required /><br>
-				<label>邮箱：</label><input ng-model="email" type="text" required /><br>
-				<label>Q Q：</label><input ng-model="qq" type="text" required />
+				<label>号码：</label><input class="input" ng-model="phone" type="text" required /><br>
+				<label>邮箱：</label><input class="input" ng-model="email" type="text" required /><br>
+				<label>Q&nbsp;&nbsp;Q：</label><input class="input" ng-model="qq" type="text" required />
 			</form>
 			</div>
-<!--
-			<ul>
-				<li ng-repeat="item in items">
-				<a ng-click="selected.item = item">{{item}}</a>
-				</li>
-				<div class="h2">当前选择： <b>{{selected.item}}</b></div>
-			</ul>
--->
+		</div>
+		<div class="modal-body" ng-if="ck==1">
+			<div style="margin: 10px auto;width: 80%">
+			<form action="" >
+				<label>账号：</label><input class="input" ng-model="username" type="text" required /><br>
+				<label>密码：</label><input class="input" ng-model="password" type="text" required /><br>
+			</form>
+				<div class="ms" ng-if"m==0">{{ms}}</div>
+			</div>
 		</div>
 		<div class="modal-footer">
-			<button class="btn btn-primary" ng-click="ok()">
-			确认
-			</button>
+			<button ng-if="ck==2" class="btn btn-primary" ng-click="ok()">确认</button>
+			<button ng-if="ck==1" class="btn btn-primary" ng-click="login()">登录</button>
 			<button class="btn btn-warning" ng-click="cancel()">退出</button>
 		</div>
 </script>
-
+	<div class="top_r" ng-if="1>0"><a href="/api/login">登录</a></div>
+	<div class="top_r" ng-if="0>0"><a>注销</a></div>
     <!-- Fixed navbar -->
     <div class="container theme-showcase" role="main">
    		<div class="col-sm-12">
@@ -476,7 +517,7 @@ $scope.items = [ 'angularjs', 'backbone', 'canjs', 'Ember', 'react' ];
 								</div>
 								<div class="col-sm-12" style="height: 60px"></div>
 							</div>
-							<div class="tab-pane" id="panel-602750">
+							<!--<div class="tab-pane" id="panel-602750">
 							<div class="col-sm-3" style="height:700px;margin: 30px 0;border-right: 1px #ddd solid;overflow-y: auto">
 								<div style="margin: 10px 0">
 									<a>我的通讯录 </a>
@@ -501,12 +542,7 @@ $scope.items = [ 'angularjs', 'backbone', 'canjs', 'Ember', 'react' ];
 								
 							</div>
 							<div class="col-sm-9">
-								<!-- <div class="col-sm-12" style="margin: 30px 0"><label>通讯录分组：</label>
-									<select>
-										<option>常用通讯录</option>
-									</select>
-									
-								</div> -->
+								
 								<div style="margin-top: 30px;">
 									<input type="checkbox"> 
 									<label  class="btn-left">
@@ -550,7 +586,7 @@ $scope.items = [ 'angularjs', 'backbone', 'canjs', 'Ember', 'react' ];
 								</div>
 							</div>
 							<div class="col-sm-12" style="height: 60px"></div>
-							</div>
+							</div>-->
 						</div>
 					</div>
 				</div>
