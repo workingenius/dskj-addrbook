@@ -1,5 +1,7 @@
 # -*- coding:utf8 -*-
 
+from StringIO import StringIO
+
 from django.shortcuts import render
 from django.http import HttpResponse, Http404
 from django.contrib.auth.models import AnonymousUser
@@ -14,6 +16,7 @@ from rest_framework.views import APIView
 
 from .models import LocaffInfo, Staff
 from .models import LocaffInfoSerializer
+from .xlsx import output
 
 
 def main(request):
@@ -68,8 +71,6 @@ class LocaffDetail(APIView):
 
 
 def export(request):
-    from .xlsx import output
-
     # TODO: invalid parameters
     id_list = request.GET.get('id_list')
     id_list = map(int, id_list.split(','))
@@ -77,10 +78,12 @@ def export(request):
 
     filename = '资生堂通讯录(%s人).xlsx' % len(id_list)
 
-    rsp = HttpResponse()
+    f = StringIO()
+    work_book.save(f)
+
+    rsp = HttpResponse(f.getvalue())
     rsp['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     rsp['Content-Disposition'] = 'attachment; filename="%s"' % filename
-    work_book.save(rsp)
 
     return rsp
 
