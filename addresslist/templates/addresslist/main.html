@@ -434,8 +434,10 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 			<button class="btn btn-warning" ng-click="cancel()">退出</button>
 		</div>
 </script>
-	<div class="top_r" ng-if="!user"><a href="/auth/login/?next=/static/html/main2.html">登录</a></div>
-	<div class="top_r" ng-if="user">当前用户：{{user.username}} &nbsp&nbsp<a>注销</a></div>
+{% endverbatim %}
+	<div class="top_r" ng-if="!user"><a href="/auth/login/?next={% url "main" %}">登录</a></div>
+	<div class="top_r" ng-if="user">当前用户：{{user.username}} &nbsp&nbsp<a href="/auth/logout/?next={% url "main" %}">注销</a></div>
+{% verbatim %}
     <!-- Fixed navbar -->
     <div class="container theme-showcase" role="main">
    		<div class="col-sm-12">
