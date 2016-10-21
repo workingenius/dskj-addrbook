@@ -434,8 +434,8 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 			<button class="btn btn-warning" ng-click="cancel()">退出</button>
 		</div>
 </script>
-	<div class="top_r" ng-if="1>0"><a href="/api/login">登录</a></div>
-	<div class="top_r" ng-if="0>0"><a>退出</a></div>
+	<div class="top_r" ng-if="!user"><a href="/auth/login/?next=/static/html/main2.html">登录</a></div>
+	<div class="top_r" ng-if="user">当前用户：{{user.username}} &nbsp&nbsp<a>注销</a></div>
     <!-- Fixed navbar -->
     <div class="container theme-showcase" role="main">
    		<div class="col-sm-12">
@@ -485,7 +485,7 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 									<label class="btn-left">
 										<button class="btn btn-sm" ng-click="download()">下载</button>
 									</label>
-									<label class="btn-left" ng-if="1==1">
+									<label class="btn-left" ng-if="user">
 										<button class="btn btn-sm" ng-click="open('add')">添加</button>
 									</label>
 								</div>
@@ -501,7 +501,7 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 											<th>邮箱</th>
 											<th>QQ</th>
 											<th>其他</th>
-											<th ng-if="1==1">编辑</th>
+											<th ng-if="user">编辑</th>
 										</tr>
 										<tr ng-repeat="data in datas1 track by $index">
 											<td><input type="checkbox" id={{data.id}} ng-model="x" ng-checked="master" ng-click="chk(data.id,x,data.email)"></td>
@@ -512,7 +512,7 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 											<td><a href="Mailto:{{data.email}}">{{data.email}}</a></td>
 											<td><a href="tencent://message/?uin={{data.qq}}&amp;Site=www.xxx.com&amp;Menu=yes">{{data.qq}}</a></td>
 											<td><a href="tencent://message/?uin=6525252&amp;Site=www.xxx.com&amp;Menu=yes">6525252</a> </td>
-											<td ng-if="1==1">
+											<td ng-if="user">
 												 <a ng-click="open('edit',data.id)">编辑</a>
 												 <a ng-click="dle(data.id)">删除</a>
 											</td>

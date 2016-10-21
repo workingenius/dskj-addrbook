@@ -17,7 +17,7 @@ from .models import LocaffInfoSerializer
 
 
 def main(request):
-    u = None if isinstance(request, AnonymousUser) else {}
+    u = 'null' if isinstance(request.user, AnonymousUser) else {}
     return render(request, 'addresslist/main.html', {
         'user': u,
     })
