@@ -1,5 +1,7 @@
 # -*- coding:utf8 -*-
 
+import json
+
 from django.shortcuts import render
 from django.http import HttpResponse, Http404
 from django.contrib.auth.models import AnonymousUser
@@ -13,13 +15,17 @@ from rest_framework import permissions
 from rest_framework.views import APIView
 
 from .models import LocaffInfo, Staff
-from .models import LocaffInfoSerializer
+from .models import LocaffInfoSerializer, UserSerializer
 
 
 def main(request):
-    u = 'null' if isinstance(request.user, AnonymousUser) else {}
+    if isinstance(request.user, AnonymousUser):
+        u = None
+    else:
+        u = UserSerializer(request.user).data
     return render(request, 'addresslist/main.html', {
-        'user': u,
+        'user': json.dumps(u),
+        'username': u['username'],
     })
 
 
