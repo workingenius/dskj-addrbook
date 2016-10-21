@@ -2,6 +2,7 @@
 
 from django.shortcuts import render
 from django.http import HttpResponse, Http404
+from django.contrib.auth.models import AnonymousUser
 from django.utils.decorators import method_decorator
 from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view
@@ -16,7 +17,10 @@ from .models import LocaffInfoSerializer
 
 
 def main(request):
-    return render(request, 'addresslist/main.html')
+    u = None if isinstance(request, AnonymousUser) else {}
+    return render(request, 'addresslist/main.html', {
+        'user': u,
+    })
 
 
 class LocaffList(APIView):
