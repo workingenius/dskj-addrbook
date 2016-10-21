@@ -259,3 +259,8 @@ LocaffInfoSerializer = type(
     (serializers.Serializer, ),
     binding)
 
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', )

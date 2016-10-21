@@ -1,6 +1,7 @@
 # -*- coding:utf8 -*-
 
 from StringIO import StringIO
+import json
 
 from django.shortcuts import render
 from django.http import HttpResponse, Http404
@@ -15,15 +16,17 @@ from rest_framework import permissions
 from rest_framework.views import APIView
 
 from .models import LocaffInfo, Staff
-from .models import LocaffInfoSerializer
+from .models import LocaffInfoSerializer, UserSerializer
 from .xlsx import output
 
 
 def main(request):
-    u = 'null' if isinstance(request.user, AnonymousUser) else {}
-    return render(request, 'addresslist/main.html', {
-        'user': u,
-    })
+    if isinstance(request.user, AnonymousUser):
+        ctx = {'user': 'null'}
+    else:
+        u = UserSerializer(request.user).data
+        ctx = {'user': json.dumps(u), 'username': u['username']}
+    return render(request, 'addresslist/main.html', ctx)
 
 
 class LocaffList(APIView):
