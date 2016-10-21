@@ -20,13 +20,11 @@ from .models import LocaffInfoSerializer, UserSerializer
 
 def main(request):
     if isinstance(request.user, AnonymousUser):
-        u = None
+        ctx = {'user': 'null'}
     else:
         u = UserSerializer(request.user).data
-    return render(request, 'addresslist/main.html', {
-        'user': json.dumps(u),
-        'username': u['username'],
-    })
+        ctx = {'user': json.dumps(u), 'username': u['username']}
+    return render(request, 'addresslist/main.html', ctx)
 
 
 class LocaffList(APIView):
