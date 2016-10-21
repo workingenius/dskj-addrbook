@@ -1,51 +1,27 @@
 # -*- coding:utf8 -*-
 
 import openpyxl
-from .models import Staff
+from .models import LocaffInfo
+from .contacts import contacts
+
 
 def output(id_list):
-    staffs = Staff.objects.filter(id__in=id_list)
-    staffs = (staffs
-              .prefetch_related('contacts')
-              .prefetch_related('departments'))
-    staffs = staffs.all()
-
     wb = openpyxl.Workbook()
     ws1 = wb.active
 
-    ws1.append([
+    fields = (['name', 'depart1', 'depart2']
+              + [c.key for c in contacts])
+
+    head = [
         u'姓名',
         u'部门1',
         u'部门2',
-        u'号码',
-        u'邮件',
-        u'QQ',
-    ])
+    ] + map(lambda c: c.literal, contacts)
+    ws1.append(head)
 
+    staffs = LocaffInfo.get(lambda x: x.filter(id__in=id_list))
     for staff in staffs:
-
-        # departs
-        depart = staff.departments.all()[0]
-        depart1 = depart.superior.name
-        depart2 = depart.name
-        if depart1 == u'北京亦庄工厂':
-            depart1 = depart2
-
-        # concats
-        contacts = staff.contacts.all()
-        cts = {}
-        for c in contacts:
-            cts[c.mode] = c.value
-
-        row = [
-            staff.name,
-            depart1,
-            depart2,
-            cts.get('PHONE'),
-            cts.get('EMAIL'),
-            cts.get('QQ'),
-        ]
-
+        row = [staff.__dict__.get(f, None) for f in fields]
         ws1.append(row)
 
     return wb
