@@ -84,6 +84,13 @@ m1.config( [
 	    // Angular v1.2 之前使用 $compileProvider.urlSanitizationWhitelist(...)
 	}
 ]);
+m1.config([
+	'$httpProvider',
+	function( $httpProvider ) {
+		$httpProvider.defaults.xsrfCookieName = 'csrftoken';
+		$httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+	}
+]);
 m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope,$filter,$http,$modal, $log){
 	$scope.selectValue=department[0];
 	var sd1=[]; 
