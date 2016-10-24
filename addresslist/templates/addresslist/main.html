@@ -14,11 +14,10 @@
     <!-- Bootstrap core CSS -->
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/bootstrap-theme.min.css" rel="stylesheet">
-    <link href="/static/css/bootstrap-theme.min.css" rel="stylesheet">
-		<script src="/static/js/jquery.min.js"></script>
-		<script src="/static/js/angular.js"></script>
-		<script src="/static/js/ui-bootstrap-tpls.js"></script>
-		<script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/angular1.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
 <style type="text/css">
 .btn-left{
 	margin-left: 10px
@@ -278,6 +277,7 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 	}
 }])
 .controller('ModalInstanceCtrl', function($scope,$http, $modalInstance, str, depart) {
+	$scope.ctrlScope = {};
 	if(depart[0].department1=="全部"){
 				depart.splice(0,1)
 			}
@@ -309,10 +309,10 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 		$scope.title="编辑"
 		$http.get("/staffs/"+str.id).success(function(response) {
 			var dep2={}
-			$scope.name=response.name;
-			$scope.email=response.email;
-			$scope.qq=response.qq;
-			$scope.phone=response.phone;
+			$scope.ctrlScope.name=response.name;
+			$scope.ctrlScope.email=response.email;
+			$scope.ctrlScope.qq=response.qq;
+			$scope.ctrlScope.phone=response.phone;
 			//$scope.bool=1;
 			$scope.departs1= depart;
 			for(var i=0;i<$scope.departs1.length;i++){
@@ -342,8 +342,8 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 			url:'/login',
 			method:'post',
 			data:{
-				username: $scope.username,
-				password: $scope.password,
+				username: $scope.ctrlScope.username,
+				password: $scope.ctrlScope.password,
 			}
 		}).success(function(data,header,config,status){
 			$modalInstance.close(0);
@@ -358,18 +358,18 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 			$scope.depart2=$scope.depart1;
 			$scope.depart2.department2=$scope.depart1.department1;
 		}
-		console.log($scope.name)
-		console.log($scope.email)
-		console.log($scope.qq)
-		console.log($scope.phone)
+		console.log($scope.ctrlScope.name)
+		console.log($scope.ctrlScope.email)
+		console.log($scope.ctrlScope.qq)
+		console.log($scope.ctrlScope.phone)
 		console.log($scope.depart1.department1)
 		//console.log($scope.depart2.department2)
 		if(str.str=='add'){
 			$http.post('/staffs', {
-				name: $scope.name,
-				email: $scope.email,
-				phone: $scope.phone,
-				qq:$scope.qq,
+				name: $scope.ctrlScope.name,
+				email: $scope.ctrlScope.email,
+				phone: $scope.ctrlScope.phone,
+				qq:$scope.ctrlScope.qq,
 				depart1:$scope.depart1.department1,
 				depart2:$scope.depart2.department2,
 				}).success(function(){
@@ -382,10 +382,10 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 				method:'put',
 				data:{
 					id:str.id,
-					name: $scope.name,
-					email: $scope.email,
-					phone: $scope.phone,
-					qq:$scope.qq,
+					name: $scope.ctrlScope.name,
+					email: $scope.ctrlScope.email,
+					phone: $scope.ctrlScope.phone,
+					qq:$scope.ctrlScope.qq,
 					depart1:$scope.depart1.department1,
 					depart2:$scope.depart2.department2,
 				}
@@ -413,7 +413,7 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 		<div class="modal-body" ng-if="ck==2">
 			<div style="margin: 10px auto;width: 80%">
 			<form action="" >
-				<label>姓名：</label><input class="form-control input" ng-model="name" type="text" required /><br>
+				<label>姓名：</label><input ng-model="ctrlScope.name" class="form-control input" type="text" required /><br>
 				<label>部门：</label>
 					<label>
 						<select class="form-control input" ng-model="depart1"  ng-change="change1(depart1)" ng-options="item.department1 for item in departs1" style="width: 150px;height: 30px;font-size:12px"></select>
@@ -422,9 +422,9 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 					 <select ng-if="bool==1" class="form-control input" ng-model="depart2"  ng-change="change2(depart1)" ng-options="item1.department2 for item1 in departs2" style="width: 150px;height: 30px;font-size:12px"></select>
 					</label>
 				<br>
-				<label>号码：</label><input class="form-control input" ng-model="phone" type="text" required /><br>
-				<label>邮箱：</label><input class="form-control input" ng-model="email" type="text" required /><br>
-				<label>Q&nbsp;&nbsp;Q：</label><input class="form-control input" ng-model="qq" type="text" required />
+				<label>号码：</label><input class="form-control input" ng-model="ctrlScope.phone" type="text" required /><br>
+				<label>邮箱：</label><input class="form-control input" ng-model="ctrlScope.email" type="text" required /><br>
+				<label>Q&nbsp;&nbsp;Q：</label><input class="form-control input" ng-model="ctrlScope.qq" type="text" required />
 			</form>
 			</div>
 		</div>
