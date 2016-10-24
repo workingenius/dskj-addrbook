@@ -17,7 +17,7 @@
     <link href="/static/css/bootstrap-theme.min.css" rel="stylesheet">
 		<script src="/static/js/jquery.min.js"></script>
 		<script src="/static/js/angular.js"></script>
-		<script src="http://cdn.bootcss.com/angular-ui-bootstrap/0.11.2/ui-bootstrap-tpls.js"></script>
+		<script src="/static/js/ui-bootstrap-tpls.js"></script>
 		<script src="/static/js/bootstrap.min.js"></script>
 <style type="text/css">
 .btn-left{
@@ -34,6 +34,9 @@ a{
 .ms{
 	color:red;
 	font-size: 10;
+}
+.input{
+	width: 200px;display:inline;
 }
 </style>
 <script type="text/javascript">
@@ -103,7 +106,7 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 		$scope.x=false;
 		$scope.master=false;
 		if(a.department2){
-			console.log(a.department2);
+			//console.log(a.department2);
 			if(a.department2[0].department2!="全部二级部门"){
 				a.department2.unshift({"department2":"全部二级部门"});
 			};
@@ -131,7 +134,6 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 		sd3=$scope.datas1;
 }
 	$scope.fnFilter=function(){
-		alert(sd3)
 		$scope.x=false;
 		$scope.master=false;
 		if(sd3.length==0){
@@ -404,18 +406,18 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 		<div class="modal-body" ng-if="ck==2">
 			<div style="margin: 10px auto;width: 80%">
 			<form action="" >
-				<label>姓名：</label><input class="input" ng-model="name" type="text" required /><br>
+				<label>姓名：</label><input class="form-control input" ng-model="name" type="text" required /><br>
 				<label>部门：</label>
 					<label>
-						<select class="form-control" ng-model="depart1"  ng-change="change1(depart1)" ng-options="item.department1 for item in departs1" style="width: 150px;height: 30px;font-size:12px"></select>
+						<select class="form-control input" ng-model="depart1"  ng-change="change1(depart1)" ng-options="item.department1 for item in departs1" style="width: 150px;height: 30px;font-size:12px"></select>
 					</label>
 					<label>
-					 <select ng-if="bool==1" class="form-control" ng-model="depart2"  ng-change="change2(depart1)" ng-options="item1.department2 for item1 in departs2" style="width: 150px;height: 30px;font-size:12px"></select>
+					 <select ng-if="bool==1" class="form-control input" ng-model="depart2"  ng-change="change2(depart1)" ng-options="item1.department2 for item1 in departs2" style="width: 150px;height: 30px;font-size:12px"></select>
 					</label>
 				<br>
-				<label>号码：</label><input class="input" ng-model="phone" type="text" required /><br>
-				<label>邮箱：</label><input class="input" ng-model="email" type="text" required /><br>
-				<label>Q&nbsp;&nbsp;Q：</label><input class="input" ng-model="qq" type="text" required />
+				<label>号码：</label><input class="form-control input" ng-model="phone" type="text" required /><br>
+				<label>邮箱：</label><input class="form-control input" ng-model="email" type="text" required /><br>
+				<label>Q&nbsp;&nbsp;Q：</label><input class="form-control input" ng-model="qq" type="text" required />
 			</form>
 			</div>
 		</div>
@@ -461,23 +463,31 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 						<div class="tab-content">
 							<div class="tab-pane active" id="panel-455321">
 								<div class="col-sm-12" style="margin: 30px 0">
-									<div style="display: inline;float: left">
-								<label>按部门筛选：</label>
-									<label>
-									 <select class="form-control" ng-model="selectValue"  ng-change="zxc(selectValue)" ng-options="item.department1 for item in departments1" style="width: 150px;height: 30px;font-size:12px"></select>
-									</label>
-									<label>
+									<div style="display: inline;float: left;height: 60px">
+										<table><tr>
+										<td>
+										<label style="display: inline;line-height: 40px;height: 40px">按部门筛选：</label>
+										</td>
+										<td>
+										<label style="display: inline;float: left">
+										 <select class="form-control" ng-model="selectValue"  ng-change="zxc(selectValue)" ng-options="item.department1 for item in departments1" style="width: 150px;height: 30px;font-size:12px"></select>
+										</label>
+										</td>
+										<td ng-if="departments2.length>0">
+										<label  style="display: inline;float: left">
 										<select ng-if="departments2.length>0" class="form-control" ng-model="select1Value"  ng-change="zxc1(select1Value)" ng-options="item1.department2 for item1 in departments2" style="width: 150px;height: 30px;font-size:12px"></select>
-									</label>
+										</label>
+										</td>
+										</tr></table>
 									</div>
-										<div class="input-group col-sm-2">
+									<div class="input-group col-sm-2" style="width: 200px;position:relative;top:2px">
 										<input type="text" class="form-control" style="height: 30px;" ng-model="filterVal"> 
 										<span class="input-group-btn">
 											<button class="btn btn-default" type="button" style="height: 30px;" ng-click="fnFilter()">
 												查询
 											</button>
 										</span>
-								</div>
+									</div>
 								</div>
 								<div style="margin-left: 25px">
 									<input type="checkbox" ng-model="master" ng-click="all(master)"> 
