@@ -14,5 +14,5 @@ qq =        Contact(u'qq',      u'QQ')
 mac =       Contact(u'mac',     u'Mac地址')
 
 contacts = [
-    email, phone, oldextnum, newextnum, fax, mobile, qq, mac
+    newextnum, phone, fax, mobile, qq, email, mac
 ]
