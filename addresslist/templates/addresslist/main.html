@@ -7,17 +7,20 @@
     <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="/static//static/favicon.ico">
+    <!-- <link rel="icon" href="/static/favicon.ico"> -->
 
     <title>资生堂</title>
 
     <!-- Bootstrap core CSS -->
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/bootstrap-theme.min.css" rel="stylesheet">
+    <link href="/static/css/ng-grid.css" rel="stylesheet">
+    
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/angular1.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/ng-grid.js"></script>
 <style type="text/css">
 .btn-left{
 	margin-left: 10px
@@ -75,7 +78,7 @@ var department=[
 
 
 
-var m1= angular.module('MyApp',[ 'ui.bootstrap']);
+var m1= angular.module('MyApp',[ 'ui.bootstrap','ngGrid']);
 m1.config( [
 	'$compileProvider',
 	function( $compileProvider ){   
@@ -91,18 +94,69 @@ m1.config([
 	}
 ]);
 m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope,$filter,$http,$modal, $log){
+{% endverbatim %}
+	$scope.user = {{ user | safe }};
+{% verbatim %}
+	
+	
 	$scope.selectValue=department[0];
 	var sd1=[]; 
 	$scope.getdata = function(){
 		$http.get("/staffs").success(function(response) {
+			//$scope.gridOptions=response
 			$scope.datas1=response;
 			sd1=response;
 			});
 	}
+	
+	if($scope.user){
+	var columnDefs= [{field: '', displayName: '',width:'40px',cellTemplate:'<input type="checkbox" id={{data.id}} ng-model="x" ng-checked="master" ng-click="chk(data.id,x,data.email)">'},
+             {field: 'name', displayName: '姓名', cellTemplate:'<a>{{ col.field }}</a>'}, 
+             {field:'depart1', displayName:'一级部门'},
+             {field:'depart2', displayName:'二级部门'},
+             {field:'phone', displayName:'直线号码'},
+             {field:'extnum', displayName:'分机号'},
+             {field:'fax', displayName:'传真号码'},
+             {field:'mobile', displayName:'手机号码'},
+             {field:'qq', displayName:'QQ'},
+             {field:'email', displayName:'邮箱'},
+             {field:'ip', displayName:'IP地址'},
+             {field:'ip', displayName:'编辑',cellTemplate:'<div class="ngCellText" ng-class="col.colIndex()"><span ng-cell-text>{{COL_FIELD CUSTOM_FILTERS}}</span></div>'}
+			]
+		
+	}else{
+	var columnDefs= [{field: 'id', displayName: '',width:'40px',cellTemplate:'<input type="checkbox" id="{{row.getProperty(col.field)}}" ng-model="x" ng-checked="master" ng-click="chk(1,x,3)">'},
+               {field: 'name', displayName: '姓名'}, 
+               {field:'depart1', displayName:'一级部门'},
+               {field:'depart2', displayName:'二级部门'},
+               {field:'phone', displayName:'直线号码'},
+               {field:'extnum', displayName:'分机号'},
+               {field:'fax', displayName:'传真号码'},
+               {field:'mobile', displayName:'手机号码'},
+               {field:'qq', displayName:'QQ'},
+               {field:'email', displayName:'邮箱'},
+               {field:'ip', displayName:'IP地址'}]
+	}
+	$scope.gridOptions = { 
+            data: 'datas1',
+            jqueryUITheme: true,
+            //enablePinning: true,
+            //enableCellEdit: true,
+            //showFilter: true,
+            showColumnMenu: true,
+            afterSelectionChange:function(a,b){
+            	//alert(a+"1")
+            },
+            beforeSelectionChange:function(a,b){
+            	//alert(a+"2")
+            	return true
+            },
+            columnDefs: columnDefs
+            	
+            	
+    };
 	$scope.getdata();
-{% endverbatim %}
-	$scope.user = {{ user | safe }};
-{% verbatim %}
+
 	$scope.departments1=department;
 //------------当前数据筛选-----------------------------------	
 		
@@ -173,7 +227,7 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 			cc=[];
 		}
 	};
-	$scope.chk= function (z,x) {//单选或者多选
+	$scope.chk= function (z,x,e) {//单选或者多选
 		if (x) {//选+中
 			for(var i=0 ;i<cc.length;i++){
 				if(cc[i]==z){
@@ -313,6 +367,10 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 			$scope.ctrlScope.email=response.email;
 			$scope.ctrlScope.qq=response.qq;
 			$scope.ctrlScope.phone=response.phone;
+			$scope.ctrlScope.ip=response.ip;
+			$scope.ctrlScope.extnum=response.extnum;
+			$scope.ctrlScope.fax=response.fax;
+			$scope.ctrlScope.mobile=response.mobile;
 			//$scope.bool=1;
 			$scope.departs1= depart;
 			for(var i=0;i<$scope.departs1.length;i++){
@@ -358,18 +416,17 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 			$scope.depart2=$scope.depart1;
 			$scope.depart2.department2=$scope.depart1.department1;
 		}
-		console.log($scope.ctrlScope.name)
-		console.log($scope.ctrlScope.email)
-		console.log($scope.ctrlScope.qq)
-		console.log($scope.ctrlScope.phone)
-		console.log($scope.depart1.department1)
-		//console.log($scope.depart2.department2)
+		
 		if(str.str=='add'){
 			$http.post('/staffs', {
 				name: $scope.ctrlScope.name,
 				email: $scope.ctrlScope.email,
 				phone: $scope.ctrlScope.phone,
 				qq:$scope.ctrlScope.qq,
+				ip:$scope.ctrlScope.ip,
+				extnum:$scope.ctrlScope.extnum,
+				fax:$scope.ctrlScope.fax,
+				mobile:$scope.ctrlScope.mobile,
 				depart1:$scope.depart1.department1,
 				depart2:$scope.depart2.department2,
 				}).success(function(){
@@ -386,6 +443,10 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 					email: $scope.ctrlScope.email,
 					phone: $scope.ctrlScope.phone,
 					qq:$scope.ctrlScope.qq,
+					ip:$scope.ctrlScope.ip,
+					extnum:$scope.ctrlScope.extnum,
+					fax:$scope.ctrlScope.fax,
+					mobile:$scope.ctrlScope.mobile,
 					depart1:$scope.depart1.department1,
 					depart2:$scope.depart2.department2,
 				}
@@ -413,8 +474,8 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 		<div class="modal-body" ng-if="ck==2">
 			<div style="margin: 10px auto;width: 80%">
 			<form action="" >
-				<label>姓名：</label><input ng-model="ctrlScope.name" class="form-control input" type="text" required /><br>
-				<label>部门：</label>
+				<label>姓&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名：</label><input ng-model="ctrlScope.name" class="form-control input" type="text" required /><br>
+				<label>部&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;门：</label>
 					<label>
 						<select class="form-control input" ng-model="depart1"  ng-change="change1(depart1)" ng-options="item.department1 for item in departs1" style="width: 150px;height: 30px;font-size:12px"></select>
 					</label>
@@ -422,9 +483,13 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 					 <select ng-if="bool==1" class="form-control input" ng-model="depart2"  ng-change="change2(depart1)" ng-options="item1.department2 for item1 in departs2" style="width: 150px;height: 30px;font-size:12px"></select>
 					</label>
 				<br>
-				<label>号码：</label><input class="form-control input" ng-model="ctrlScope.phone" type="text" required /><br>
-				<label>邮箱：</label><input class="form-control input" ng-model="ctrlScope.email" type="text" required /><br>
-				<label>Q&nbsp;&nbsp;Q：</label><input class="form-control input" ng-model="ctrlScope.qq" type="text" required />
+				<label>分机号码：</label><input class="form-control input" ng-model="ctrlScope.extnum" type="text" required /><br>
+				<label>直线号码：</label><input class="form-control input" ng-model="ctrlScope.phone" type="text" required /><br>
+				<label>传真号码：</label><input class="form-control input" ng-model="ctrlScope.fax" type="text" required /><br>
+				<label>手机号码：</label><input class="form-control input" ng-model="ctrlScope.mobile" type="text" required /><br>
+				<label>Q&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q：</label><input class="form-control input" ng-model="ctrlScope.qq" type="text" required /><br>
+				<label>邮&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;箱：</label><input class="form-control input" ng-model="ctrlScope.email" type="text" required /><br>
+				<label>IP&nbsp;&nbsp;地&nbsp;&nbsp;址：</label><input class="form-control input" ng-model="ctrlScope.ip" type="text" required /><br>
 			</form>
 			</div>
 		</div>
@@ -508,29 +573,35 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 										<button class="btn btn-sm" ng-click="open('add')">添加</button>
 									</label>
 								</div>
-								<div class="col-sm-12" style="height: 600px;overflow-y: auto">
-												
+								<div class="col-sm-12"  style="height: 600px;overflow-y: auto">
+									<!-- <div class="col-sm-12 table table-striped table-bordered" style="height: 500px;overflow-y: auto" ng-grid="gridOptions"></div> -->	
 									<table class="col-sm-12 table table-striped table-bordered">
 										<tr>
 											<th></th>
 											<th>姓名</th>
-											<th>部门一</th>
-											<th>部门二</th>
-											<th>号码</th>
-											<th>邮箱</th>
+											<th>一级部门</th>
+											<th>二级部门</th>
+											<th>分机号</th>
+											<th>直线号码</th>
+											<th>传真号码</th>
+											<th>手机号码</th>
 											<th>QQ</th>
-											<!-- <th>其他</th> -->
-											<th ng-if="user">编辑</th>
+											<th>邮箱</th>
+											<th>IP地址</th>
+											<th ng-if="user" >编辑</th>
 										</tr>
 										<tr ng-repeat="data in datas1 track by $index">
 											<td><input type="checkbox" id={{data.id}} ng-model="x" ng-checked="master" ng-click="chk(data.id,x,data.email)"></td>
 											<td>{{data.name}}</td>
 											<td>{{data.depart1}}</td>
 											<td>{{data.depart2}}</td>
+											<td>{{data.extnum}}</td>
 											<td>{{data.phone}}</td>
-											<td><a href="Mailto:{{data.email}}">{{data.email}}</a></td>
+											<td>{{data.fax}}</td>
+											<td>{{data.mobile}}</td>
 											<td><a href="tencent://message/?uin={{data.qq}}&amp;Site=www.xxx.com&amp;Menu=yes">{{data.qq}}</a></td>
-											<!-- <td></td> -->
+											<td><a href="Mailto:{{data.email}}">{{data.email}}</a></td>
+											<td>{{data.ip}}</td>
 											<td ng-if="user">
 												 <a ng-click="open('edit',data.id)">编辑</a>
 												 <a ng-click="dle(data.id)">删除</a>
