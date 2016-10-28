@@ -99,7 +99,7 @@ class LocaffInfo(object):
     :attr depart2
     :attr name
     """
-    contact_fields = ('email', 'qq', 'phone')
+    contact_fields = tuple(c.key for c in contacts)
 
     def __init__(self, name, depart2, id=None, depart1=None, **kw):
         self.id = id
