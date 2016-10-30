@@ -2,6 +2,7 @@
 
 from StringIO import StringIO
 import json
+import urllib
 
 from django.shortcuts import render
 from django.http import HttpResponse, Http404
@@ -79,14 +80,20 @@ def export(request):
     id_list = map(int, id_list.split(','))
     work_book = output(id_list)
 
-    filename = '资生堂通讯录(%s人).xlsx' % len(id_list)
-
     f = StringIO()
     work_book.save(f)
 
     rsp = HttpResponse(f.getvalue())
     rsp['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    rsp['Content-Disposition'] = 'attachment; filename="%s"' % filename
+
+    filename = u'资生堂通讯录(%s人).xlsx' % len(id_list)
+    bf = request.user_agent.browser.family.lower()
+    if ('ie' in bf):
+        rsp['Content-Disposition'] = 'attachment; filename="%s"' % ( 
+                urllib.quote(filename.encode('utf8')))
+    else:
+        rsp['Content-Disposition'] = 'attachment; filename*=UTF-8\'\'%s' % (
+                urllib.quote(filename.encode('utf8')))
 
     return rsp
 
