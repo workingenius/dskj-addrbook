@@ -2,8 +2,8 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
   <head>
-    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+    <meta charset="utf-8">
     <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
     <meta name="description" content="">
     <meta name="author" content="">
@@ -110,22 +110,20 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 	}
 	
 	if($scope.user){
-	var columnDefs= [{field: '', displayName: '',width:'40px',cellTemplate:'<input type="checkbox" id={{data.id}} ng-model="x" ng-checked="master" ng-click="chk(data.id,x,data.email)">'},
-             {field: 'name', displayName: '姓名', cellTemplate:'<a>{{ col.field }}</a>'}, 
+	var columnDefs= [{field: 'name', displayName: '姓名'}, 
              {field:'depart1', displayName:'一级部门'},
              {field:'depart2', displayName:'二级部门'},
              {field:'phone', displayName:'直线号码'},
              {field:'extnum', displayName:'分机号'},
              {field:'fax', displayName:'传真号码'},
              {field:'mobile', displayName:'手机号码'},
-             {field:'qq', displayName:'QQ'},
-             {field:'email', displayName:'邮箱'},
+             {field:'qq', displayName:'QQ',cellTemplate:'<a href="tencent://message/?uin={{row.getProperty(\'qq\')}}&amp;Site=www.xxx.com&amp;Menu=yes">{{row.getProperty(\'qq\')}}</a>'},
+             {field:'email', displayName:'邮箱',cellTemplate:'<a href="Mailto:{{row.getProperty(\'email\')}};">{{row.getProperty(\'email\')}}</a>'},
              {field:'ip', displayName:'IP地址'},
-             {field:'ip', displayName:'编辑',cellTemplate:'<div class="ngCellText" ng-class="col.colIndex()"><span ng-cell-text>{{COL_FIELD CUSTOM_FILTERS}}</span></div>'}
+             {field:'', displayName:'编辑',cellTemplate:'<a ng-click="open(\'edit\',row.getProperty(\'id\'))">编辑</a>  <a ng-click="dle(row.getProperty(\'id\'))">删除</a>'}
 			]
-		
 	}else{
-	var columnDefs= [{field: 'id', displayName: '',width:'40px',cellTemplate:'<input type="checkbox" id="{{row.getProperty(col.field)}}" ng-model="x" ng-checked="master" ng-click="chk(1,x,3)">'},
+	var columnDefs= [
                {field: 'name', displayName: '姓名'}, 
                {field:'depart1', displayName:'一级部门'},
                {field:'depart2', displayName:'二级部门'},
@@ -133,22 +131,51 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
                {field:'extnum', displayName:'分机号'},
                {field:'fax', displayName:'传真号码'},
                {field:'mobile', displayName:'手机号码'},
-               {field:'qq', displayName:'QQ'},
-               {field:'email', displayName:'邮箱'},
+               {field:'qq', displayName:'QQ',cellTemplate:'<a href="tencent://message/?uin={{row.getProperty(\'qq\')}}&amp;Site=www.xxx.com&amp;Menu=yes">{{row.getProperty(\'qq\')}}</a>'},
+               {field:'email', displayName:'邮箱',cellTemplate:'<a href="Mailto:{{row.getProperty(\'email\')}}">{{row.getProperty(\'email\')}}</a>'},
                {field:'ip', displayName:'IP地址'}]
 	}
+	var selectRows=[];
+	var emails=[];
 	$scope.gridOptions = { 
             data: 'datas1',
-            jqueryUITheme: true,
-            //enablePinning: true,
-            //enableCellEdit: true,
-            //showFilter: true,
+            showSelectionCheckbox:true,
+            multiSelect: true,
             showColumnMenu: true,
+            selectWithCheckboxOnly:true,
+            //checkboxCellTemplate:'<div class="ngSelectionCell"><input tabindex="-1" class="ngSelectionCheckbox" type="checkbox" ng-checked="row.selected" /></div>',
+            //checkboxHeaderTemplate:'<input class="ngSelectionHeader" type="checkbox"  ng-model="allSelected" ng-change="toggleSelectAll(allSelected)"/>',
             afterSelectionChange:function(a,b){
-            	//alert(a+"1")
+            	//console.log(a)
+	            if(a.length){
+	            	for(var i=0;i<a.length;i++){
+	            		if(a[i].selected){
+	            			selectRows.push(a[i].entity.id);
+	            			if(a[i].entity.email!="" && a[i].entity.email!=null){
+	            				emails.push(a[i].entity.email);
+	            			}
+	            		}else{
+	            			selectRows=[];
+	            			emails=[];
+	            		}
+	            	}
+	            }else{
+	            	if(a.selected){
+	            		selectRows.push(a.entity.id);
+	            		if(a.entity.email!="" && a.entity.email!=null){
+	            			emails.push(a.entity.email);
+            			}
+	            	}else{
+	            		for(var i=0 ;i<selectRows.length;i++){
+	        				if(selectRows[i]==a.entity.id){
+	        					selectRows.splice(i,1);//取消选中
+	        				}
+	        			}
+	            	}
+	            }
             },
             beforeSelectionChange:function(a,b){
-            	//alert(a+"2")
+            	//alert(b+"2")
             	return true
             },
             columnDefs: columnDefs
@@ -163,6 +190,8 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 		var sd2=[];
 		var sd3=[];
 	$scope.zxc = function(a){
+		//$scope.allSelected=false;
+		$scope.gridOptions.selectAll(false);
 		$scope.x=false;
 		$scope.master=false;
 		if(a.department2){
@@ -211,7 +240,7 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 
 	
 /* 	----------首页 多选 全选功能---------------- */
-	
+	/* 
 	var cc=[];//定义数组用于存放前端显示
 	$scope.x=false;//默认未选中
 	$scope.all= function (c) {//全选
@@ -238,13 +267,11 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 			cc.push(z);
 		}
 			
-	};
+	}; */
 
 	/* 	----------首页 多选 全选功能 end---------------- */
 	/* 	----------首页 编辑功能---------------- */
-	$scope.edit= function (id) {
-		//打开编辑窗口 
-	}
+
 	/* 	----------首页 编辑功能 end---------------- */
 	/* 	----------首页 编辑功能---------------- */
 	
@@ -273,15 +300,24 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 	/* 	----------首页 编辑功能 end---------------- */
 /* 	----------首页 多选下载功能---------------- */
 	$scope.download= function () {// 操作CURD
-		if(cc[0]===""||cc.length==0){//没有选择一个的时候提示
-			alert("请选择要下载的名片！")
+		//alert(selectRows)
+		if(selectRows[0]===""||selectRows.length==0){//没有选择一个的时候提示
+			alert("请选择要下载的名单！")
 			return;
 		};
-		var idlist = cc.join(',');
+		var idlist = selectRows.join(',');
 		window.location.href="/export?id_list="+idlist; 
 		
 	};
 /* 	----------首页 多选下载功能 end---------------- */
+	 $scope.toEmails=function(){
+		 if(emails[0]===""||emails.length==0){//没有选择一个的时候提示
+				alert("请选择要发送邮件的名单！")
+				return;
+			};
+			var emls = emails.join(';');
+			window.location.href="Mailto:"+emls; 
+	}
 /* 	----------首页 添加到我的通讯录功能---------------- */
 	$scope.add= function () {// 操作CURD
 		if(cc[0]===""||cc.length==0){//没有选择一个的时候提示
@@ -562,20 +598,24 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 									</div>
 								</div>
 								<div style="margin-left: 25px">
-									<input type="checkbox" ng-model="master" ng-click="all(master)"> 
+									<!-- <input type="checkbox" ng-model="master" ng-click="all(master)">  -->
 									<!-- <label class="btn-left">
 										<button class="btn btn-sm" ng-click="add()">添加到我的通讯录</button>
 									</label> -->
 									<label class="btn-left">
 										<button class="btn btn-sm" ng-click="download()">下载</button>
 									</label>
+									<label class="btn-left">
+										<button class="btn btn-sm" ng-click="toEmails()">群发邮件</button>
+									</label>
 									<label class="btn-left" ng-if="user">
 										<button class="btn btn-sm" ng-click="open('add')">添加</button>
 									</label>
 								</div>
 								<div class="col-sm-12"  style="height: 600px;overflow-y: auto">
-									<!-- <div class="col-sm-12 table table-striped table-bordered" style="height: 500px;overflow-y: auto" ng-grid="gridOptions"></div> -->	
-									<table class="col-sm-12 table table-striped table-bordered">
+								{{ selectRow }}
+									<div class="col-sm-12 table table-striped table-bordered" style="height: 500px;overflow-y: auto" ng-grid="gridOptions"></div>	
+									<!-- <table class="col-sm-12 table table-striped table-bordered">
 										<tr>
 											<th></th>
 											<th>姓名</th>
@@ -607,7 +647,7 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 												 <a ng-click="dle(data.id)">删除</a>
 											</td>
 										</tr>
-									</table>
+									</table> -->
 								</div>
 								<div class="col-sm-12" style="height: 60px"></div>
 							</div>
