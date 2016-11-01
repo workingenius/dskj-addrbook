@@ -15,8 +15,7 @@ from .models import (
 from models import LocaffInfoSerializer
 from .langs import ch_pinyin
 from .imprt import (
-    from_xlsx_worksheet, read_excel,
-    load2)
+    from_xlsx_worksheet, read_excel)
 
 from django.contrib.auth.models import User
 
@@ -215,40 +214,6 @@ class TestImportData(EnvForImportData):
         d3 = Department.objects.get(name=u'财务部')
         d4 = Department.objects.get(name=u'经营管理本部')
         assert d3.superior == d4
-
-
-class TestImportData2(TestCase):
-    def setUp(self):
-        load2(SOURCE_PATH, SOURCE_SHEETNAME)
-
-    def test_load2(self):
-        users = User.objects.all()
-        assert len(list(users)) == 5
-
-        for user in users:
-            assert user.username
-            assert user.password
-
-        # the_user = filter(lambda u: u.username == u'邢迪秘书', users)[0]
-        # assert the_user.password == 'the_password'
-        # # fail because the_user.password is hashed
-
-    def test_staff_should_has_user(self):
-        staff = Staff.objects.get(name=u'侯政红副总经理')
-        user = User.objects.get(username=u'侯政红副总经理')
-        assert staff.user == user
-
-        staff = Staff.objects.get(name=u'张敏')
-        assert staff.user is None
-
-    def test_department_relation(self):
-        dep1 = Department.objects.get(name=u'总经理办公室')
-        dep2 = Department.objects.get(name=u'北京亦庄工厂')
-        assert dep1.superior == dep2
-
-    def test_duplicate_name(self):
-        assert Staff.objects.filter(name=u'田畑本部长').count() == 1
-        assert Staff.objects.filter(name=u'王艳').count() > 1
 
 
 class TestSearch(TestCase):
