@@ -42,7 +42,6 @@ def _from_xlsx_worksheet(dataframe):
 
     df = dataframe
     depart_columns = [u'部门一', u'部门二']
-    df[depart_columns] = df[depart_columns].fillna(method='ffill')
     rows = imap(lambda x: list(x[1].values), df.iterrows())
 
     contact_dict = {}
@@ -84,13 +83,18 @@ def _from_xlsx_worksheet(dataframe):
         if pd.isnull(locaff_name):
             continue
 
+        ds = [last_d[0]]
+
         depart1 = rv(row, DEPART1)
-        d2 = handle_depart(depart1)
-        yield d2
+        d1 = handle_depart(depart1)
+        ds.append(d1)
+        yield d1
 
         depart2 = rv(row, DEPART2)
-        d3 = handle_depart(depart2, d2)
-        yield d3
+        if depart2:
+            d2 = handle_depart(depart2, d1)
+            ds.append(d2)
+            yield d2
 
         # TODO: preprocess name, handle special cases
         locaff = Staff(
@@ -98,7 +102,7 @@ def _from_xlsx_worksheet(dataframe):
         )
         yield locaff
 
-        pos = Position(department=(d3 or d2 or d1 or last_d[0]), staff=locaff)
+        pos = Position(department=ds[-1], staff=locaff)
         yield pos
 
         for column_num, contact in contact_dict.items():

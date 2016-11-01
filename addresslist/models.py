@@ -187,13 +187,15 @@ class LocaffInfo(object):
             }
             # departments
             d = locaff.departments.all()[0]
-            try:
-                depart1 = d.superior.name
-            except:
-                depart1 = None
-            depart2 = d.name
-            if depart1 == u'北京亦庄工厂':
-                depart1 = depart2
+            d_sup = d.superior
+
+            if d_sup:
+                depart1 = d_sup.name
+                depart2 = d.name
+            else:
+                depart1 = d.name
+                depart2 = None
+
             info.update({
                 'depart1': depart1,
                 'depart2': depart2,
