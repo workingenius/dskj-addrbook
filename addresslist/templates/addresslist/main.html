@@ -42,40 +42,16 @@ a{
 }
 </style>
 <script type="text/javascript">
-  
-var department=[
-{"department1":"全部"},
-{"department1":"总经理办公室"},
-{"department1":"副总经理办公室"},
-{"department1":"经营监察部"},
-{"department1":"对外联络部"},
-{"department1":"经营管理本部","department2":[
-	{"department2":"本部长室"},
-	{"department2":"财务部"},
-	{"department2":"人力资源部"},
-	{"department2":"总务部"},
-	{"department2":"法务部"},
-	{"department2":"经营计划部"}
-]},
-{"department1":"工场","department2":[
-	{"department2":"工场长室"},
-	{"department2":"生产部"},
-	{"department2":"技术部"},
-	{"department2":"生产管理部"}
-]},	
-{"department1":"市场本部","department2":[
-	{"department2":"市场统括"},
-	{"department2":"品牌推进部"},
-	{"department2":"品牌企划部"}
-]},
-{"department1":"营销本部","department2":[
-	{"department2":"营销本部长室"},
-	{"department2":"美容推进部"},
-	{"department2":"营销战略部"}
-]},
-{"department1":"其他"}
-];
 
+var department = (
+{% endverbatim %}
+	{{ department_tree | safe }}
+{% verbatim %}
+);
+
+department.push({
+	"department1": "全部"
+});
 
 
 var m1= angular.module('MyApp',[ 'ui.bootstrap','ngGrid']);

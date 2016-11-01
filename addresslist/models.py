@@ -267,3 +267,29 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', )
+
+
+def department_tree():
+    get_sup_name = lambda d: None if d.superior is None else d.superior.name
+
+    departs = Department.objects.all()
+
+    by_name = {None: None}
+    for d in departs:
+        by_name[d.name] = d
+
+    by_sup = {}
+    for d in departs:
+        sup_name = get_sup_name(d)
+        if by_sup.has_key(sup_name):
+            by_sup[sup_name].append(d)
+        else:
+            by_sup[get_sup_name(d)] = [d]
+
+    def construct_tree(headname):
+        head = by_name[headname]
+        inferiors = by_sup.get(headname, [])
+        return [head] + [construct_tree(d.name) for d in inferiors]
+
+    return construct_tree(None)
+

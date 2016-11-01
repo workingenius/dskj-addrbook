@@ -18,7 +18,25 @@ from rest_framework.views import APIView
 
 from .models import LocaffInfo, Staff
 from .models import LocaffInfoSerializer, UserSerializer
+from .models import department_tree
 from .xlsx import output
+
+
+def _department_tree():
+    dt = department_tree()
+
+    def consdt(dt, level):
+        head = dt[0]
+        leaves = dt[1:]
+        node = {
+            'department' + str(level) : head.name,
+        }
+        infs = [consdt(d, level+1) for d in leaves]
+        if infs:
+            node['department' + str(level + 1)] = infs
+        return node
+
+    return [consdt(d, 1) for d in dt[1:]]
 
 
 def main(request):
@@ -27,6 +45,7 @@ def main(request):
     else:
         u = UserSerializer(request.user).data
         ctx = {'user': json.dumps(u), 'username': u['username']}
+    ctx['department_tree'] = json.dumps(_department_tree())
     return render(request, 'addresslist/main.html', ctx)
 
 
