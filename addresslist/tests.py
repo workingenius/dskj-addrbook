@@ -144,7 +144,7 @@ class TestDepartment(TestCase):
             p10.save()
 
 
-SOURCE_PATH = './assets/SLC.xlsx'
+SOURCE_PATH = './assets/SLC2.xlsx'
 SOURCE_SHEETNAME = u'配置'
 test_df = read_excel(SOURCE_PATH, sheetname=SOURCE_SHEETNAME)
 
@@ -207,10 +207,6 @@ class TestImportData(EnvForImportData):
         assert all(imap(valid, names))
 
     def test_superiors(self):
-        d1 = Department.objects.get(name=u'经营监察部')
-        d2 = Department.objects.get(name=u'北京亦庄工厂')
-        assert d1.superior == d2
-
         d3 = Department.objects.get(name=u'财务部')
         d4 = Department.objects.get(name=u'经营管理本部')
         assert d3.superior == d4
@@ -274,7 +270,7 @@ class TestLocaffInfo(TestCase):
         assert li.id is not None
         assert li.name
         assert li.email
-        assert li.depart2
+        assert li.depart1
 
     def test_single_get(self):
         Department.objects.create(name='d2')
@@ -285,7 +281,7 @@ class TestLocaffInfo(TestCase):
         assert li.id is not None
         assert li.name
         assert li.email
-        assert li.depart2
+        assert li.depart1
 
 
     def test_delete(self):
@@ -317,7 +313,7 @@ class TestLocaffInfo(TestCase):
         s = LocaffInfo.get(lambda x: x.get(id=s.id))
 
         assert s.name == 'modified'
-        assert s.depart2 == 'd3'
+        assert s.depart1 == 'd3'
         assert s.email == 'modified@comp.com'
         assert s.qq == 'anewqq'
         assert hasattr(s, 'phone') == False
@@ -384,8 +380,8 @@ class TestCurrentApis(TestCase):
         for lcf in alcfs:
             assert lcf['id'] is not None
             assert lcf['name']
-            assert lcf.has_key('depart1')
-            assert lcf['depart2']
+            assert lcf['depart1']
+            assert lcf.has_key('depart2')
 
     def test_create_locaff(self):
         body = {
@@ -403,7 +399,8 @@ class TestCurrentApis(TestCase):
         staff = resp.json()
         assert staff['id'] == 2
         assert staff['name'] == 'Bob'
-        assert staff['depart2'] == u'市场部'
+        assert staff['depart1'] == u'市场部'
+        assert staff['depart2'] is None
         assert staff['email'] == 'bob@comp.com'
 
     def test_update_locaff_detail(self):

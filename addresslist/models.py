@@ -101,7 +101,7 @@ class LocaffInfo(object):
     """
     contact_fields = tuple(c.key for c in contacts)
 
-    def __init__(self, name, depart2, id=None, depart1=None, **kw):
+    def __init__(self, name, depart1, id=None, depart2=None, **kw):
         self.id = id
         self.name = name
         self.depart1 = depart1
@@ -121,6 +121,9 @@ class LocaffInfo(object):
     def _contact_fields(self):
         return tuple(cf for cf in self.contact_fields if hasattr(self, cf))
 
+    def get_direct_depart(self):
+        return self.depart2 or self.depart1
+
     def save(self):
         if self._exists:
             self._update()
@@ -135,7 +138,7 @@ class LocaffInfo(object):
             c = Contact(staff=s, mode=cf.upper(), value=getattr(self, cf))
             c.save()
 
-        depart = Department.objects.get(name=self.depart2)
+        depart = Department.objects.get(name=self.get_direct_depart())
         p = Position(staff=s, department=depart)
         p.save()
 
@@ -150,9 +153,9 @@ class LocaffInfo(object):
             s.save()
         # department
         old_depart = s.departments.all()[0]
-        if old_depart.name != self.depart2:
+        if old_depart.name != self.get_direct_depart():
             old_p = Position.objects.get(staff=s, department=old_depart)
-            new_depart = Department.objects.get(name=self.depart2)
+            new_depart = Department.objects.get(name=self.get_direct_depart())
             new_p = Position(staff=s, department=new_depart)
             old_p.delete()
             new_p.save()
@@ -226,8 +229,6 @@ class LocaffInfo(object):
 # LocaffInfoSerializer block
 
 def create(self, validated_data):
-    if not validated_data.has_key('depart2'):
-        validated_data['depart2'] = validated_data.pop('depart1')
     li = LocaffInfo(**validated_data)
     li.save()
     return li
