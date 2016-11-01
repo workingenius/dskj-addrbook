@@ -4,7 +4,7 @@ from collections import namedtuple
 
 Contact = namedtuple('Contact', ['key', 'literal'])
 
-email =     Contact(u'email',   u'电子邮件')
+email =     Contact(u'email',   u'邮件地址')
 phone =     Contact(u'phone',   u'直线')
 extnum = Contact(u'extnum', u'分机号')
 fax =       Contact(u'fax',     u'传真')

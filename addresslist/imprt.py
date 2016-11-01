@@ -41,7 +41,7 @@ def _from_xlsx_worksheet(dataframe):
     """format must be same as $BASE_DIR/assets/SLC.xlsx"""
 
     df = dataframe
-    depart_columns = [u'地区', u'部门一', u'部门二']
+    depart_columns = [u'部门一', u'部门二']
     df[depart_columns] = df[depart_columns].fillna(method='ffill')
     rows = imap(lambda x: list(x[1].values), df.iterrows())
 
@@ -51,10 +51,9 @@ def _from_xlsx_worksheet(dataframe):
             if c.literal in column_name:
                 contact_dict[column_num] = c
 
-    REGIN = 0
     DEPART1 = 1
     DEPART2 = 2
-    LOCAFF = 3
+    LOCAFF = 0
 
     def rv(row, idx):
         return row[idx]
@@ -85,12 +84,8 @@ def _from_xlsx_worksheet(dataframe):
         if pd.isnull(locaff_name):
             continue
 
-        regin = rv(row, REGIN)
-        d1 = handle_depart(regin)
-        yield d1
-
         depart1 = rv(row, DEPART1)
-        d2 = handle_depart(depart1, d1)
+        d2 = handle_depart(depart1)
         yield d2
 
         depart2 = rv(row, DEPART2)
