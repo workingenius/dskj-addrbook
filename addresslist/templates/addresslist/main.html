@@ -86,30 +86,29 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 	}
 	
 	if($scope.user){
-	var columnDefs= [{field: 'name', displayName: '姓名'}, 
-             {field:'depart1', displayName:'一级部门'},
-             {field:'depart2', displayName:'二级部门'},
-             {field:'phone', displayName:'直线号码'},
-             {field:'extnum', displayName:'分机号'},
-             {field:'fax', displayName:'传真号码'},
-             {field:'mobile', displayName:'手机号码'},
-             {field:'qq', displayName:'QQ',cellTemplate:'<a href="tencent://message/?uin={{row.getProperty(\'qq\')}}&amp;Site=www.xxx.com&amp;Menu=yes">{{row.getProperty(\'qq\')}}</a>'},
-             {field:'email', displayName:'邮箱',cellTemplate:'<a href="Mailto:{{row.getProperty(\'email\')}};">{{row.getProperty(\'email\')}}</a>'},
-             {field:'ip', displayName:'IP地址'},
-             {field:'', displayName:'编辑',cellTemplate:'<a ng-click="open(\'edit\',row.getProperty(\'id\'))">编辑</a>  <a ng-click="dle(row.getProperty(\'id\'))">删除</a>'}
+	var columnDefs= [{field: 'name', pinned: true, displayName: '姓名',width:'70px'}, 
+             {field:'depart1', displayName:'一级部门',width:'110px'},
+             {field:'depart2', displayName:'二级部门',width:'100px'},
+             {field:'phone', displayName:'直线号码',width:'120px'},
+             {field:'extnum', displayName:'分机号',width:'70px'},
+             {field:'fax', displayName:'传真号码',width:'120px'},
+             {field:'mobile', displayName:'手机号码',width:'100px'},
+             {field:'qq', displayName:'QQ',width:'100px',cellTemplate:'<a href="tencent://message/?uin={{row.getProperty(\'qq\')}}&amp;Site=www.xxx.com&amp;Menu=yes">&nbsp;{{row.getProperty(\'qq\')}}</a>'},
+             {field:'email', displayName:'邮箱',cellTemplate:'<a href="Mailto:{{row.getProperty(\'email\')}};">&nbsp;{{row.getProperty(\'email\')}}</a>'},
+             {field:'', displayName:'编辑',width:'100px',cellTemplate:'<a ng-click="open(\'edit\',row.getProperty(\'id\'))">&nbsp;&nbsp;编辑</a>  <a ng-click="dle(row.getProperty(\'id\'))">删除</a>'}
 			]
 	}else{
 	var columnDefs= [
-               {field: 'name', displayName: '姓名'}, 
-               {field:'depart1', displayName:'一级部门'},
-               {field:'depart2', displayName:'二级部门'},
-               {field:'phone', displayName:'直线号码'},
-               {field:'extnum', displayName:'分机号'},
-               {field:'fax', displayName:'传真号码'},
-               {field:'mobile', displayName:'手机号码'},
-               {field:'qq', displayName:'QQ',cellTemplate:'<a href="tencent://message/?uin={{row.getProperty(\'qq\')}}&amp;Site=www.xxx.com&amp;Menu=yes">{{row.getProperty(\'qq\')}}</a>'},
-               {field:'email', displayName:'邮箱',cellTemplate:'<a href="Mailto:{{row.getProperty(\'email\')}}">{{row.getProperty(\'email\')}}</a>'},
-               {field:'ip', displayName:'IP地址'}]
+               {field: 'name', pinned: true, displayName: '姓名',width:'70px'}, 
+               {field:'depart1', displayName:'一级部门',width:'110px'},
+               {field:'depart2', displayName:'二级部门',width:'100px'},
+               {field:'phone', displayName:'直线号码',width:'120px'},
+               {field:'extnum', displayName:'分机号',width:'70px'},
+               {field:'fax', displayName:'传真号码',width:'120px'},
+               {field:'mobile', displayName:'手机号码',width:'100px'},
+               {field:'qq', displayName:'QQ',width:'100px',cellTemplate:' <a href="tencent://message/?uin={{row.getProperty(\'qq\')}}&amp;Site=www.xxx.com&amp;Menu=yes">&nbsp;{{row.getProperty(\'qq\')}}</a>'},
+               {field:'email', displayName:'邮箱',cellTemplate:' <a href="Mailto:{{row.getProperty(\'email\')}}">&nbsp;{{row.getProperty(\'email\')}}</a>'},
+              ]
 	}
 	var selectRows=[];
 	var emails=[];
@@ -119,6 +118,8 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
             multiSelect: true,
             showColumnMenu: true,
             selectWithCheckboxOnly:true,
+            enableColumnResize:true,
+            enablePinning: true,
             //checkboxCellTemplate:'<div class="ngSelectionCell"><input tabindex="-1" class="ngSelectionCheckbox" type="checkbox" ng-checked="row.selected" /></div>',
             //checkboxHeaderTemplate:'<input class="ngSelectionHeader" type="checkbox"  ng-model="allSelected" ng-change="toggleSelectAll(allSelected)"/>',
             afterSelectionChange:function(a,b){
@@ -546,7 +547,7 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 						</ul>
 						<div class="tab-content">
 							<div class="tab-pane active" id="panel-455321">
-								<div class="col-sm-12" style="margin: 30px 0">
+								<div class="col-sm-12" style="margin: 30px 0;margin-bottom: 0">
 									<div style="display: inline;float: left;height: 60px">
 										<table><tr>
 										<td>
