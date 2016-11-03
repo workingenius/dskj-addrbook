@@ -13,5 +13,5 @@ qq =        Contact(u'qq',      u'QQ')
 ip =       Contact(u'ip',     u'IP地址')
 
 contacts = [
-    extnum, phone, fax, mobile, qq, email, ip
+    extnum, phone, fax, mobile, qq, email
 ]
