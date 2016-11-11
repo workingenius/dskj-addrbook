@@ -93,7 +93,7 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
              {field:'extnum', displayName:'分机号',width:'70px'},
              {field:'fax', displayName:'传真号码',width:'120px'},
              {field:'mobile', displayName:'手机号码',width:'100px'},
-             {field:'qq', displayName:'QQ',width:'100px',cellTemplate:'<a href="tencent://message/?uin={{row.getProperty(\'qq\')}}&amp;Site=www.xxx.com&amp;Menu=yes">&nbsp;{{row.getProperty(\'qq\')}}</a>'},
+             {field:'qq', displayName:'QQ',width:'100px',cellTemplate:'<a href="tencent://message/?uin={{row.getProperty(\'qq\')}}&amp;Site=b.qq.com&amp;Menu=yes">&nbsp;{{row.getProperty(\'qq\')}}</a>'},
              {field:'email', displayName:'邮箱',cellTemplate:'<a href="Mailto:{{row.getProperty(\'email\')}};">&nbsp;{{row.getProperty(\'email\')}}</a>'},
              {field:'', displayName:'编辑',width:'100px',cellTemplate:'<a ng-click="open(\'edit\',row.getProperty(\'id\'))">&nbsp;&nbsp;编辑</a>  <a ng-click="dle(row.getProperty(\'id\'))">删除</a>'}
 			]
@@ -106,7 +106,7 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
                {field:'extnum', displayName:'分机号',width:'70px'},
                {field:'fax', displayName:'传真号码',width:'120px'},
                {field:'mobile', displayName:'手机号码',width:'100px'},
-               {field:'qq', displayName:'QQ',width:'100px',cellTemplate:' <a href="tencent://message/?uin={{row.getProperty(\'qq\')}}&amp;Site=www.xxx.com&amp;Menu=yes">&nbsp;{{row.getProperty(\'qq\')}}</a>'},
+               {field:'qq', displayName:'QQ',width:'100px',cellTemplate:' <a href="tencent://message/?uin={{row.getProperty(\'qq\')}}&amp;Site=b.qq.com&amp;Menu=yes">&nbsp;{{row.getProperty(\'qq\')}}</a>'},
                {field:'email', displayName:'邮箱',cellTemplate:' <a href="Mailto:{{row.getProperty(\'email\')}}">&nbsp;{{row.getProperty(\'email\')}}</a>'},
               ]
 	}
@@ -172,7 +172,7 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 		$scope.x=false;
 		$scope.master=false;
 		if(a.department2){
-			//console.log(a.department2);
+			console.log(a.department2);
 			if(a.department2[0].department2!="全部二级部门"){
 				a.department2.unshift({"department2":"全部二级部门"});
 			};
@@ -351,14 +351,16 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 
 		$scope.departs1= depart;
 		$scope.depart1=depart[0]
-	
+	$scope.change2=function(s) {
+		//alert(s.department2)
+		$scope.depart2.department2=s.department2;
+	}
 	$scope.change1=function(s) {
 		if(s.department2){
 			
 			$scope.bool=1;
 			$scope.departs2=s.department2;
 			$scope.depart2=s.department2[0];
-			console.log(s.department2[0])
 			}else{
 				$scope.bool=2;
 			}; 
@@ -401,7 +403,6 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 				}
 			}
 			$scope.depart2=dep2;
-			console.log(dep2)
 		});
 	}
 	
@@ -493,7 +494,7 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 						<select class="form-control input" ng-model="depart1"  ng-change="change1(depart1)" ng-options="item.department1 for item in departs1" style="width: 150px;height: 30px;font-size:12px"></select>
 					</label>
 					<label>
-					 <select ng-if="bool==1" class="form-control input" ng-model="depart2"  ng-change="change2(depart1)" ng-options="item1.department2 for item1 in departs2" style="width: 150px;height: 30px;font-size:12px"></select>
+					 <select ng-if="bool==1" class="form-control input" ng-model="depart2"  ng-change="change2(depart2)" ng-options="item1.department2 for item1 in departs2" style="width: 150px;height: 30px;font-size:12px"></select>
 					</label>
 				<br>
 				<label>分机号码：</label><input class="form-control input" ng-model="ctrlScope.extnum" type="text" required /><br>
@@ -528,8 +529,8 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
     <!-- Fixed navbar -->
     <div class="container theme-showcase" role="main">
    		<div class="col-sm-12" style="margin-bottom: 10px">
-		    <div class="col-sm-12" style="height:60px;line-height: 60px;margin: 5px auto;">
-	        <img alt="logo" src="/static/img/logo_aupres.jpg" style="margin-left: 80px;height:50px;margin-top: 13px"><!--  <h3 style="display:inline;float: left;">&nbsp资生堂丽源化妆品有限公司内部电话通讯录</h3>  -->
+		    <div class="col-sm-12" style="height:60px;line-height: 60px;margin: 5px 0;">
+	        <img alt="logo" src="/static/img/logo_aupres.jpg" style="margin-left: 0px;height:45px;margin-top: 13px"><!--  <h3 style="display:inline;float: left;">&nbsp资生堂丽源化妆品有限公司内部电话通讯录</h3>  -->
 		 	</div>
 	 	</div>
 	 		<div class="col-sm-12" style="height: 20px"></div>
