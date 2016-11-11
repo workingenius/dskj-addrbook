@@ -172,7 +172,6 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 		$scope.x=false;
 		$scope.master=false;
 		if(a.department2){
-			console.log(a.department2);
 			if(a.department2[0].department2!="全部二级部门"){
 				a.department2.unshift({"department2":"全部二级部门"});
 			};
@@ -353,16 +352,19 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 		$scope.depart1=depart[0]
 	$scope.change2=function(s) {
 		//alert(s.department2)
-		$scope.depart2.department2=s.department2;
+		//alert(JSON.stringify(s))
+		$scope.depart2=s;
 	}
 	$scope.change1=function(s) {
+		$scope.depart1=s;
 		if(s.department2){
-			
 			$scope.bool=1;
 			$scope.departs2=s.department2;
 			$scope.depart2=s.department2[0];
 			}else{
 				$scope.bool=2;
+				$scope.departs2=[];
+				$scope.depart2=null;
 			}; 
 	}
 	if(str.str=='login'){
@@ -426,33 +428,9 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 		});
 	}
 	$scope.ok = function() {
+		var b={};
 		if($scope.depart2==null){
-			$scope.depart2=$scope.depart1;
-			$scope.depart2.department2=$scope.depart1.department1;
-		}
-		
-		if(str.str=='add'){
-			$http.post('/staffs', {
-				name: $scope.ctrlScope.name,
-				email: $scope.ctrlScope.email,
-				phone: $scope.ctrlScope.phone,
-				qq:$scope.ctrlScope.qq,
-				ip:$scope.ctrlScope.ip,
-				extnum:$scope.ctrlScope.extnum,
-				fax:$scope.ctrlScope.fax,
-				mobile:$scope.ctrlScope.mobile,
-				depart1:$scope.depart1.department1,
-				depart2:$scope.depart2.department2,
-				}).success(function(){
-				$modalInstance.close(0);
-			});
-		};
-		if(str.str=='edit'){
-			$http({
-				url:'/staffs/'+str.id,
-				method:'put',
-				data:{
-					id:str.id,
+			b={
 					name: $scope.ctrlScope.name,
 					email: $scope.ctrlScope.email,
 					phone: $scope.ctrlScope.phone,
@@ -462,8 +440,33 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 					fax:$scope.ctrlScope.fax,
 					mobile:$scope.ctrlScope.mobile,
 					depart1:$scope.depart1.department1,
-					depart2:$scope.depart2.department2,
-				}
+					depart2:$scope.depart1.department1
+					}
+		}else{
+			b={
+					name: $scope.ctrlScope.name,
+					email: $scope.ctrlScope.email,
+					phone: $scope.ctrlScope.phone,
+					qq:$scope.ctrlScope.qq,
+					ip:$scope.ctrlScope.ip,
+					extnum:$scope.ctrlScope.extnum,
+					fax:$scope.ctrlScope.fax,
+					mobile:$scope.ctrlScope.mobile,
+					depart1:$scope.depart1.department1,
+					depart2:$scope.depart2.department2
+					}
+		}
+		console.log(b)
+		if(str.str=='add'){
+			$http.post('/staffs', b).success(function(){
+				$modalInstance.close(0);
+			});
+		};
+		if(str.str=='edit'){
+			$http({
+				url:'/staffs/'+str.id,
+				method:'put',
+				data:b
 			}).success(function(data,header,config,status){
 				$modalInstance.close(0);
 			}).error(function(data,header,config,status){
