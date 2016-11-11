@@ -407,7 +407,7 @@ class TestCurrentApis(TestCase):
         phonenum = '2910394'
         body = {
             'name': 'Alice',
-            'depart1': u'市场部',
+            'depart1': u'技术部',
             'email': 'alice@comp.com',
             'phone': phonenum,
         }
@@ -418,6 +418,11 @@ class TestCurrentApis(TestCase):
         assert 200 <= resp.status_code < 300
         resp = resp.json()
         assert resp['id'] == 1
+
+        # TODO: pass them
+        # assert resp['depart1'] == u'市场部'
+        # assert resp['depart2'] == u'技术部'
+
         assert resp['name'] == 'Alice'
         assert resp['email'] == 'alice@comp.com'
         assert resp['phone'] == phonenum
