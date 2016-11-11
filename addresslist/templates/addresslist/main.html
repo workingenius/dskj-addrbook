@@ -172,7 +172,7 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 		$scope.x=false;
 		$scope.master=false;
 		if(a.department2){
-			//console.log(a.department2);
+			console.log(a.department2);
 			if(a.department2[0].department2!="全部二级部门"){
 				a.department2.unshift({"department2":"全部二级部门"});
 			};
@@ -351,14 +351,16 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 
 		$scope.departs1= depart;
 		$scope.depart1=depart[0]
-	
+	$scope.change2=function(s) {
+		//alert(s.department2)
+		$scope.depart2.department2=s.department2;
+	}
 	$scope.change1=function(s) {
 		if(s.department2){
 			
 			$scope.bool=1;
 			$scope.departs2=s.department2;
 			$scope.depart2=s.department2[0];
-			console.log(s.department2[0])
 			}else{
 				$scope.bool=2;
 			}; 
@@ -401,7 +403,6 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 				}
 			}
 			$scope.depart2=dep2;
-			console.log(dep2)
 		});
 	}
 	
@@ -493,7 +494,7 @@ m1.controller('Aaa',['$scope','$filter','$http','$modal', '$log',function($scope
 						<select class="form-control input" ng-model="depart1"  ng-change="change1(depart1)" ng-options="item.department1 for item in departs1" style="width: 150px;height: 30px;font-size:12px"></select>
 					</label>
 					<label>
-					 <select ng-if="bool==1" class="form-control input" ng-model="depart2"  ng-change="change2(depart1)" ng-options="item1.department2 for item1 in departs2" style="width: 150px;height: 30px;font-size:12px"></select>
+					 <select ng-if="bool==1" class="form-control input" ng-model="depart2"  ng-change="change2(depart2)" ng-options="item1.department2 for item1 in departs2" style="width: 150px;height: 30px;font-size:12px"></select>
 					</label>
 				<br>
 				<label>分机号码：</label><input class="form-control input" ng-model="ctrlScope.extnum" type="text" required /><br>
