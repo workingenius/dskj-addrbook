@@ -8,6 +8,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, Http404
 from django.contrib.auth.models import AnonymousUser
 from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -93,9 +94,10 @@ class LocaffDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+@csrf_exempt
 def export(request):
     # TODO: invalid parameters
-    id_list = request.GET.get('id_list')
+    id_list = request.POST.get('id_list')
     id_list = map(int, id_list.split(','))
     work_book = output(id_list)
 
