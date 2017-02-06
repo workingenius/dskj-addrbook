@@ -25,3 +25,6 @@ tmp
 
 # office swp file
 .~*
+
+# npm packages
+node_modules
