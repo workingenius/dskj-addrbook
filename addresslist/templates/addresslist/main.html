@@ -299,6 +299,12 @@
                     }
                     $scope.datas1 = $filter('filter')(sd3, $scope.filterVal);
                 }
+				// 按回车健查询
+				$scope.keypressed = function(keyEvent) {
+					if (keyEvent.which == 13) {
+						$scope.fnFilter();
+					}
+				};
 
 
                 //============ 当前数据筛选 end ===================================
@@ -679,7 +685,7 @@
                                     </table>
                                 </div>
                                 <div class="input-group col-sm-2" style="width: 200px;position:relative;top:2px">
-                                    <input type="text" class="form-control" style="height: 30px;" ng-model="filterVal">
+                                    <input type="text" class="form-control" style="height: 30px;" ng-model="filterVal" ng-keypress="keypressed($event)">
                                     <span class="input-group-btn">
 											<button class="btn btn-default" type="button" style="height: 30px;" ng-click="fnFilter()">
 												查询
