@@ -263,6 +263,43 @@
                     }
                 };
 
+                function validateDepart2() {
+                    if (!$scope.selectValue.department2) {
+                        $scope.select1Value = null;
+                    } else {
+                        var depart2s = $scope.selectValue.department2;
+                        var depart, i;
+                        for (i=0; i<depart2s.length; i++) {
+                            depart = depart2s[i];
+                            if (depart === $scope.select1Value) {
+                                return;
+                            }
+                        }
+                        $scope.select1Value = null;
+                    }
+                }
+
+                // filter meta
+                $scope.selectValue = department[0];
+                $scope.select1Value = null;
+                $scope.filterVal = '';
+
+                $scope.applyFilter = function() {
+                    validateDepart2();
+
+                    if ($scope.selectValue) {
+                        $scope.zxc($scope.selectValue);
+
+                        if ($scope.select1Value) {
+                            $scope.zxc1($scope.select1Value);
+                        }
+                    }
+
+                    if ($scope.filterVal) {
+                        $scope.fnFilter();
+                    }
+                };
+
                 var sd2 = [];
                 var sd3 = [];
                 $scope.zxc = function(a) {
@@ -636,12 +673,12 @@
                                             </td>
                                             <td>
                                                 <label style="display: inline;float: left">
-										 <select class="form-control" ng-model="selectValue"  ng-change="zxc(selectValue);expandSelector(selectValue);" ng-options="item.department1 for item in departments1" style="width: 150px;height: 30px;font-size:12px"></select>
+										 <select class="form-control" ng-model="selectValue"  ng-change="applyFilter();expandSelector(selectValue);" ng-options="item.department1 for item in departments1" style="width: 150px;height: 30px;font-size:12px"></select>
 										</label>
                                             </td>
                                             <td ng-show="selectValue.department2">
                                                 <label style="display: inline;float: left">
-										<select class="form-control" ng-model="select1Value"  ng-change="zxc1(select1Value)" ng-options="item1.department2 for item1 in selectValue.department2" style="width: 150px;height: 30px;font-size:12px"></select>
+										<select class="form-control" ng-model="select1Value"  ng-change="applyFilter()" ng-options="item1.department2 for item1 in selectValue.department2" style="width: 150px;height: 30px;font-size:12px"></select>
 										</label>
                                             </td>
                                         </tr>
