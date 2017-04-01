@@ -81,13 +81,12 @@
 
 
                 //srq department是什么数据结构?
-                $scope.selectValue = department[0];
-                var sd1 = [];
+                var allItems = [];
                 $scope.getdata = function() {
                     $http.get("/staffs").success(function(response) {
                         //$scope.gridOptions=response
                         $scope.datas1 = response;
-                        sd1 = response;
+                        allItems = response;
                     });
                 }
 
@@ -256,30 +255,30 @@
                                 "department2": "全部二级部门"
                             });
                         };
-                        $scope.select1Value = a.department2[0];
+                        $scope.selDepart2 = a.department2[0];
                     } else {
                     }
                 };
 
                 function validateDepart2() {
-                    if (!$scope.selectValue.department2) {
-                        $scope.select1Value = null;
+                    if (!$scope.selDepart1.department2) {
+                        $scope.selDepart2 = null;
                     } else {
-                        var depart2s = $scope.selectValue.department2;
+                        var depart2s = $scope.selDepart1.department2;
                         var depart, i;
                         for (i=0; i<depart2s.length; i++) {
                             depart = depart2s[i];
-                            if (depart === $scope.select1Value) {
+                            if (depart === $scope.selDepart2) {
                                 return;
                             }
                         }
-                        $scope.select1Value = null;
+                        $scope.selDepart2 = null;
                     }
                 }
 
                 // filter meta
-                $scope.selectValue = department[0];
-                $scope.select1Value = null;
+                $scope.selDepart1 = department[0];
+                $scope.selDepart2 = null;
                 $scope.filterVal = '';
 
                 $scope.applyFilter = function() {
@@ -287,17 +286,17 @@
 
                     validateDepart2();
 
-                    var items = sd1;
+                    var items = allItems;
 
-                    if ($scope.selectValue) {
-                        if ($scope.selectValue.department1 == '全部') {
+                    if ($scope.selDepart1) {
+                        if ($scope.selDepart1.department1 == '全部') {
                         } else {
-                            items = $filter('filter')(items, $scope.selectValue.department1, true);
+                            items = $filter('filter')(items, $scope.selDepart1.department1, true);
                         }
                     }
 
-                    if ($scope.select1Value) {
-                        var keyText = $scope.select1Value.department2;
+                    if ($scope.selDepart2) {
+                        var keyText = $scope.selDepart2.department2;
                         if (keyText == '全部二级部门') {
                         } else {
                             items = $filter('filter')(items, keyText, true);
@@ -648,12 +647,12 @@
                                             </td>
                                             <td>
                                                 <label style="display: inline;float: left">
-										 <select class="form-control" ng-model="selectValue"  ng-change="applyFilter();expandSelector(selectValue);" ng-options="item.department1 for item in departments1" style="width: 150px;height: 30px;font-size:12px"></select>
+										 <select class="form-control" ng-model="selDepart1"  ng-change="applyFilter();expandSelector(selDepart1);" ng-options="item.department1 for item in departments1" style="width: 150px;height: 30px;font-size:12px"></select>
 										</label>
                                             </td>
-                                            <td ng-show="selectValue.department2">
+                                            <td ng-show="selDepart1.department2">
                                                 <label style="display: inline;float: left">
-										<select class="form-control" ng-model="select1Value"  ng-change="applyFilter()" ng-options="item1.department2 for item1 in selectValue.department2" style="width: 150px;height: 30px;font-size:12px"></select>
+										<select class="form-control" ng-model="selDepart2"  ng-change="applyFilter()" ng-options="item1.department2 for item1 in selDepart1.department2" style="width: 150px;height: 30px;font-size:12px"></select>
 										</label>
                                             </td>
                                         </tr>
