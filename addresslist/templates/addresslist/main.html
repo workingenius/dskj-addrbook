@@ -354,10 +354,7 @@
                         }).success(function(data, header, config, status) {
                             //响应成功
                             if (header == 204) {
-                                $http.get("/staffs").success(function(response) {
-                                    $scope.datas1 = response;
-                                    sd1 = response;
-                                });
+                                $scope.getdata();
                             }
                         }).error(function(data, header, config, status) {
                             //处理响应失败
