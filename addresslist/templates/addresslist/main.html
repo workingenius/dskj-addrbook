@@ -207,7 +207,6 @@
                     enableColumnResize: true,
                     enablePinning: true,
                     //checkboxCellTemplate:'<div class="ngSelectionCell"><input tabindex="-1" class="ngSelectionCheckbox" type="checkbox" ng-checked="row.selected" /></div>',
-                    //checkboxHeaderTemplate:'<input class="ngSelectionHeader" type="checkbox"  ng-model="allSelected" ng-change="toggleSelectAll(allSelected)"/>',
                     afterSelectionChange: function(a, b) {
                         //console.log(a)
                         if (a.length) {
@@ -254,7 +253,6 @@
                 var sd2 = [];
                 var sd3 = [];
                 $scope.zxc = function(a) {
-                    //$scope.allSelected=false;
                     $scope.gridOptions.selectAll(false);
                     $scope.x = false;
                     $scope.master = false;
@@ -310,40 +308,6 @@
                 //============ 当前数据筛选 end ===================================
 
 
-                /* 	----------首页 多选 全选功能---------------- */
-                /* 
-                var cc=[];//定义数组用于存放前端显示
-                $scope.x=false;//默认未选中
-                $scope.all= function (c) {//全选
-                	idArray=[];
-                		for (var i=0;i<$scope.datas1.length;i++){
-                			idArray.push($scope.datas1[i].id);
-                		}
-                	if(!c){
-                		cc=idArray;
-                		$scope.x=true;
-                	}else{
-                		$scope.x=false;
-                		cc=[];
-                	}
-                };
-                $scope.chk= function (z,x,e) {//单选或者多选
-                	if (x) {//选+中
-                		for(var i=0 ;i<cc.length;i++){
-                			if(cc[i]==z){
-                				cc.splice(i,1);//取消选中
-                			}
-                		}
-                	} else {
-                		cc.push(z);
-                	}
-                		
-                }; */
-
-                /* 	----------首页 多选 全选功能 end---------------- */
-                /* 	----------首页 编辑功能---------------- */
-
-                /* 	----------首页 编辑功能 end---------------- */
                 /* 	----------首页 编辑功能---------------- */
 
                 $scope.dle = function(id) {
@@ -691,7 +655,6 @@
                                 </div>
                             </div>
                             <div style="margin-left: 25px">
-                                <!-- <input type="checkbox" ng-model="master" ng-click="all(master)">  -->
                                 <!-- <label class="btn-left">
 										<button class="btn btn-sm" ng-click="add()">添加到我的通讯录</button>
 									</label> -->
@@ -708,39 +671,6 @@
                             <div class="col-sm-12" style="height: 600px;overflow-y: auto">
                                 {{ selectRow }}
                                 <div class="col-sm-12 table table-striped table-bordered" style="height: 500px;overflow-y: auto" ng-grid="gridOptions"></div>
-                                <!-- <table class="col-sm-12 table table-striped table-bordered">
-										<tr>
-											<th></th>
-											<th>姓名</th>
-											<th>一级部门</th>
-											<th>二级部门</th>
-											<th>分机号</th>
-											<th>直线号码</th>
-											<th>传真号码</th>
-											<th>手机号码</th>
-											<th>QQ</th>
-											<th>邮箱</th>
-											<th>IP地址</th>
-											<th ng-if="user" >编辑</th>
-										</tr>
-										<tr ng-repeat="data in datas1 track by $index">
-											<td><input type="checkbox" id={{data.id}} ng-model="x" ng-checked="master" ng-click="chk(data.id,x,data.email)"></td>
-											<td>{{data.name}}</td>
-											<td>{{data.depart1}}</td>
-											<td>{{data.depart2}}</td>
-											<td>{{data.extnum}}</td>
-											<td>{{data.phone}}</td>
-											<td>{{data.fax}}</td>
-											<td>{{data.mobile}}</td>
-											<td><a href="tencent://message/?uin={{data.qq}}&amp;Site=www.xxx.com&amp;Menu=yes">{{data.qq}}</a></td>
-											<td><a href="Mailto:{{data.email}}">{{data.email}}</a></td>
-											<td>{{data.ip}}</td>
-											<td ng-if="user">
-												 <a ng-click="open('edit',data.id)">编辑</a>
-												 <a ng-click="dle(data.id)">删除</a>
-											</td>
-										</tr>
-									</table> -->
                             </div>
                             <div class="col-sm-12" style="height: 60px"></div>
                         </div>
