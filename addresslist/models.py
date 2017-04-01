@@ -169,7 +169,7 @@ class LocaffInfo(object):
             if oc is None:
                 oc = Contact(staff=s, mode=mode.upper(), value=getattr(self, mode))
                 oc.save()
-            elif not hasattr(self, mode):
+            elif not hasattr(self, mode) or getattr(self, mode) is None:
                 oc.delete()
             else:
                 if getattr(self, mode) != oc.value:
@@ -254,7 +254,7 @@ binding = {
 }
 
 for contact in contacts:
-    binding[contact.key] = serializers.CharField(required=False, max_length=128)
+    binding[contact.key] = serializers.CharField(required=False, allow_null=True, max_length=128)
 
 
 LocaffInfoSerializer = type(
