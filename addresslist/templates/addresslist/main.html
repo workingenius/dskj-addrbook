@@ -248,14 +248,10 @@
 
                 $scope.departments1 = department;
                 //------------当前数据筛选-----------------------------------	
-                //srq 什么叫当前数据筛选?
+                //srq 什么叫当前数据筛选? -- 就是筛选出当前显示的数据
+                //srq sd1, sd2, sd3的意思分别是,加了第n个filter之后的数据结果
 
-                var sd2 = [];
-                var sd3 = [];
-                $scope.zxc = function(a) {
-                    $scope.gridOptions.selectAll(false);
-                    $scope.x = false;
-                    $scope.master = false;
+                $scope.expandSelector = function(a) {
                     if (a.department2) {
                         if (a.department2[0].department2 != "全部二级部门") {
                             a.department2.unshift({
@@ -267,6 +263,14 @@
                     } else {
                         $scope.departments2 = [];
                     }
+                };
+
+                var sd2 = [];
+                var sd3 = [];
+                $scope.zxc = function(a) {
+                    $scope.gridOptions.selectAll(false);
+                    $scope.x = false;
+                    $scope.master = false;
                     if (a.department1 == "全部") {
                         $scope.datas1 = sd1;
                     } else {
@@ -634,7 +638,7 @@
                                             </td>
                                             <td>
                                                 <label style="display: inline;float: left">
-										 <select class="form-control" ng-model="selectValue"  ng-change="zxc(selectValue)" ng-options="item.department1 for item in departments1" style="width: 150px;height: 30px;font-size:12px"></select>
+										 <select class="form-control" ng-model="selectValue"  ng-change="zxc(selectValue);expandSelector(selectValue);" ng-options="item.department1 for item in departments1" style="width: 150px;height: 30px;font-size:12px"></select>
 										</label>
                                             </td>
                                             <td ng-if="departments2.length>0">
