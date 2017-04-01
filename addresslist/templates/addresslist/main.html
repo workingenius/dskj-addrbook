@@ -79,17 +79,6 @@
                 $scope.user = {{ user | safe }};
 				{% verbatim %}
 
-
-                //srq department是什么数据结构?
-                var allItems = [];
-                $scope.getdata = function() {
-                    $http.get("/staffs").success(function(response) {
-                        //$scope.gridOptions=response
-                        $scope.datas1 = response;
-                        allItems = response;
-                    });
-                }
-
                 if ($scope.user) {
                     var columnDefs = [{
                             field: 'name',
@@ -195,6 +184,23 @@
                         },
                     ]
                 }
+
+
+                var allItems = [];
+
+                $scope.reloadData = function() {
+                    return $http.get("/staffs").success(function(response) {
+                        allItems = response;
+                    });
+                }
+
+                $scope.refresh = function() {
+                    $scope.reloadData().then(function() {
+                        $scope.applyFilter();
+                    });
+                };
+
+
                 var selectRows = [];
                 var emails = [];
                 $scope.gridOptions = {
@@ -243,7 +249,7 @@
 
 
                 };
-                $scope.getdata();
+                $scope.refresh();
 
                 $scope.departments1 = department;
                 //------------当前数据筛选-----------------------------------	
@@ -331,7 +337,7 @@
                         }).success(function(data, header, config, status) {
                             //响应成功
                             if (header == 204) {
-                                $scope.getdata();
+                                $scope.refresh();
                             }
                         }).error(function(data, header, config, status) {
                             //处理响应失败
@@ -423,7 +429,7 @@
                     // modal return result
                     modalInstance.result.then(function(string) {
                         if (string == 0) {
-                            $scope.getdata();
+                            $scope.refresh();
                         }
                     })
                 }
