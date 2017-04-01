@@ -48,15 +48,31 @@
         }
     </style>
     <script type="text/javascript">
-        var department = (
-		{% endverbatim %}
-		{{ department_tree | safe }}
-		{% verbatim %}
-		);
+        var department = (function prepareDepartments() {
+            var departments = (
+            {% endverbatim %}
+            {{ department_tree | safe }}
+            {% verbatim %}
+            );
 
-        department.unshift({
-            "department1": "全部"
-        });
+            departments.unshift({
+                "department1": "全部",
+                isAll: true
+            });
+
+            var i, d, len=departments.length;
+            for (i=0; i<len; i++) {
+                d = departments[i];
+                if (d.department2 && d.department2.length) {
+                    d.department2.unshift({
+                        "department2": "全部二级部门",
+                        isAll: true
+                    });
+                }
+            }
+
+            return departments;
+        })();
 
 
         var m1 = angular.module('MyApp', ['ui.bootstrap', 'ngGrid']);
@@ -256,13 +272,7 @@
 
                 $scope.expandSelector = function(a) {
                     if (a.department2) {
-                        if (a.department2[0].department2 != "全部二级部门") {
-                            a.department2.unshift({
-                                "department2": "全部二级部门"
-                            });
-                        };
                         $scope.selDepart2 = a.department2[0];
-                    } else {
                     }
                 };
 
@@ -295,16 +305,14 @@
                     var items = allItems;
 
                     if ($scope.selDepart1) {
-                        if ($scope.selDepart1.department1 == '全部') {
-                        } else {
+                        if (!$scope.selDepart1.isAll) {
                             items = $filter('filter')(items, $scope.selDepart1.department1, true);
                         }
                     }
 
                     if ($scope.selDepart2) {
                         var keyText = $scope.selDepart2.department2;
-                        if (keyText == '全部二级部门') {
-                        } else {
+                        if (!$scope.selDepart2.isAll) {
                             items = $filter('filter')(items, keyText, true);
                         }
                     }
