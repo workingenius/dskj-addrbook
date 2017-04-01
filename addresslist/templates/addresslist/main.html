@@ -248,8 +248,6 @@
 
                 $scope.departments1 = department;
                 //------------当前数据筛选-----------------------------------	
-                //srq 什么叫当前数据筛选? -- 就是筛选出当前显示的数据
-                //srq sd1, sd2, sd3的意思分别是,加了第n个filter之后的数据结果
 
                 $scope.expandSelector = function(a) {
                     if (a.department2) {
@@ -285,61 +283,38 @@
                 $scope.filterVal = '';
 
                 $scope.applyFilter = function() {
+                    $scope.gridOptions.selectAll(false);
+
                     validateDepart2();
 
-                    if ($scope.selectValue) {
-                        $scope.zxc($scope.selectValue);
+                    var items = sd1;
 
-                        if ($scope.select1Value) {
-                            $scope.zxc1($scope.select1Value);
+                    if ($scope.selectValue) {
+                        if ($scope.selectValue.department1 == '全部') {
+                        } else {
+                            items = $filter('filter')(items, $scope.selectValue.department1, true);
+                        }
+                    }
+
+                    if ($scope.select1Value) {
+                        var keyText = $scope.select1Value.department2;
+                        if (keyText == '全部二级部门') {
+                        } else {
+                            items = $filter('filter')(items, keyText, true);
                         }
                     }
 
                     if ($scope.filterVal) {
-                        $scope.fnFilter();
+                        items = $filter('filter')(items, $scope.filterVal);
                     }
+
+                    $scope.datas1 = items;
                 };
 
-                var sd2 = [];
-                var sd3 = [];
-                $scope.zxc = function(a) {
-                    $scope.gridOptions.selectAll(false);
-                    $scope.x = false;
-                    $scope.master = false;
-                    if (a.department1 == "全部") {
-                        $scope.datas1 = sd1;
-                    } else {
-                        $scope.datas1 = $filter('filter')(sd1, a.department1, true);
-                    }
-                    sd3 = [];
-                    sd2 = $scope.datas1;
-                }
-                $scope.zxc1 = function(a) {
-                    $scope.x = false;
-                    $scope.master = false;
-                    if (a.department2 == "全部二级部门") {
-                        $scope.datas1 = sd2;
-                    } else {
-                        $scope.datas1 = $filter('filter')(sd2, a.department2, true);
-                    }
-                    sd3 = $scope.datas1;
-                }
-                $scope.fnFilter = function() {
-                    $scope.x = false;
-                    $scope.master = false;
-                    if (sd3.length == 0) {
-                        if (sd2.length == 0) {
-                            sd3 = $scope.datas1;
-                        } else if (sd2.length != 0) {
-                            sd3 = sd2;
-                        }
-                    }
-                    $scope.datas1 = $filter('filter')(sd3, $scope.filterVal);
-                }
 				// 按回车健查询
 				$scope.keypressed = function(keyEvent) {
 					if (keyEvent.which == 13) {
-						$scope.fnFilter();
+						$scope.applyFilter();
 					}
 				};
 
