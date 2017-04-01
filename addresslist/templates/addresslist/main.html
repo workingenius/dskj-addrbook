@@ -258,10 +258,8 @@
                                 "department2": "全部二级部门"
                             });
                         };
-                        $scope.departments2 = a.department2;
                         $scope.select1Value = a.department2[0];
                     } else {
-                        $scope.departments2 = [];
                     }
                 };
 
@@ -641,9 +639,9 @@
 										 <select class="form-control" ng-model="selectValue"  ng-change="zxc(selectValue);expandSelector(selectValue);" ng-options="item.department1 for item in departments1" style="width: 150px;height: 30px;font-size:12px"></select>
 										</label>
                                             </td>
-                                            <td ng-if="departments2.length>0">
+                                            <td ng-show="selectValue.department2">
                                                 <label style="display: inline;float: left">
-										<select ng-if="departments2.length>0" class="form-control" ng-model="select1Value"  ng-change="zxc1(select1Value)" ng-options="item1.department2 for item1 in departments2" style="width: 150px;height: 30px;font-size:12px"></select>
+										<select class="form-control" ng-model="select1Value"  ng-change="zxc1(select1Value)" ng-options="item1.department2 for item1 in selectValue.department2" style="width: 150px;height: 30px;font-size:12px"></select>
 										</label>
                                             </td>
                                         </tr>
