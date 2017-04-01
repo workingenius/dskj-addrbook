@@ -162,19 +162,20 @@ class LocaffInfo(object):
         # contacts
         old_contacts = s.contacts.all()
         old_contacts = {oc.mode.lower(): oc for oc in old_contacts}
-        for cf in self._contact_fields:
-            if not old_contacts.has_key(cf):
-                old_contacts[cf] = None
-        for mode, oc in old_contacts.items():
+        for mode in self._contact_fields:
+            oc = old_contacts.get(mode)
             if oc is None:
-                oc = Contact(staff=s, mode=mode.upper(), value=getattr(self, mode))
-                oc.save()
-            elif not hasattr(self, mode) or getattr(self, mode) is None:
-                oc.delete()
+                if getattr(self, mode) is None:
+                    pass
+                else:
+                    Contact(staff=s, mode=mode.upper(), value=getattr(self, mode)).save()
             else:
-                if getattr(self, mode) != oc.value:
-                    oc.value = getattr(self, mode)
-                    oc.save()
+                if getattr(self, mode) is None:
+                    oc.delete()
+                else:
+                    if getattr(self, mode) != oc.value:
+                        oc.value = getattr(self, mode)
+                        oc.save()
 
     @classmethod
     def get(cls, operate):
@@ -236,9 +237,8 @@ def create(self, validated_data):
 
 def update(self, instance, validated_data):
     fields = tuple(['name', 'depart2'] + map(lambda x: x.key, contacts))
-    fields = tuple(k for k in validated_data.keys() if k in fields)
     for f in fields:
-        setattr(instance, f, validated_data[f])
+        setattr(instance, f, validated_data.get(f))
     instance.save()
     return instance
 
