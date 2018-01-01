@@ -11,6 +11,13 @@ def fmt(x):
         return x
 
 
+def fmt_digits_string(x):
+    if pd.isnull(x):
+        return None
+    else:
+        return unicode(int(x))
+
+
 df = pd.read_excel('assets/SLC3.xlsx', u'最新通讯录')
 for idx, row in df.iterrows():
     r = Record(
@@ -20,8 +27,8 @@ for idx, row in df.iterrows():
         extnum=fmt(row[u'分机号']),
         phone=fmt(row[u'直线']),
         fax=fmt(row[u'传真']),
-        mobile=fmt(row[u'手机']),
-        qq=fmt(row[u'QQ']),
+        mobile=fmt_digits_string(row[u'手机']),
+        qq=fmt_digits_string(row[u'QQ']),
         email=fmt(row[u'邮件地址'])
     )
     r.save()
