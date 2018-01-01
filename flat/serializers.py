@@ -7,5 +7,5 @@ from .models import Record
 class RecordSerializer(ModelSerializer):
     class Meta:
         model = Record
-        fields = ('name', 'depart1', 'depart2', 'extnum',
+        fields = ('id', 'name', 'depart1', 'depart2', 'extnum',
                   'phone', 'fax', 'mobile', 'qq', 'email')
