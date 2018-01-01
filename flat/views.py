@@ -10,9 +10,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework.viewsets import ModelViewSet
 
-from addresslist.models import department_tree
 from flat.xlsx import output
-from .models import Record
+from .models import Record, Department
 from .serializers import RecordSerializer, UserSerializer
 
 
@@ -63,7 +62,7 @@ def export(request):
 
 def main(request):
     def _department_tree():
-        dt = department_tree()
+        dt = Department.department_tree()
 
         def consdt(dt, level):
             head = dt[0]
