@@ -32,7 +32,6 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'flat',
-    'addresslist',
     'rest_framework',
     'django_user_agents',
     'django.contrib.admin',
