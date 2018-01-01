@@ -29,3 +29,6 @@ tmp
 
 # npm packages
 node_modules
+
+# production static files
+/static
