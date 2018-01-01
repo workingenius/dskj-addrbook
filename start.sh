@@ -1,0 +1,1 @@
+nohup uwsgi ./uwsgi.ini &
