@@ -18,7 +18,9 @@ from django.contrib import admin
 from django.conf import settings
 
 urlpatterns = [
-    url(r'^', include('addresslist.urls')),
+    # url(r'^', include('addresslist.urls')),
+    url(r'^', include('flat.urls')),
+    url(r'^auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^admin/', admin.site.urls),
 ]
 
