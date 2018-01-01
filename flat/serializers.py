@@ -1,5 +1,5 @@
 # -*- coding:utf8 -*-
-
+from django.contrib.auth.models import User
 from rest_framework.serializers import ModelSerializer
 from .models import Record
 
@@ -9,3 +9,9 @@ class RecordSerializer(ModelSerializer):
         model = Record
         fields = ('id', 'name', 'depart1', 'depart2', 'extnum',
                   'phone', 'fax', 'mobile', 'qq', 'email')
+
+
+class UserSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', )

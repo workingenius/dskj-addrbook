@@ -1,16 +1,19 @@
 # -*- coding: utf8 -*-
+import json
 import urllib
 from StringIO import StringIO
 
+from django.contrib.auth.models import AnonymousUser
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework.viewsets import ModelViewSet
 
+from addresslist.models import department_tree
 from flat.xlsx import output
 from .models import Record
-from .serializers import RecordSerializer
+from .serializers import RecordSerializer, UserSerializer
 
 
 class RecordViewSet(ModelViewSet):
@@ -56,3 +59,29 @@ def export(request):
                 urllib.quote(filename.encode('utf8')))
 
     return rsp
+
+
+def main(request):
+    def _department_tree():
+        dt = department_tree()
+
+        def consdt(dt, level):
+            head = dt[0]
+            leaves = dt[1:]
+            node = {
+                'department' + str(level): head.name,
+            }
+            infs = [consdt(d, level + 1) for d in leaves]
+            if infs:
+                node['department' + str(level + 1)] = infs
+            return node
+
+        return [consdt(d, 1) for d in dt[1:]]
+
+    if isinstance(request.user, AnonymousUser):
+        ctx = {'user': 'null'}
+    else:
+        u = UserSerializer(request.user).data
+        ctx = {'user': json.dumps(u), 'username': u['username']}
+    ctx['department_tree'] = json.dumps(_department_tree())
+    return render(request, 'flat/main.html', ctx)
