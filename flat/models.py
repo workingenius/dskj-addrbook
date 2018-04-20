@@ -53,3 +53,6 @@ class Department(models.Model):
             return [head] + [construct_tree(d.name) for d in inferiors]
 
         return construct_tree(None)
+
+    def __str__(self):
+        return self.name.encode('utf8')
