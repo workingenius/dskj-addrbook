@@ -13,6 +13,7 @@ class Record(models.Model):
     mobile = models.CharField(max_length=128, null=True)
     qq = models.CharField(max_length=128, null=True)
     email = models.CharField(max_length=128, null=True)
+    staff_num = models.CharField(max_length=128, null=True)
 
 
 class Department(models.Model):
