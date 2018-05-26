@@ -48,6 +48,24 @@
         }
     </style>
     <script type="text/javascript">
+        var m1 = angular.module('MyApp', ['ui.bootstrap', 'ngGrid']);
+
+        m1.config([
+            '$compileProvider',
+            function($compileProvider) {
+                $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|tencent|mailto|tel|file|sms):/);
+                // Angular v1.2 之前使用 $compileProvider.urlSanitizationWhitelist(...)
+            }
+        ]);
+
+        m1.config([
+            '$httpProvider',
+            function($httpProvider) {
+                $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+                $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+            }
+        ]);
+
         var department = (function prepareDepartments() {
             var departments = (
             {% endverbatim %}
@@ -74,22 +92,6 @@
             return departments;
         })();
 
-
-        var m1 = angular.module('MyApp', ['ui.bootstrap', 'ngGrid']);
-        m1.config([
-            '$compileProvider',
-            function($compileProvider) {
-                $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|tencent|mailto|tel|file|sms):/);
-                // Angular v1.2 之前使用 $compileProvider.urlSanitizationWhitelist(...)
-            }
-        ]);
-        m1.config([
-            '$httpProvider',
-            function($httpProvider) {
-                $httpProvider.defaults.xsrfCookieName = 'csrftoken';
-                $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
-            }
-        ]);
         m1.controller('Aaa', ['$scope', '$filter', '$http', '$modal', '$log', function($scope, $filter, $http, $modal, $log) {
                 {% endverbatim %}
                 $scope.user = {{ user | safe }};
@@ -391,18 +393,6 @@
                     var emls = emails.join(';');
                     window.location.href = "Mailto:" + emls;
                 }
-                /*     ----------首页 添加到我的通讯录功能---------------- */
-                $scope.add = function() { // 操作CURD
-                    if (cc[0] === "" || cc.length == 0) { //没有选择一个的时候提示
-                        alert("请选择要添加的名片！")
-                        return;
-                    };
-
-                    /* for(var i=0;i<cc.length;i++){
-                        console.log(cc[i]);//遍历选中的id
-                    } */
-                };
-                /*     ----------首页 添加到我的通讯录功能end---------------- */
 
                 //$scope.items = [ 'angularjs', 'backbone', 'canjs', 'Ember', 'react' ];
                 // open click
@@ -646,10 +636,6 @@
                         <li class="active">
                             <a href="#panel-455321" data-toggle="tab">全部通讯录</a>
                         </li>
-                        <!-- <li>
-                                 <a href="#panel-602750" data-toggle="tab">我的通讯录</a>
-                            </li> -->
-
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane active" id="panel-455321">
@@ -683,9 +669,6 @@
                                 </div>
                             </div>
                             <div style="margin-left: 25px">
-                                <!-- <label class="btn-left">
-                                        <button class="btn btn-sm" ng-click="add()">添加到我的通讯录</button>
-                                    </label> -->
                                 <label class="btn-left">
                                         <button class="btn btn-sm" ng-click="download()">下载</button>
                                     </label>
@@ -702,76 +685,6 @@
                             </div>
                             <div class="col-sm-12" style="height: 60px"></div>
                         </div>
-                        <!--<div class="tab-pane" id="panel-602750">
-                            <div class="col-sm-3" style="height:700px;margin: 30px 0;border-right: 1px #ddd solid;overflow-y: auto">
-                                <div style="margin: 10px 0">
-                                    <a>我的通讯录 </a>
-                                    <div style="display: inline;float: right;">
-                                        <button class="btn btn-info btn-xs">新建分组</button>
-                                    </div>
-                                </div>
-                                <div style="margin: 10px 0">
-                                    <a>&nbsp&nbsp常用通讯录 </a>
-                                    <div style="display: inline;float: right;">
-                                        <button class="btn btn-info btn-xs">编辑</button>
-                                        <button class="btn btn-info btn-xs">删除</button>
-                                    </div>
-                                </div>
-                                <div style="margin: 10px 0">
-                                    <a>&nbsp&nbsp常用通讯录 </a>
-                                    <div style="display: inline;float: right;">
-                                        <button class="btn btn-info btn-xs">编辑</button>
-                                        <button class="btn btn-info btn-xs">删除</button>
-                                    </div>
-                                </div>
-                                
-                            </div>
-                            <div class="col-sm-9">
-                                
-                                <div style="margin-top: 30px;">
-                                    <input type="checkbox"> 
-                                    <label  class="btn-left">
-                                        <button class="btn btn-info btn-sm">移动</button>
-                                    </label>
-                                    <label  class="btn-left">
-                                        <button class="btn btn-info btn-sm">删除</button>
-                                    </label>
-                                    <label  class="btn-left">
-                                        <button class="btn btn-info btn-sm">下载</button>
-                                    </label>
-                                    <label  class="btn-left">
-                                        <button class="btn btn-info btn-sm">发送邮件</button>
-                                    </label>
-                                </div>
-                                <div class="col-sm-12" style="height: 600px;overflow-y: auto">
-                                    <table class="col-sm-12 table table-striped table-bordered">
-                                        <tr>
-                                            <th></th>
-                                            <th>姓名</th>
-                                            <th>部门一</th>
-                                            <th>部门二</th>
-                                            <th>号码</th>
-                                            <th>邮箱</th>
-                                            <th>QQ</th>
-                                            <th>其他</th>
-                                            <th>编辑</th>
-                                        </tr>
-                                        <tr ng-repeat="data in datas track by $index">
-                                            <td><input type="checkbox"></td>
-                                            <td>张三</td>
-                                            <td>部门一</td>
-                                            <td>部门二</td>
-                                            <td>1311111111</td>
-                                            <td>123@123.123</td>
-                                            <td>123123</td>
-                                            <td></td>
-                                            <td>编辑</td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="col-sm-12" style="height: 60px"></div>
-                            </div>-->
                     </div>
                 </div>
             </div>
