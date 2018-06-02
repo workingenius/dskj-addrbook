@@ -655,14 +655,14 @@
                             </div>
                             <div style="margin-left: 25px">
                                 <label class="btn-left">
-                                        <button class="btn btn-sm" ng-click="download()">下载</button>
-                                    </label>
-                                <label class="btn-left">
-                                        <button class="btn btn-sm" ng-click="toEmails()">群发邮件</button>
-                                    </label>
+                                    <button class="btn btn-sm" ng-click="toEmails()">群发邮件</button>
+                                </label>
                                 <label class="btn-left" ng-if="user">
-                                        <button class="btn btn-sm" ng-click="open('add')">添加</button>
-                                    </label>
+                                    <button class="btn btn-sm" ng-click="download()">下载</button>
+                                </label>
+                                <label class="btn-left" ng-if="user">
+                                    <button class="btn btn-sm" ng-click="open('add')">添加</button>
+                                </label>
                             </div>
                             <div class="col-sm-12" style="height: 600px;overflow-y: auto">
                                 {{ selectRow }}
