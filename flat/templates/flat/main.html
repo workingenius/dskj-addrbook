@@ -399,17 +399,11 @@
                 //$scope.items = [ 'angularjs', 'backbone', 'canjs', 'Ember', 'react' ];
                 // open click
                 $scope.open = function(str, id) {
-
                     $scope.departs1 = department;
-                    if (str == "login") {
-                        var sisz = ""
-                    } else {
-                        var sisz = "lg"
-                    }
                     var modalInstance = $modal.open({
                         templateUrl: 'myModelContent.html',
                         controller: 'ModalInstanceCtrl', // specify controller for modal
-                        size: sisz,
+                        size: "lg",
                         backdrop: false,
                         //keyboard:false,
                         resolve: {
@@ -424,7 +418,6 @@
                             }
                         }
                     });
-
 
                     // modal return result
                     modalInstance.result.then(function(string) {
@@ -494,23 +487,6 @@
                     });
                 }
 
-                // ok click
-                $scope.login = function() {
-                    $http({
-                        url: '/login',
-                        method: 'post',
-                        data: {
-                            username: $scope.ctrlScope.username,
-                            password: $scope.ctrlScope.password,
-                        }
-                    }).success(function(data, header, config, status) {
-                        $modalInstance.close(0);
-                    }).error(function(data, header, config, status) {
-                        $scope.m = 1;
-                        $scope.ms = "登录失败！用户名或密码错误!";
-                        //处理响应失败
-                    });
-                }
                 $scope.ok = function() {
                     var b = {};
                     if ($scope.depart2 == null) {
