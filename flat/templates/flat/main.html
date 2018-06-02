@@ -23,8 +23,9 @@
     <script src="/static/js/bootstrap.min.js"></script>
     <script src="/static/js/ng-grid.js"></script>
     <style type="text/css">
-        .btn-left {
-            margin-left: 10px
+
+        .row {
+            margin-bottom: 1.5em;
         }
         
         a {
@@ -74,7 +75,7 @@
             );
 
             departments.unshift({
-                "department1": "全部",
+                "department1": "全部部门",
                 isAll: true
             });
 
@@ -430,7 +431,7 @@
             .controller('ModalInstanceCtrl', function($scope, $http, $modalInstance, str, depart) {
 
                 $scope.ctrlScope = {};
-                if (depart[0].department1 == "全部") {
+                if (depart[0].department1 == "全部部门") {
                     depart.splice(0, 1)
                 }
 
@@ -581,73 +582,89 @@
     <div class="top_r" ng-if="!user"><a href="/auth/login/?next={% url "main" %}">登录</a></div>
     <div class="top_r" ng-if="user">当前用户： {{ username | safe }} &nbsp&nbsp<a href="/auth/logout/?next={% url "main" %}">注销</a></div>
     {% verbatim %}
-    <!-- Fixed navbar -->
     <div class="container theme-showcase" role="main">
-        <div class="col-sm-12" style="margin-bottom: 10px">
+
+        <div class="row">
             <div class="col-sm-12" style="height:60px;line-height: 60px;margin: 5px 0;">
                 <img alt="logo" src="/static/img/logo_aupres.jpg" style="margin-left: 0px;height:45px;margin-top: 13px">
-                <!--  <h3 style="display:inline;float: left;">&nbsp资生堂丽源化妆品有限公司内部电话通讯录</h3>  -->
             </div>
         </div>
-        <div class="col-sm-12" style="height: 20px"></div>
+
+        <div class="row">
+            <div class="col-md-12 column">
+                <ul class="nav nav-tabs">
+                    <li class="active">
+                        <a href="#panel-455321" data-toggle="tab">全部通讯录</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
         <div class="row clearfix">
             <div class="col-md-12 column">
-                <div class="tabbable" id="tabs-800645">
-                    <ul class="nav nav-tabs">
-                        <li class="active">
-                            <a href="#panel-455321" data-toggle="tab">全部通讯录</a>
-                        </li>
-                    </ul>
-                    <div class="tab-content">
-                        <div class="tab-pane active" id="panel-455321">
-                            <div class="col-sm-12" style="margin: 30px 0;margin-bottom: 0">
-                                <div style="display: inline;float: left;height: 60px">
-                                    <table>
-                                        <tr>
-                                            <td>
-                                                <label style="display: inline;line-height: 40px;height: 40px">按部门筛选：</label>
-                                            </td>
-                                            <td>
-                                                <label style="display: inline;float: left">
-                                         <select class="form-control" ng-model="selDepart1"  ng-change="applyFilter();expandSelector(selDepart1);" ng-options="item.department1 for item in departments1" style="width: 150px;height: 30px;font-size:12px"></select>
-                                        </label>
-                                            </td>
-                                            <td ng-show="selDepart1.department2">
-                                                <label style="display: inline;float: left">
-                                        <select class="form-control" ng-model="selDepart2"  ng-change="applyFilter()" ng-options="item1.department2 for item1 in selDepart1.department2" style="width: 150px;height: 30px;font-size:12px"></select>
-                                        </label>
-                                            </td>
-                                        </tr>
-                                    </table>
+
+                <div class="tab-content">
+                    <div class="tab-pane active" id="panel-455321">
+                        <div style="border-color: #ddd;
+                        border-left-width: 1px;
+                        border-right-width: 1px;
+                        border-left-style: solid;
+                        border-right-style: solid"
+                             class="container">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <select style="display: inline-block; width: auto"
+                                            class="form-control"
+                                            ng-model="selDepart1"
+                                            ng-change="applyFilter();expandSelector(selDepart1);"
+                                            ng-options="item.department1 for item in departments1"></select>
+                                    <select style="display: inline-block; width: auto"
+                                            class="form-control"
+                                            ng-model="selDepart2"
+                                            ng-change="applyFilter()"
+                                            ng-show="selDepart1.department2"
+                                            ng-options="item1.department2 for item1 in selDepart1.department2"></select>
+                                    <input style="display: inline-block; width: auto"
+                                           class="form-control"
+                                           type="text"
+                                           ng-model="filterVal"
+                                           ng-keypress="keypressed($event)">
+
+                                    <button style="display: inline-block; width: auto"
+                                            class="btn btn-default"
+                                            type="button"
+                                            ng-click="applyFilter()">
+                                        筛选
+                                    </button>
                                 </div>
-                                <div class="input-group col-sm-2" style="width: 200px;position:relative;top:2px">
-                                    <input type="text" class="form-control" style="height: 30px;" ng-model="filterVal" ng-keypress="keypressed($event)">
-                                    <span class="input-group-btn">
-                                            <button class="btn btn-default" type="button" style="height: 30px;" ng-click="applyFilter()">
-                                                查询
-                                            </button>
-                                        </span>
+
+                                <div style="direction: rtl" class="col-sm-6">
+                                    <button style="display: inline"
+                                            class="btn btn-default"
+                                            ng-click="toEmails()">群发邮件</button>
+                                    <button style="display: inline"
+                                            class="btn btn-default"
+                                            ng-show="user"
+                                            ng-click="download()">下载</button>
+                                    <button style="display: inline"
+                                            class="btn btn-default"
+                                            ng-show="user"
+                                            ng-click="open('add')">添加</button>
                                 </div>
                             </div>
-                            <div style="margin-left: 25px">
-                                <label class="btn-left">
-                                    <button class="btn btn-sm" ng-click="toEmails()">群发邮件</button>
-                                </label>
-                                <label class="btn-left" ng-if="user">
-                                    <button class="btn btn-sm" ng-click="download()">下载</button>
-                                </label>
-                                <label class="btn-left" ng-if="user">
-                                    <button class="btn btn-sm" ng-click="open('add')">添加</button>
-                                </label>
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    {{ selectRow }}
+                                    <div class="table table-striped table-bordered" style="height: 500px;overflow-y: auto" ng-grid="gridOptions"></div>
+                                </div>
                             </div>
-                            <div class="col-sm-12" style="height: 600px;overflow-y: auto">
-                                {{ selectRow }}
-                                <div class="col-sm-12 table table-striped table-bordered" style="height: 500px;overflow-y: auto" ng-grid="gridOptions"></div>
-                            </div>
-                            <div class="col-sm-12" style="height: 60px"></div>
+
                         </div>
+
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
