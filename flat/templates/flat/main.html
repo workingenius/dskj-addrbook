@@ -460,16 +460,10 @@
                         $scope.depart2 = null;
                     };
                 }
-                if (str.str == 'login') {
-                    $scope.ck = 1
-                    $scope.title = "登录"
-                }
                 if (str.str == 'add') {
-                    $scope.ck = 2
                     $scope.title = "添加"
                 }
                 if (str.str == "edit") {
-                    $scope.ck = 2
                     $scope.title = "编辑"
                     $http.get("/staffs/" + str.id).success(function(response) {
                         var dep2 = {}
@@ -499,8 +493,6 @@
                         $scope.depart2 = dep2;
                     });
                 }
-
-
 
                 // ok click
                 $scope.login = function() {
@@ -583,7 +575,7 @@
         <div class="modal-header">
             <h3 class="modal-title">{{title}}</h3>
         </div>
-        <div class="modal-body" ng-if="ck==2">
+        <div class="modal-body">
             <div style="margin: 10px auto;width: 80%">
                 <form action="">
                     <label>姓&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名：</label><input ng-model="ctrlScope.name" class="form-control input" type="text" required /><br>
@@ -604,18 +596,8 @@
                 </form>
             </div>
         </div>
-        <div class="modal-body" ng-if="ck==1">
-            <div style="margin: 10px auto;width: 80%">
-                <form action="">
-                    <label>账号：</label><input class="input" ng-model="username" type="text" required /><br>
-                    <label>密码：</label><input class="input" ng-model="password" type="text" required /><br>
-                </form>
-                <div class="ms" ng-if "m==0">{{ms}}</div>
-            </div>
-        </div>
         <div class="modal-footer">
-            <button ng-if="ck==2" class="btn btn-primary" ng-click="ok()">确认</button>
-            <button ng-if="ck==1" class="btn btn-primary" ng-click="login()">登录</button>
+            <button class="btn btn-primary" ng-click="ok()">确认</button>
             <button class="btn btn-warning" ng-click="cancel()">取消</button>
         </div>
     </script>
