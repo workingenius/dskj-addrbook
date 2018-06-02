@@ -23,7 +23,6 @@
     <script src="/static/js/bootstrap.min.js"></script>
     <script src="/static/js/ng-grid.js"></script>
     <style type="text/css">
-
         .row {
             margin-bottom: 1.5em;
         }
@@ -31,16 +30,12 @@
         a {
             cursor: pointer
         }
-        
-        .top_r {
+
+        /* 整个屏幕右上角 */
+        .top_right {
             position: absolute;
             right: 20px;
             top: 10px;
-        }
-        
-        .ms {
-            color: red;
-            font-size: 10;
         }
         
         .input {
@@ -579,8 +574,8 @@
         </div>
     </script>
     {% endverbatim %}
-    <div class="top_r" ng-if="!user"><a href="/auth/login/?next={% url "main" %}">登录</a></div>
-    <div class="top_r" ng-if="user">当前用户： {{ username | safe }} &nbsp&nbsp<a href="/auth/logout/?next={% url "main" %}">注销</a></div>
+    <div class="top_right" ng-if="!user"><a href="/auth/login/?next={% url "main" %}">登录</a></div>
+    <div class="top_right" ng-if="user">当前用户： {{ username | safe }} &nbsp&nbsp<a href="/auth/logout/?next={% url "main" %}">注销</a></div>
     {% verbatim %}
     <div class="container theme-showcase" role="main">
 
@@ -624,11 +619,13 @@
                                             ng-change="applyFilter()"
                                             ng-show="selDepart1.department2"
                                             ng-options="item1.department2 for item1 in selDepart1.department2"></select>
+                                    <form style="display: inline-block">
                                     <input style="display: inline-block; width: auto"
                                            class="form-control"
                                            type="text"
                                            ng-model="filterVal"
                                            ng-keypress="keypressed($event)">
+                                    </form>
 
                                     <button style="display: inline-block; width: auto"
                                             class="btn btn-default"
