@@ -97,8 +97,10 @@
                 $scope.user = {{ user | safe }};
                 {% verbatim %}
 
+                var columnDefs = []
+
                 if ($scope.user) {
-                    var columnDefs = [{
+                    columnDefs = [{
                             field: 'name',
                             pinned: true,
                             displayName: '姓名',
@@ -133,12 +135,6 @@
                             field: 'mobile',
                             displayName: '手机号码',
                             width: '100px'
-                        },
-                        {
-                            field: 'qq',
-                            displayName: 'QQ',
-                            width: '100px',
-                            cellTemplate: '<a href="tencent://message/?uin={{row.getProperty(\'qq\')}}&amp;Site=b.qq.com&amp;Menu=yes">&nbsp;{{row.getProperty(\'qq\')}}</a>'
                         },
                         {
                             field: 'email',
@@ -153,7 +149,7 @@
                         }
                     ]
                 } else {
-                    var columnDefs = [{
+                    columnDefs = [{
                             field: 'name',
                             pinned: true,
                             displayName: '姓名',
@@ -188,12 +184,6 @@
                             field: 'mobile',
                             displayName: '手机号码',
                             width: '100px'
-                        },
-                        {
-                            field: 'qq',
-                            displayName: 'QQ',
-                            width: '100px',
-                            cellTemplate: ' <a href="tencent://message/?uin={{row.getProperty(\'qq\')}}&amp;Site=b.qq.com&amp;Menu=yes">&nbsp;{{row.getProperty(\'qq\')}}</a>'
                         },
                         {
                             field: 'email',
@@ -433,6 +423,7 @@
                 }
             }])
             .controller('ModalInstanceCtrl', function($scope, $http, $modalInstance, str, depart) {
+
                 $scope.ctrlScope = {};
                 if (depart[0].department1 == "全部") {
                     depart.splice(0, 1)
@@ -472,7 +463,6 @@
                         var dep2 = {}
                         $scope.ctrlScope.name = response.name;
                         $scope.ctrlScope.email = response.email;
-                        $scope.ctrlScope.qq = response.qq;
                         $scope.ctrlScope.phone = response.phone;
                         $scope.ctrlScope.extnum = response.extnum;
                         $scope.ctrlScope.fax = response.fax;
@@ -523,7 +513,6 @@
                             name: $scope.ctrlScope.name,
                             email: $scope.ctrlScope.email,
                             phone: $scope.ctrlScope.phone,
-                            qq: $scope.ctrlScope.qq,
                             extnum: $scope.ctrlScope.extnum,
                             fax: $scope.ctrlScope.fax,
                             mobile: $scope.ctrlScope.mobile,
@@ -535,7 +524,6 @@
                             name: $scope.ctrlScope.name,
                             email: $scope.ctrlScope.email,
                             phone: $scope.ctrlScope.phone,
-                            qq: $scope.ctrlScope.qq,
                             extnum: $scope.ctrlScope.extnum,
                             fax: $scope.ctrlScope.fax,
                             mobile: $scope.ctrlScope.mobile,
@@ -596,7 +584,6 @@
                     <label>直线号码：</label><input class="form-control input" ng-model="ctrlScope.phone" type="text" required /><br>
                     <label>传真号码：</label><input class="form-control input" ng-model="ctrlScope.fax" type="text" required /><br>
                     <label>手机号码：</label><input class="form-control input" ng-model="ctrlScope.mobile" type="text" required /><br>
-                    <label>Q&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q：</label><input class="form-control input" ng-model="ctrlScope.qq" type="text" required /><br>
                     <label>邮&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;箱：</label><input class="form-control input" ng-model="ctrlScope.email" type="text" required /><br>
                 </form>
             </div>
