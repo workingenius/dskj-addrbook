@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 from __future__ import unicode_literals
 
 from django.db import models
@@ -14,6 +15,7 @@ class Record(models.Model):
     qq = models.CharField(max_length=128, null=True)
     email = models.CharField(max_length=128, null=True)
     staff_num = models.CharField(max_length=128, null=True)
+    job = models.CharField(max_length=128, null=True)  # 岗位
 
 
 class Department(models.Model):

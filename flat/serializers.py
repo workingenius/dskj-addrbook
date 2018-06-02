@@ -8,7 +8,7 @@ class RecordSerializer(ModelSerializer):
     class Meta:
         model = Record
         fields = ('id', 'name', 'depart1', 'depart2', 'extnum',
-                  'phone', 'fax', 'mobile', 'qq', 'email', 'staff_num')
+                  'phone', 'fax', 'mobile', 'qq', 'email', 'staff_num', 'job')
 
 
 class UserSerializer(ModelSerializer):

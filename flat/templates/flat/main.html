@@ -103,8 +103,12 @@
                             width: '70px'
                         },
                         {
+                            field: 'job',
+                            displayName: '岗位',
+                            width: '80px'
+                        },
+                        {
                             field: 'staff_num',
-                            pinned: true,
                             displayName: '员工号',
                             width: '100px'
                         },
@@ -158,8 +162,12 @@
                             width: '70px'
                         },
                         {
+                            field: 'job',
+                            displayName: '岗位',
+                            width: '80px'
+                        },
+                        {
                             field: 'staff_num',
-                            pinned: true,
                             displayName: '员工号',
                             width: '100px'
                         },
@@ -457,6 +465,7 @@
                     $http.get("/staffs/" + str.id).success(function(response) {
                         var dep2 = {}
                         $scope.ctrlScope.name = response.name;
+                        $scope.ctrlScope.job = response.job;
                         $scope.ctrlScope.staff_num = response.staff_num;
                         $scope.ctrlScope.email = response.email;
                         $scope.ctrlScope.phone = response.phone;
@@ -488,6 +497,7 @@
                     if ($scope.depart2 == null) {
                         b = {
                             name: $scope.ctrlScope.name,
+                            job: $scope.ctrlScope.job,
                             staff_num: $scope.ctrlScope.staff_num,
                             email: $scope.ctrlScope.email,
                             phone: $scope.ctrlScope.phone,
@@ -500,6 +510,7 @@
                     } else {
                         b = {
                             name: $scope.ctrlScope.name,
+                            job: $scope.ctrlScope.job,
                             staff_num: $scope.ctrlScope.staff_num,
                             email: $scope.ctrlScope.email,
                             phone: $scope.ctrlScope.phone,
@@ -551,6 +562,7 @@
             <div style="margin: 10px auto;width: 80%">
                 <form action="">
                     <label>姓&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名：</label><input ng-model="ctrlScope.name" class="form-control input" type="text" required /><br>
+                    <label>岗&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;位：</label><input ng-model="ctrlScope.job" class="form-control input" type="text" required /><br>
                     <label>员工号：&nbsp;&nbsp;&nbsp;&nbsp;</label><input ng-model="ctrlScope.staff_num" class="form-control input" type="text"><br>
                     <label>部&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;门：</label>
                     <label>
