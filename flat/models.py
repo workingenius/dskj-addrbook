@@ -7,7 +7,7 @@ from django.db import models
 class Record(models.Model):
     name = models.CharField(max_length=32, null=True)
     depart1 = models.CharField(max_length=32, null=True)
-    depart2 = models.CharField(max_length=32, null=True)
+    depart2 = models.CharField(max_length=32, null=True, blank=True)
     extnum = models.CharField(max_length=128, null=True)
     phone = models.CharField(max_length=128, null=True)
     fax = models.CharField(max_length=128, null=True)
@@ -20,7 +20,7 @@ class Record(models.Model):
 
 class Department(models.Model):
     name = models.CharField(max_length=32)
-    superior = models.ForeignKey('self', null=True)
+    superior = models.ForeignKey('self', null=True, blank=True)
     # staffs = models.ManyToManyField(
     #     Staff,
     #     through='Position',
