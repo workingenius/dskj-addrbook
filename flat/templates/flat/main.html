@@ -439,7 +439,18 @@
                 }
 
                 $scope.departs1 = depart;
-                $scope.depart1 = depart[0]
+                $scope.depart1 = depart[0];
+
+                if ($scope.depart1.department2 != null && $scope.depart1.department2.length > 0) {
+                    $scope.departs2 = $scope.depart1.department2;
+                    $scope.depart2 = $scope.departs2[0];
+                    $scope.bool = 1;
+                } else {
+                    $scope.departs2 = [];
+                    $scope.depart2 = null;
+                    $scope.bool = 2;
+                }
+
                 $scope.change2 = function(s) {
                     //alert(s.department2)
                     //alert(JSON.stringify(s))
