@@ -1,4 +1,4 @@
-Django==1.10.1
+Django==1.11.29
 djangorestframework==3.4.7
 et-xmlfile==1.0.1
 jdcal==1.2
